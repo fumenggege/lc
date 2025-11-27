@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>海肠炒饭 - 鲁味风华</title>
+  <!-- 引入外部资源 -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  
+  <!-- Tailwind 配置 -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#A62928',      // 鲁菜主色调：深红色
+            secondary: '#D9B38C',    // 辅助色：暖棕色
+            neutral: '#F5F1E9',      // 中性色：米白色
+            dark: '#3A2E21'          // 深色：深棕色
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            serif: ['"Noto Serif SC"', 'serif']
+          }
+        }
+      }
+    }
+  </script>
+  
+  <!-- 自定义工具类 -->
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .content-auto {
+        content-visibility: auto;
+      }
+      .text-shadow {
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+      }
+      .card-hover {
+        transition: all 0.3s ease;
+      }
+      .card-hover:hover {
+        transform: translateY(-5px);
+      }
+    }
+  </style>
+  
+  <style>
+    /* 全局样式 */
+    html {
+      scroll-behavior: smooth;
+    }
+    
+    /* 菜品详情页样式 */
+    .dish-gallery-img {
+      transition: transform 0.3s ease;
+    }
+    .dish-gallery-img:hover {
+      transform: scale(1.05);
+    }
+    
+    .ingredient-item {
+      transition: all 0.2s ease;
+    }
+    .ingredient-item:hover {
+      background-color: #F5F1E9;
+      transform: translateX(5px);
+    }
+    
+    .process-step {
+      position: relative;
+    }
+    .process-step::before {
+      content: '';
+      position: absolute;
+      left: -30px;
+      top: 8px;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background-color: #A62928;
+    }
+    .process-step::after {
+      content: '';
+      position: absolute;
+      left: -22px;
+      top: 24px;
+      width: 2px;
+      height: calc(100% + 16px);
+      background-color: #D9B38C;
+    }
+    .process-step:last-child::after {
+      display: none;
+    }
+    
+    /* 海肠炒饭特色样式 */
+    .fried-rice-bg {
+      background: linear-gradient(135deg, #f8f5f0 0%, #f0ede8 100%);
+    }
+    
+    .fried-rice-card {
+      background: linear-gradient(to bottom right, #ffffff, #f8f5f0);
+      border: 1px solid rgba(217, 179, 140, 0.3);
+    }
+  </style>
+</head>
+
+<body class="bg-neutral text-dark">
+  <!-- 导航栏 -->
+  <header id="navbar" class="fixed w-full top-0 z-50 transition-all duration-300 bg-white/90 backdrop-blur-sm shadow-sm">
+    <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+      <a href="主界面.html" class="flex items-center space-x-2">
+        <i class="fa fa-cutlery text-primary text-2xl"></i>
+        <span class="text-xl font-serif font-bold text-primary">鲁味风华</span>
+      </a>
+      
+      <!-- 桌面导航 -->
+      <nav class="hidden md:flex items-center space-x-8">
+        <a href="主界面.html" class="font-medium hover:text-primary transition-colors">首页</a>
+        <a href="主界面.html" class="font-medium hover:text-primary transition-colors">关于鲁菜</a>
+        <a href="主界面.html#dishes" class="font-medium hover:text-primary transition-colors">菜品展示</a>
+        <a href="主界面.html#culture" class="font-medium hover:text-primary transition-colors">鲁菜文化</a>
+      </nav>
+      
+      <!-- 移动端菜单按钮 -->
+      <button id="menu-toggle" class="md:hidden text-dark focus:outline-none">
+        <i class="fa fa-bars text-xl"></i>
+      </button>
+    </div>
+    
+    <!-- 移动端导航菜单 -->
+    <div id="mobile-menu" class="hidden md:hidden bg-white shadow-lg absolute w-full">
+      <div class="container mx-auto px-4 py-3 flex flex-col space-y-4">
+        <a href="主界面.html" class="font-medium py-2 hover:text-primary transition-colors">首页</a>
+        <a href="主界面.html" class="font-medium py-2 hover:text-primary transition-colors">关于鲁菜</a>
+        <a href="主界面.html#dishes" class="font-medium py-2 text-primary transition-colors">菜品展示</a>
+        <a href="主界面.html#culture" class="font-medium py-2 hover:text-primary transition-colors">鲁菜文化</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- 菜品详情头部 -->
+  <section class="pt-32 pb-16 bg-white">
+    <div class="container mx-auto px-4">
+      <div class="flex flex-col md:flex-row gap-8 items-start">
+        <!-- 菜品主图 -->
+        <div class="w-full md:w-1/2">
+          <div class="bg-neutral rounded-xl overflow-hidden shadow-lg">
+            <img src="../wy/images/8.jpg" alt="海肠炒饭" class="w-full h-[400px] object-cover">
+          </div>
+          
+          <!-- 菜品图片画廊 -->
+          <div class="grid grid-cols-4 gap-4 mt-4">
+            <div class="rounded-lg overflow-hidden shadow-md cursor-pointer">
+              <img src="../wy/images/8.jpg" alt="海肠炒饭1" class="w-full h-24 object-cover dish-gallery-img">
+            </div>
+            <div class="rounded-lg overflow-hidden shadow-md cursor-pointer">
+              <img src="../wy/images/hc2.jpg" alt="海肠炒饭2" class="w-full h-24 object-cover dish-gallery-img">
+            </div>
+            <div class="rounded-lg overflow-hidden shadow-md cursor-pointer">
+              <img src="../wy/images/hc3.jpg" alt="海肠炒饭3" class="w-full h-24 object-cover dish-gallery-img">
+            </div>
+            <div class="rounded-lg overflow-hidden shadow-md cursor-pointer">
+              <img src="../wy/images/hc4.jpg" alt="海肠炒饭4" class="w-full h-24 object-cover dish-gallery-img">
+            </div>
+          </div>
+        </div>
+        
+        <!-- 菜品信息 -->
+        <div class="w-full md:w-1/2">
+          <div class="flex items-center gap-3 mb-4">
+            <span class="bg-primary/10 text-primary text-xs font-bold px-3 py-1 rounded-full">小吃类</span>
+            <span class="bg-secondary/20 text-dark text-xs font-medium px-3 py-1 rounded-full flex items-center">
+              <i class="fa fa-anchor text-blue-500 mr-1"></i> 胶东特色
+            </span>
+            <span class="bg-secondary/20 text-dark text-xs font-medium px-3 py-1 rounded-full flex items-center">
+              <i class="fa fa-star text-yellow-500 mr-1"></i> 4.6 好评
+            </span>
+          </div>
+          
+          <h1 class="text-[clamp(1.8rem,4vw,2.5rem)] font-serif font-bold text-dark mb-4">海肠炒饭</h1>
+          
+          <p class="text-gray-600 mb-6 leading-relaxed">
+            海肠炒饭是胶东地区的特色海鲜炒饭，以新鲜海肠和米饭为主料，配以鸡蛋、蔬菜等辅料炒制而成。
+            海肠口感鲜脆弹牙，米饭粒粒分明，咸鲜可口，营养丰富。这道菜既保留了海肠的鲜美原味，
+            又融合了炒饭的香醇口感，是胶东沿海地区极具代表性的家常美食，也是宴席上的经典主食。
+          </p>
+          
+          <!-- 菜品基本信息 -->
+          <div class="grid grid-cols-2 gap-6 mb-8">
+            <div class="flex items-center">
+              <i class="fa fa-clock-o text-primary text-xl mr-3"></i>
+              <div>
+                <p class="text-sm text-gray-500">制作时长</p>
+                <p class="font-medium">约20分钟</p>
+              </div>
+            </div>
+            <div class="flex items-center">
+              <i class="fa fa-map-marker text-primary text-xl mr-3"></i>
+              <div>
+                <p class="text-sm text-gray-500">起源地</p>
+                <p class="font-medium">山东胶东</p>
+              </div>
+            </div>
+            <div class="flex items-center">
+              <i class="fa fa-fire text-primary text-xl mr-3"></i>
+              <div>
+                <p class="text-sm text-gray-500">热量</p>
+                <p class="font-medium">320 大卡/份</p>
+              </div>
+            </div>
+            <div class="flex items-center">
+              <i class="fa fa-history text-primary text-xl mr-3"></i>
+              <div>
+                <p class="text-sm text-gray-500">历史渊源</p>
+                <p class="font-medium">清代后期</p>
+              </div>
+            </div>
+          </div>
+          
+          <a href="#process" class="inline-block bg-primary hover:bg-primary/90 text-white font-medium py-3 px-8 rounded-md transition-all transform hover:scale-105 mb-4">
+            查看制作工艺 <i class="fa fa-arrow-right ml-2"></i>
+          </a>
+          <a href="主界面.html" class="inline-block bg-white border border-gray-300 hover:border-primary text-dark font-medium py-3 px-8 rounded-md transition-all ml-4">
+            <i class="fa fa-arrow-left ml-1"></i> 返回菜品列表
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 菜品历史渊源 -->
+  <section class="py-16 fried-rice-bg">
+    <div class="container mx-auto px-4">
+      <div class="max-w-3xl mx-auto">
+        <h2 class="text-[clamp(1.5rem,3vw,2rem)] font-serif font-bold text-dark mb-6 flex items-center">
+          <i class="fa fa-history text-primary mr-3"></i> 历史渊源
+        </h2>
+        <div class="fried-rice-card p-8 rounded-xl shadow-md">
+          <p class="text-gray-600 mb-4 leading-relaxed">
+            海肠炒饭起源于清代后期的山东胶东沿海地区，是当地渔民创造的一道特色美食。
+            胶东半岛三面环海，盛产各种海鲜，其中海肠（学名单环刺螠）是当地特有的海产品，
+            因其口感鲜脆、营养丰富而深受当地人喜爱。
+          </p>
+          <p class="text-gray-600 mb-4 leading-relaxed">
+            最初，海肠炒饭是渔民们在出海归来后，用当天捕获的新鲜海肠和家中剩饭制作的简单餐食。
+            由于海肠处理简单、烹饪快捷，加上炒饭制作方便，这道菜很快在沿海地区流传开来。
+            后来，一些餐馆厨师对这道菜进行了改良，加入了鸡蛋、葱花等配料，
+            使海肠炒饭的口感和味道更加丰富。
+          </p>
+          <p class="text-gray-600 leading-relaxed">
+            20世纪中叶，随着交通条件的改善和餐饮业的发展，海肠炒饭逐渐从胶东沿海走向山东内陆，
+            成为鲁菜中小吃类的代表菜品之一。如今，这道菜不仅在山东各地广受欢迎，
+            还随着鲁菜的传播走向全国，成为海鲜炒饭中的特色佳品。
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 食材准备 -->
+  <section class="py-16 bg-white">
+    <div class="container mx-auto px-4">
+      <h2 class="text-[clamp(1.5rem,3vw,2rem)] font-serif font-bold text-dark mb-10 text-center">
+        食材准备
+      </h2>
+      
+      <div class="grid md:grid-cols-2 gap-10">
+        <!-- 主料 -->
+        <div class="bg-neutral p-8 rounded-xl shadow-md">
+          <h3 class="text-xl font-bold mb-6 flex items-center">
+            <i class="fa fa-cutlery text-primary mr-2"></i> 主料
+          </h3>
+          <ul class="space-y-3">
+            <li class="flex items-center ingredient-item p-2 rounded-lg">
+              <i class="fa fa-check-circle text-primary mr-3"></i>
+              <span>新鲜海肠 200克</span>
+            </li>
+            <li class="flex items-center ingredient-item p-2 rounded-lg">
+              <i class="fa fa-check-circle text-primary mr-3"></i>
+              <span>隔夜米饭 300克</span>
+            </li>
+            <li class="flex items-center ingredient-item p-2 rounded-lg">
+              <i class="fa fa-check-circle text-primary mr-3"></i>
+              <span>鸡蛋 2个</span>
+            </li>
+            <li class="flex items-center ingredient-item p-2 rounded-lg">
+              <i class="fa fa-check-circle text-primary mr-3"></i>
+              <span>大葱 30克</span>
+            </li>
+            <li class="flex items-center ingredient-item p-2 rounded-lg">
+              <i class="fa fa-check-circle text-primary mr-3"></i>
+              <span>青豆 50克</span>
+            </li>
+            <li class="flex items-center ingredient-item p-2 rounded-lg">
+              <i class="fa fa-check-circle text-primary mr-3"></i>
+              <span>胡萝卜 30克</span>
+            </li>
+          </ul>
+        </div>
+        
+        <!-- 调料 -->
+        <div class="bg-neutral p-8 rounded-xl shadow-md">
+          <h3 class="text-xl font-bold mb-6 flex items-center">
+            <i class="fa fa-flask text-primary mr-2"></i> 调料
+          </h3>
+          <ul class="space-y-3">
+            <li class="flex items-center ingredient-item p-2 rounded-lg">
+              <i class="fa fa-check-circle text-primary mr-3"></i>
+              <span>生抽 20毫升</span>
+            </li>
+            <li class="flex items-center ingredient-item p-2 rounded-lg">
+              <i class="fa fa-check-circle text-primary mr-3"></i>
+              <span>料酒 15毫升</span>
+            </li>
+            <li class="flex items-center ingredient-item p-2 rounded-lg">
+              <i class="fa fa-check-circle text-primary mr-3"></i>
+              <span>盐 5克</span>
+            </li>
+            <li class="flex items-center ingredient-item p-2 rounded-lg">
+              <i class="fa fa-check-circle text-primary mr-3"></i>
+              <span>白胡椒粉 3克</span>
+            </li>
+            <li class="flex items-center ingredient-item p-2 rounded-lg">
+              <i class="fa fa-check-circle text-primary mr-3"></i>
+              <span>食用油 适量</span>
+            </li>
+            <li class="flex items-center ingredient-item p-2 rounded-lg">
+              <i class="fa fa-check-circle text-primary mr-3"></i>
+              <span>香油 少许</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 制作工艺 -->
+  <section id="process" class="py-16 fried-rice-bg">
+    <div class="container mx-auto px-4">
+      <h2 class="text-[clamp(1.5rem,3vw,2rem)] font-serif font-bold text-dark mb-10 text-center">
+        制作工艺
+      </h2>
+      
+      <div class="max-w-4xl mx-auto fried-rice-card p-8 md:p-12 rounded-xl shadow-md">
+        <div class="pl-10 space-y-12">
+          <!-- 步骤1 -->
+          <div class="process-step">
+            <h3 class="text-xl font-bold mb-3 flex items-center">
+              <span class="bg-primary text-white w-8 h-8 rounded-full flex items-center justify-center mr-3">1</span>
+              海肠处理
+            </h3>
+            <p class="text-gray-600 leading-relaxed">
+              新鲜海肠用剪刀剪开，去除内脏和杂质，用清水反复冲洗干净。
+              然后将海肠切成1-2厘米长的段，用厨房纸吸干水分备用。
+              处理海肠时要轻柔，避免破坏其脆嫩的口感。
+            </p>
+          </div>
+          
+          <!-- 步骤2 -->
+          <div class="process-step">
+            <h3 class="text-xl font-bold mb-3 flex items-center">
+              <span class="bg-primary text-white w-8 h-8 rounded-full flex items-center justify-center mr-3">2</span>
+              米饭处理
+            </h3>
+            <p class="text-gray-600 leading-relaxed">
+              将隔夜米饭用手抓散，确保米粒分离不粘连。
+              如果米饭较硬，可以适量喷洒少许清水，再用筷子搅散。
+              米饭处理得好是炒饭粒粒分明的关键。
+            </p>
+          </div>
+          
+          <!-- 步骤3 -->
+          <div class="process-step">
+            <h3 class="text-xl font-bold mb-3 flex items-center">
+              <span class="bg-primary text-white w-8 h-8 rounded-full flex items-center justify-center mr-3">3</span>
+              配料准备
+            </h3>
+            <p class="text-gray-600 leading-relaxed">
+              鸡蛋打散，加少许盐调味。大葱切成葱花，胡萝卜切成小丁。
+              青豆如果是冷冻的，需要提前解冻。将所有配料准备好，放在一旁备用。
+            </p>
+          </div>
+          
+          <!-- 步骤4 -->
+          <div class="process-step">
+            <h3 class="text-xl font-bold mb-3 flex items-center">
+              <span class="bg-primary text-white w-8 h-8 rounded-full flex items-center justify-center mr-3">4</span>
+              炒制海肠
+            </h3>
+            <p class="text-gray-600 leading-relaxed">
+              锅中倒入适量食用油，烧热后放入海肠段，快速翻炒至海肠卷曲变色。
+              加入料酒去腥，炒约1分钟后盛出备用。注意不要炒太久，以免海肠变老失去脆嫩口感。
+            </p>
+          </div>
+          
+          <!-- 步骤5 -->
+          <div class="process-step">
+            <h3 class="text-xl font-bold mb-3 flex items-center">
+              <span class="bg-primary text-white w-8 h-8 rounded-full flex items-center justify-center mr-3">5</span>
+              炒饭调味
+            </h3>
+            <p class="text-gray-600 leading-relaxed">
+              锅中再倒入适量食用油，先炒香葱花，然后倒入蛋液炒散。
+              加入胡萝卜丁和青豆翻炒均匀，再放入处理好的米饭，用铲子不断翻炒，
+              使米饭均匀受热。加入生抽、盐、白胡椒粉调味，翻炒均匀。
+            </p>
+          </div>
+          
+          <!-- 步骤6 -->
+          <div class="process-step">
+            <h3 class="text-xl font-bold mb-3 flex items-center">
+              <span class="bg-primary text-white w-8 h-8 rounded-full flex items-center justify-center mr-3">6</span>
+              混合出锅
+            </h3>
+            <p class="text-gray-600 leading-relaxed">
+              将炒好的海肠倒入锅中，与米饭快速翻炒均匀。
+              最后淋入少许香油，翻炒几下即可出锅装盘。
+              海肠炒饭要趁热食用，才能品尝到最佳口感。
+            </p>
+          </div>
+        </div>
+        
+        <!-- 烹饪小贴士 -->
+        <div class="mt-12 bg-primary/5 p-6 rounded-lg border-l-4 border-primary">
+          <h4 class="font-bold text-lg mb-3 flex items-center">
+            <i class="fa fa-lightbulb-o text-primary mr-2"></i> 烹饪小贴士
+          </h4>
+          <ul class="text-gray-600 space-y-2">
+            <li class="flex items-start">
+              <i class="fa fa-angle-right text-primary mt-1 mr-2"></i>
+              <span>选择新鲜海肠是关键，海肠应该色泽鲜亮，有弹性，无异味。</span>
+            </li>
+            <li class="flex items-start">
+              <i class="fa fa-angle-right text-primary mt-1 mr-2"></i>
+              <span>炒饭最好使用隔夜米饭，这样的米饭水分较少，炒出来更加粒粒分明。</span>
+            </li>
+            <li class="flex items-start">
+              <i class="fa fa-angle-right text-primary mt-1 mr-2"></i>
+              <span>海肠不宜久炒，否则会失去脆嫩口感，变得韧硬难嚼。</span>
+            </li>
+            <li class="flex items-start">
+              <i class="fa fa-angle-right text-primary mt-1 mr-2"></i>
+              <span>炒饭时火候要大，动作要快，这样才能炒出香喷喷的炒饭。</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 相关推荐 -->
+  <section class="py-16 bg-white">
+    <div class="container mx-auto px-4">
+      <h2 class="text-[clamp(1.5rem,3vw,2rem)] font-serif font-bold text-dark mb-10 text-center">
+        相关推荐菜品
+      </h2>
+      
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
+        <!-- 推荐菜品1 -->
+        <div class="dish-card bg-neutral rounded-lg overflow-hidden shadow-md">
+          <div class="relative h-48 overflow-hidden">
+            <img src="../wy/images/13.jpg" alt="辣炒蛤蜊" class="w-full h-full object-cover transition-transform duration-500 hover:scale-110">
+            <div class="absolute top-4 right-4 bg-primary text-white text-xs font-bold px-3 py-1 rounded-full">
+              小吃类
+            </div>
+          </div>
+          <div class="p-6">
+            <h3 class="text-xl font-bold mb-2">辣炒蛤蜊</h3>
+            <p class="text-gray-600 text-sm mb-4">
+              胶东沿海家常菜，蛤蜊吐沙干净，鲜辣开胃，下酒神器。
+            </p>
+            <a href="#" class="text-primary font-medium hover:text-primary/80 transition-colors flex items-center">
+              查看详情 <i class="fa fa-angle-right ml-1"></i>
+            </a>
+          </div>
+        </div>
+        
+        <!-- 推荐菜品2 -->
+        <div class="dish-card bg-neutral rounded-lg overflow-hidden shadow-md">
+          <div class="relative h-48 overflow-hidden">
+            <img src="../wy/images/11.jpg" alt="济南把子肉" class="w-full h-full object-cover transition-transform duration-500 hover:scale-110">
+            <div class="absolute top-4 right-4 bg-primary text-white text-xs font-bold px-3 py-1 rounded-full">
+              小吃类
+            </div>
+          </div>
+          <div class="p-6">
+            <h3 class="text-xl font-bold mb-2">济南把子肉</h3>
+            <p class="text-gray-600 text-sm mb-4">
+              济南传统小吃，选用大块五花肉，用酱油炖至酥烂，肥而不腻，酱香浓郁。
+            </p>
+            <a href="#" class="text-primary font-medium hover:text-primary/80 transition-colors flex items-center">
+              查看详情 <i class="fa fa-angle-right ml-1"></i>
+            </a>
+          </div>
+        </div>
+        
+        <!-- 推荐菜品3 -->
+        <div class="dish-card bg-neutral rounded-lg overflow-hidden shadow-md">
+          <div class="relative h-48 overflow-hidden">
+            <img src="../wy/images/15.jpg" alt="鲅鱼饺子" class="w-full h-full object-cover transition-transform duration-500 hover:scale-110">
+            <div class="absolute top-4 right-4 bg-primary text-white text-xs font-bold px-3 py-1 rounded-full">
+              小吃类
+            </div>
+          </div>
+          <div class="p-6">
+            <h3 class="text-xl font-bold mb-2">鲅鱼饺子</h3>
+            <p class="text-gray-600 text-sm mb-4">
+              胶东海鲜饺子代表，鲅鱼馅细腻无刺，鲜香多汁，皮薄馅足。
+            </p>
+            <a href="#" class="text-primary font-medium hover:text-primary/80 transition-colors flex items-center">
+              查看详情 <i class="fa fa-angle-right ml-1"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 页脚 -->
+  <footer class="bg-dark text-white py-12">
+    <div class="container mx-auto px-4">
+      <div class="grid md:grid-cols-4 gap-8">
+        <div>
+          <div class="flex items-center space-x-2 mb-6">
+            <i class="fa fa-cutlery text-secondary text-2xl"></i>
+            <span class="text-xl font-serif font-bold text-secondary">鲁菜传承</span>
+          </div>
+          <p class="text-gray-400 mb-6">
+            传承鲁菜文化，弘扬中华美食，让更多人了解和喜爱鲁菜。
+          </p>
+          <div class="flex space-x-4">
+            <a href="#" class="text-gray-400 hover:text-secondary transition-colors">
+              <i class="fa fa-weixin text-xl"></i>
+            </a>
+            <a href="#" class="text-gray-400 hover:text-secondary transition-colors">
+              <i class="fa fa-weibo text-xl"></i>
+            </a>
+            <a href="#" class="text-gray-400 hover:text-secondary transition-colors">
+              <i class="fa fa-instagram text-xl"></i>
+            </a>
+          </div>
+        </div>
+        
+        <div>
+          <h4 class="text-lg font-bold mb-6 text-secondary">快速链接</h4>
+          <ul class="space-y-3">
+            <li><a href="主界面.html" class="text-gray-400 hover:text-secondary transition-colors">首页</a></li>
+            <li><a href="主界面.html" class="text-gray-400 hover:text-secondary transition-colors">关于鲁菜</a></li>
+            <li><a href="主界面.html#dishes" class="text-gray-400 hover:text-secondary transition-colors">菜品展示</a></li>
+            <li><a href="主界面.html#culture" class="text-gray-400 hover:text-secondary transition-colors">鲁菜文化</a></li>
+          </ul>
+        </div>
+        
+        <div>
+          <h4 class="text-lg font-bold mb-6 text-secondary">特色小吃</h4>
+          <ul class="space-y-3">
+            <li><a href="#" class="text-gray-400 hover:text-secondary transition-colors">海肠炒饭</a></li>
+            <li><a href="#" class="text-gray-400 hover:text-secondary transition-colors">辣炒蛤蜊</a></li>
+            <li><a href="#" class="text-gray-400 hover:text-secondary transition-colors">济南把子肉</a></li>
+            <li><a href="#" class="text-gray-400 hover:text-secondary transition-colors">鲅鱼饺子</a></li>
+          </ul>
+        </div>
+        
+        <div></div>
+      </div>
+      
+      <div class="border-t border-gray-800 mt-10 pt-6 text-center text-gray-500 text-sm">
+        <p>&copy; 2025 鲁味风华 -AI素材库- 保留所有权利</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- 回到顶部按钮 -->
+  <button id="back-to-top" class="fixed bottom-8 right-8 bg-primary text-white w-12 h-12 rounded-full flex items-center justify-center shadow-lg opacity-0 invisible transition-all duration-300 hover:bg-primary/90">
+    <i class="fa fa-arrow-up"></i>
+  </button>
+
+  <script>
+    // 移动端菜单切换
+    const menuToggle = document.getElementById('menu-toggle');
+    const mobileMenu = document.getElementById('mobile-menu');
+    const navbar = document.getElementById('navbar');
+    const backToTop = document.getElementById('back-to-top');
+
+    menuToggle.addEventListener('click', function() {
+      mobileMenu.classList.toggle('hidden');
+      const icon = this.querySelector('i');
+      if (mobileMenu.classList.contains('hidden')) {
+        icon.classList.remove('fa-times');
+        icon.classList.add('fa-bars');
+      } else {
+        icon.classList.remove('fa-bars');
+        icon.classList.add('fa-times');
+      }
+    });
+
+    // 导航栏滚动效果
+    window.addEventListener('scroll', function() {
+      if (window.scrollY > 100) {
+        navbar.classList.add('py-2', 'shadow');
+        navbar.classList.remove('py-3');
+        
+        // 显示回到顶部按钮
+        backToTop.classList.remove('opacity-0', 'invisible');
+        backToTop.classList.add('opacity-100', 'visible');
+      } else {
+        navbar.classList.add('py-3');
+        navbar.classList.remove('py-2', 'shadow');
+        
+        // 隐藏回到顶部按钮
+        backToTop.classList.add('opacity-0', 'invisible');
+        backToTop.classList.remove('opacity-100', 'visible');
+      }
+    });
+
+    // 回到顶部功能
+    backToTop.addEventListener('click', function() {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    });
+
+    // 图片画廊切换
+    const galleryImages = document.querySelectorAll('.dish-gallery-img');
+    const mainImage = document.querySelector('.bg-neutral img');
+    
+    galleryImages.forEach(img => {
+      img.addEventListener('click', function() {
+        mainImage.src = this.src;
+        mainImage.alt = this.alt;
+      });
+    });
+
+    // 点击移动端菜单链接后关闭菜单
+    const mobileLinks = mobileMenu.querySelectorAll('a');
+    mobileLinks.forEach(link => {
+      link.addEventListener('click', function() {
+        mobileMenu.classList.add('hidden');
+        const icon = menuToggle.querySelector('i');
+        icon.classList.remove('fa-times');
+        icon.classList.add('fa-bars');
+      });
+    });
+  </script>
+</body>
+</html>

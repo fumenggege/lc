@@ -1,0 +1,1039 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>糖醋鲤鱼 - 鲁味风华</title>
+  <!-- 引入外部资源 -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  
+  <!-- Tailwind 配置 -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#A62928',      // 鲁菜主色调：深红色
+            secondary: '#D9B38C',    // 辅助色：暖棕色
+            neutral: '#F5F1E9',      // 中性色：米白色
+            dark: '#3A2E21'          // 深色：深棕色
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            serif: ['"Noto Serif SC"', 'serif']
+          }
+        }
+      }
+    }
+  </script>
+  
+  <!-- 自定义工具类 -->
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .content-auto {
+        content-visibility: auto;
+      }
+      .text-shadow {
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+      }
+      .card-hover {
+        transition: all 0.3s ease;
+      }
+      .card-hover:hover {
+        transform: translateY(-5px);
+      }
+    }
+  </style>
+  
+  <style>
+    /* 全局样式 */
+    html {
+      scroll-behavior: smooth;
+    }
+    
+    /* 菜品详情页样式 */
+    .dish-gallery-img {
+      transition: transform 0.3s ease;
+    }
+    .dish-gallery-img:hover {
+      transform: scale(1.05);
+    }
+    
+    .ingredient-item {
+      transition: all 0.2s ease;
+    }
+    .ingredient-item:hover {
+      background-color: #F5F1E9;
+      transform: translateX(5px);
+    }
+    
+    .process-step {
+      position: relative;
+    }
+    .process-step::before {
+      content: '';
+      position: absolute;
+      left: -30px;
+      top: 8px;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background-color: #A62928;
+    }
+    .process-step::after {
+      content: '';
+      position: absolute;
+      left: -22px;
+      top: 24px;
+      width: 2px;
+      height: calc(100% + 16px);
+      background-color: #D9B38C;
+    }
+    .process-step:last-child::after {
+      display: none;
+    }
+
+    /* 翻译按钮与下拉菜单样式 */
+    .translate-btn {
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .translate-btn:hover {
+      transform: scale(1.05);
+    }
+    .translate-btn.loading {
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
+    .translate-btn.loading::after {
+      content: "";
+      width: 16px;
+      height: 16px;
+      border: 2px solid #ffffff;
+      border-top: 2px solid transparent;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    /* 语言下拉菜单 */
+    .lang-dropdown {
+      position: absolute;
+      top: 100%;
+      right: 0;
+      margin-top: 4px;
+      width: 180px;
+      background: white;
+      border-radius: 4px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      z-index: 100;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.2s ease;
+    }
+    .lang-dropdown.show {
+      opacity: 1;
+      visibility: visible;
+    }
+    .lang-option {
+      padding: 12px 16px;
+      cursor: pointer;
+      transition: background 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .lang-option:hover {
+      background: #f5f5f5;
+    }
+    .lang-option.active {
+      color: #A62928;
+      font-weight: 600;
+      background: #f0f8fb;
+    }
+    .lang-flag {
+      width: 24px;
+      height: 24px;
+      border-radius: 4px;
+      object-fit: cover;
+    }
+  </style>
+</head>
+
+<body class="bg-neutral text-dark lang-zh">
+  <!-- 导航栏（统一链接+添加语言切换） -->
+  <header id="navbar" class="fixed w-full top-0 z-50 transition-all duration-300 bg-white/90 backdrop-blur-sm shadow-sm">
+    <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+      <a href="主界面.html#home" class="flex items-center space-x-2">
+        <i class="fa fa-cutlery text-primary text-2xl"></i>
+        <span class="text-xl font-serif font-bold text-primary translate-target" data-translate="brand">鲁味风华</span>
+      </a>
+      
+      <!-- 桌面导航（补全a标签+统一锚点+添加翻译标记） -->
+      <nav class="hidden md:flex items-center space-x-8">
+        <a href="主界面.html#home" class="font-medium hover:text-primary transition-colors translate-target" data-translate="nav-home">首页</a>
+        <a href="主界面.html#about" class="font-medium hover:text-primary transition-colors translate-target" data-translate="nav-about">关于鲁菜</a>
+        <a href="主界面.html#dishes" class="font-medium text-primary transition-colors translate-target" data-translate="nav-dishes">菜品展示</a>
+        <a href="主界面.html#culture" class="font-medium hover:text-primary transition-colors translate-target" data-translate="nav-culture">鲁菜文化</a>
+        <!-- 语言切换下拉菜单 - 国旗使用CDN链接 -->
+        <div class="relative">
+          <button id="lang-btn" class="translate-btn bg-secondary hover:bg-secondary/90 text-white font-medium py-2 px-4 rounded-md">
+            <i class="fa fa-language"></i>
+            <span id="current-lang-text">中文</span>
+            <i class="fa fa-angle-down text-xs"></i>
+          </button>
+          <div id="lang-dropdown" class="lang-dropdown">
+            <div class="lang-option active" data-lang="zh" data-lang-name="中文">
+              <img src="https://flagcdn.com/w40/cn.png" alt="中文" class="lang-flag">
+              <span>中文</span>
+            </div>
+            <div class="lang-option" data-lang="en" data-lang-name="English">
+              <img src="https://flagcdn.com/w40/gb.png" alt="English" class="lang-flag">
+              <span>English</span>
+            </div>
+            <div class="lang-option" data-lang="jp" data-lang-name="日本語">
+              <img src="https://flagcdn.com/w40/jp.png" alt="日本語" class="lang-flag">
+              <span>日本語</span>
+            </div>
+            <div class="lang-option" data-lang="kor" data-lang-name="한국어">
+              <img src="https://flagcdn.com/w40/kr.png" alt="한국어" class="lang-flag">
+              <span>한국어</span>
+            </div>
+            <div class="lang-option" data-lang="fra" data-lang-name="Français">
+              <img src="https://flagcdn.com/w40/fr.png" alt="Français" class="lang-flag">
+              <span>Français</span>
+            </div>
+            <div class="lang-option" data-lang="de" data-lang-name="Deutsch">
+              <img src="https://flagcdn.com/w40/de.png" alt="Deutsch" class="lang-flag">
+              <span>Deutsch</span>
+            </div>
+            <div class="lang-option" data-lang="spa" data-lang-name="Español">
+              <img src="https://flagcdn.com/w40/es.png" alt="Español" class="lang-flag">
+              <span>Español</span>
+            </div>
+            <div class="lang-option" data-lang="ru" data-lang-name="Русский">
+              <img src="https://flagcdn.com/w40/ru.png" alt="Русский" class="lang-flag">
+              <span>Русский</span>
+            </div>
+            <div class="lang-option" data-lang="ara" data-lang-name="العربية">
+              <img src="https://flagcdn.com/w40/sa.png" alt="العربية" class="lang-flag">
+              <span>العربية</span>
+            </div>
+          </div>
+        </div>
+      </nav>
+      
+      <!-- 移动端菜单按钮 -->
+      <button id="menu-toggle" class="md:hidden text-dark focus:outline-none">
+        <i class="fa fa-bars text-xl"></i>
+      </button>
+    </div>
+    
+    <!-- 移动端导航菜单（统一锚点+添加翻译标记） -->
+    <div id="mobile-menu" class="hidden md:hidden bg-white shadow-lg absolute w-full">
+      <div class="container mx-auto px-4 py-3 flex flex-col space-y-4">
+        <a href="主界面.html#home" class="font-medium py-2 hover:text-primary transition-colors translate-target" data-translate="nav-home">首页</a>
+        <a href="主界面.html#about" class="font-medium py-2 hover:text-primary transition-colors translate-target" data-translate="nav-about">关于鲁菜</a>
+        <a href="主界面.html#dishes" class="font-medium py-2 text-primary transition-colors translate-target" data-translate="nav-dishes">菜品展示</a>
+        <a href="主界面.html#culture" class="font-medium py-2 hover:text-primary transition-colors translate-target" data-translate="nav-culture">鲁菜文化</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- 菜品详情头部（添加翻译标记） -->
+  <section class="pt-32 pb-16 bg-white">
+    <div class="container mx-auto px-4">
+      <div class="flex flex-col md:flex-row gap-8 items-start">
+        <!-- 菜品主图 -->
+        <div class="w-full md:w-1/2">
+          <div class="bg-neutral rounded-xl overflow-hidden shadow-lg">
+            <img src="../wy/images/3.jpg" alt="糖醋鲤鱼" class="w-full h-[400px] object-cover translate-target" data-translate="dish-name">
+          </div>
+          
+          <!-- 菜品图片画廊（添加翻译标记） -->
+          <div class="grid grid-cols-4 gap-4 mt-4">
+            <div class="rounded-lg overflow-hidden shadow-md cursor-pointer">
+              <img src="../wy/images/3.jpg" alt="糖醋鲤鱼1" class="w-full h-24 object-cover dish-gallery-img translate-target" data-translate="dish-img1">
+            </div>
+            <div class="rounded-lg overflow-hidden shadow-md cursor-pointer">
+              <img src="../wy/images/liy2.jpg" alt="糖醋鲤鱼2" class="w-full h-24 object-cover dish-gallery-img translate-target" data-translate="dish-img2">
+            </div>
+            <div class="rounded-lg overflow-hidden shadow-md cursor-pointer">
+              <img src="../wy/images/liy3.jpg" alt="糖醋鲤鱼3" class="w-full h-24 object-cover dish-gallery-img translate-target" data-translate="dish-img3">
+            </div>
+            <div class="rounded-lg overflow-hidden shadow-md cursor-pointer">
+              <img src="../wy/images/liy1.jpg" alt="糖醋鲤鱼4" class="w-full h-24 object-cover dish-gallery-img translate-target" data-translate="dish-img4">
+            </div>
+          </div>
+        </div>
+        
+        <!-- 菜品信息（添加翻译标记） -->
+        <div class="w-full md:w-1/2">
+          <div class="flex items-center gap-3 mb-4">
+            <span class="bg-primary/10 text-primary text-xs font-bold px-3 py-1 rounded-full translate-target" data-translate="category-classic">经典鲁菜</span>
+            <span class="bg-secondary/20 text-dark text-xs font-medium px-3 py-1 rounded-full flex items-center translate-target" data-translate="rating">
+              <i class="fa fa-star text-yellow-500 mr-1"></i> 4.9 好评
+            </span>
+          </div>
+          
+          <h1 class="text-[clamp(1.8rem,4vw,2.5rem)] font-serif font-bold text-dark mb-4 translate-target" data-translate="dish-name">糖醋鲤鱼</h1>
+          
+          <p class="text-gray-600 mb-6 leading-relaxed translate-target" data-translate="dish-desc">
+            糖醋鲤鱼是鲁菜中极具代表性的宴席名菜，以黄河鲤鱼为原料，经精细改刀、挂糊油炸、糖醋收汁等工序制成。
+            菜品造型逼真如"跃龙门"，色泽金黄油亮，外皮酥脆爽口，肉质鲜嫩多汁，酸甜适口的汤汁裹满鱼身，
+            既有酸甜的开胃口感，又保留了鱼肉的本鲜，寓意"年年有余"，是节庆宴席中不可或缺的吉祥菜品。
+          </p>
+          
+          <!-- 菜品基本信息（添加翻译标记） -->
+          <div class="grid grid-cols-2 gap-6 mb-8">
+            <div class="flex items-center">
+              <i class="fa fa-clock-o text-primary text-xl mr-3"></i>
+              <div>
+                <p class="text-sm text-gray-500 translate-target" data-translate="cooking-time">制作时长</p>
+                <p class="font-medium translate-target" data-translate="cooking-time-value">约70分钟</p>
+              </div>
+            </div>
+            <div class="flex items-center">
+              <i class="fa fa-map-marker text-primary text-xl mr-3"></i>
+              <div>
+                <p class="text-sm text-gray-500 translate-target" data-translate="origin">起源地</p>
+                <p class="font-medium translate-target" data-translate="origin-value">山东济南</p>
+              </div>
+            </div>
+            <div class="flex items-center">
+              <i class="fa fa-fire text-primary text-xl mr-3"></i>
+              <div>
+                <p class="text-sm text-gray-500 translate-target" data-translate="calories">热量</p>
+                <p class="font-medium translate-target" data-translate="calories-value">320 大卡/份</p>
+              </div>
+            </div>
+            <div class="flex items-center">
+              <i class="fa fa-history text-primary text-xl mr-3"></i>
+              <div>
+                <p class="text-sm text-gray-500 translate-target" data-translate="history-origin">历史渊源</p>
+                <p class="font-medium translate-target" data-translate="history-origin-value">清代乾隆年间</p>
+              </div>
+            </div>
+          </div>
+          
+          <a href="#process" class="inline-block bg-primary hover:bg-primary/90 text-white font-medium py-3 px-8 rounded-md transition-all transform hover:scale-105 mb-4 translate-target" data-translate="view-process">
+            查看制作工艺 <i class="fa fa-arrow-right ml-2"></i>
+          </a>
+          <!-- 修正返回菜品列表链接：指向主界面.html#dishes -->
+          <a href="主界面.html#dishes" class="inline-block bg-white border border-gray-300 hover:border-primary text-dark font-medium py-3 px-8 rounded-md transition-all ml-4 translate-target" data-translate="back-to-list">
+            <i class="fa fa-arrow-left ml-1"></i> 返回菜品列表
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 菜品历史渊源（添加翻译标记） -->
+  <section class="py-16 bg-neutral">
+    <div class="container mx-auto px-4">
+      <div class="max-w-3xl mx-auto">
+        <h2 class="text-[clamp(1.5rem,3vw,2rem)] font-serif font-bold text-dark mb-6 flex items-center translate-target" data-translate="history-title">
+          <i class="fa fa-history text-primary mr-3"></i> 历史渊源
+        </h2>
+        <div class="bg-white p-8 rounded-xl shadow-md">
+          <p class="text-gray-600 mb-4 leading-relaxed translate-target" data-translate="history-paragraph1">
+            糖醋鲤鱼起源于清代乾隆年间的山东济南，黄河流经山东段盛产优质鲤鱼，肉质鲜嫩、体型肥硕，为这道菜提供了绝佳原料。
+            相传，乾隆皇帝南巡途经济南时，品尝了当地厨师制作的糖醋鲤鱼，龙颜大悦，赞不绝口，御笔亲题"糖醋鲤鱼甲天下"，
+            从此这道菜声名远播，成为鲁菜中的经典宴席名菜。
+          </p>
+          <p class="text-gray-600 mb-4 leading-relaxed translate-target" data-translate="history-paragraph2">
+            糖醋鲤鱼的造型设计极具寓意，厨师将鱼身改刀后油炸，使其昂首翘尾、形似跃龙门，象征"步步高升、吉祥如意"，
+            因此成为节庆、婚宴等重要场合的必备菜品。清末民初，济南"丰泽园"、"汇泉楼"等名店对其制作工艺进行优化，
+            完善了糖醋汁的配比和油炸火候的控制，使菜品口感更趋完美。
+          </p>
+          <p class="text-gray-600 leading-relaxed translate-target" data-translate="history-paragraph3">
+            如今，糖醋鲤鱼不仅是鲁菜的标志性菜品，更是中国宴席文化的重要代表。其制作工艺被列入山东省非物质文化遗产名录，
+            多次亮相国家级宴席和国际美食节，成为向世界展示鲁菜魅力和中华饮食文化的重要载体。
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 食材准备（添加翻译标记） -->
+  <section class="py-16 bg-white">
+    <div class="container mx-auto px-4">
+      <h2 class="text-[clamp(1.5rem,3vw,2rem)] font-serif font-bold text-dark mb-10 text-center translate-target" data-translate="ingredients-title">
+        食材准备
+      </h2>
+      
+      <div class="grid md:grid-cols-2 gap-10">
+        <!-- 主料 -->
+        <div class="bg-neutral p-8 rounded-xl shadow-md">
+          <h3 class="text-xl font-bold mb-6 flex items-center translate-target" data-translate="main-ingredients">
+            <i class="fa fa-cutlery text-primary mr-2"></i> 主料
+          </h3>
+          <ul class="space-y-3">
+            <li class="flex items-center ingredient-item p-2 rounded-lg translate-target" data-translate="ingredient-main1">
+              <i class="fa fa-check-circle text-primary mr-3"></i>
+              <span>黄河鲤鱼 1条（约1000-1200克）</span>
+            </li>
+            <li class="flex items-center ingredient-item p-2 rounded-lg translate-target" data-translate="ingredient-main2">
+              <i class="fa fa-check-circle text-primary mr-3"></i>
+              <span>章丘大葱 150克</span>
+            </li>
+            <li class="flex items-center ingredient-item p-2 rounded-lg translate-target" data-translate="ingredient-main3">
+              <i class="fa fa-check-circle text-primary mr-3"></i>
+              <span>生姜 50克</span>
+            </li>
+            <li class="flex items-center ingredient-item p-2 rounded-lg translate-target" data-translate="ingredient-main4">
+              <i class="fa fa-check-circle text-primary mr-3"></i>
+              <span>大蒜 30克</span>
+            </li>
+            <li class="flex items-center ingredient-item p-2 rounded-lg translate-target" data-translate="ingredient-main5">
+              <i class="fa fa-check-circle text-primary mr-3"></i>
+              <span>鸡蛋 1个</span>
+            </li>
+          </ul>
+        </div>
+        
+        <!-- 调料 -->
+        <div class="bg-neutral p-8 rounded-xl shadow-md">
+          <h3 class="text-xl font-bold mb-6 flex items-center translate-target" data-translate="seasonings">
+            <i class="fa fa-flask text-primary mr-2"></i> 调料
+          </h3>
+          <ul class="space-y-3">
+            <li class="flex items-center ingredient-item p-2 rounded-lg translate-target" data-translate="ingredient-seasoning1">
+              <i class="fa fa-check-circle text-primary mr-3"></i>
+              <span>白糖 100克</span>
+            </li>
+            <li class="flex items-center ingredient-item p-2 rounded-lg translate-target" data-translate="ingredient-seasoning2">
+              <i class="fa fa-check-circle text-primary mr-3"></i>
+              <span>陈醋 80毫升（优选山西老陈醋）</span>
+            </li>
+            <li class="flex items-center ingredient-item p-2 rounded-lg translate-target" data-translate="ingredient-seasoning3">
+              <i class="fa fa-check-circle text-primary mr-3"></i>
+              <span>生抽 30毫升</span>
+            </li>
+            <li class="flex items-center ingredient-item p-2 rounded-lg translate-target" data-translate="ingredient-seasoning4">
+              <i class="fa fa-check-circle text-primary mr-3"></i>
+              <span>料酒 50毫升</span>
+            </li>
+            <li class="flex items-center ingredient-item p-2 rounded-lg translate-target" data-translate="ingredient-seasoning5">
+              <i class="fa fa-check-circle text-primary mr-3"></i>
+              <span>玉米淀粉 100克</span>
+            </li>
+            <li class="flex items-center ingredient-item p-2 rounded-lg translate-target" data-translate="ingredient-seasoning6">
+              <i class="fa fa-check-circle text-primary mr-3"></i>
+              <span>面粉 50克</span>
+            </li>
+            <li class="flex items-center ingredient-item p-2 rounded-lg translate-target" data-translate="ingredient-seasoning7">
+              <i class="fa fa-check-circle text-primary mr-3"></i>
+              <span>花生油 适量（油炸用）</span>
+            </li>
+            <li class="flex items-center ingredient-item p-2 rounded-lg translate-target" data-translate="ingredient-seasoning8">
+              <i class="fa fa-check-circle text-primary mr-3"></i>
+              <span>清水 150毫升</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 制作工艺（添加翻译标记） -->
+  <section id="process" class="py-16 bg-neutral">
+    <div class="container mx-auto px-4">
+      <h2 class="text-[clamp(1.5rem,3vw,2rem)] font-serif font-bold text-dark mb-10 text-center translate-target" data-translate="cooking-process">
+        制作工艺
+      </h2>
+      
+      <div class="max-w-4xl mx-auto bg-white p-8 md:p-12 rounded-xl shadow-md">
+        <div class="pl-10 space-y-12">
+          <!-- 步骤1 -->
+          <div class="process-step">
+            <h3 class="text-xl font-bold mb-3 flex items-center translate-target" data-translate="process-step1-title">
+              <span class="bg-primary text-white w-8 h-8 rounded-full flex items-center justify-center mr-3">1</span>
+              处理鲤鱼
+            </h3>
+            <p class="text-gray-600 leading-relaxed translate-target" data-translate="process-step1-desc">
+              鲤鱼去鳞、去鳃、去内脏及黑膜，洗净后用厨房纸吸干表面水分。从鱼背两侧斜刀切入（不要切断鱼骨），
+              每间隔1.5厘米切一刀，切至鱼腹处停止，形成均匀的花刀（便于入味和造型）。
+              用剪刀剪去鱼鳍和鱼尾尖端，在鱼身两侧各划3-4道斜刀，深度至鱼骨。
+            </p>
+          </div>
+          
+          <!-- 步骤2 -->
+          <div class="process-step">
+            <h3 class="text-xl font-bold mb-3 flex items-center translate-target" data-translate="process-step2-title">
+              <span class="bg-primary text-white w-8 h-8 rounded-full flex items-center justify-center mr-3">2</span>
+              腌制入味
+            </h3>
+            <p class="text-gray-600 leading-relaxed translate-target" data-translate="process-step2-desc">
+              鱼身内外均匀涂抹盐（少许）和料酒，放入葱段、姜片、蒜末，腌制20分钟去腥增香。
+              腌制期间每隔10分钟翻动一次，确保鱼肉充分吸收调料味道。腌制完成后，拣去葱姜蒜，用厨房纸吸干鱼身表面水分。
+            </p>
+          </div>
+          
+          <!-- 步骤3 -->
+          <div class="process-step">
+            <h3 class="text-xl font-bold mb-3 flex items-center translate-target" data-translate="process-step3-title">
+              <span class="bg-primary text-white w-8 h-8 rounded-full flex items-center justify-center mr-3">3</span>
+              挂糊准备
+            </h3>
+            <p class="text-gray-600 leading-relaxed translate-target" data-translate="process-step3-desc">
+              取一个大碗，放入玉米淀粉、面粉，打入鸡蛋，加入30毫升清水，搅拌均匀，制成稠稀适中的糊（以能挂在鱼身上不滴落为宜）。
+              将糊均匀涂抹在鱼身内外及花刀缝隙中，确保每个部位都裹满糊，静置10分钟让糊充分吸附。
+            </p>
+          </div>
+          
+          <!-- 步骤4 -->
+          <div class="process-step">
+            <h3 class="text-xl font-bold mb-3 flex items-center translate-target" data-translate="process-step4-title">
+              <span class="bg-primary text-white w-8 h-8 rounded-full flex items-center justify-center mr-3">4</span>
+              油炸定型
+            </h3>
+            <p class="text-gray-600 leading-relaxed translate-target" data-translate="process-step4-desc">
+              锅中倒入足量花生油，烧至七成热（约190℃），用手提起鱼尾，让鱼身弯曲成"跃龙门"造型，
+              先将鱼身放入油中炸30秒定型，再慢慢将整条鱼放入锅中，转中火炸5-6分钟，至鱼身金黄酥脆时捞出，沥干油分。
+              若追求更酥脆的口感，可将炸好的鱼再次放入八成热的油中复炸1分钟，捞出控油后放入盘中摆好造型。
+            </p>
+          </div>
+          
+          <!-- 步骤5 -->
+          <div class="process-step">
+            <h3 class="text-xl font-bold mb-3 flex items-center translate-target" data-translate="process-step5-title">
+              <span class="bg-primary text-white w-8 h-8 rounded-full flex items-center justify-center mr-3">5</span>
+              调制糖醋汁
+            </h3>
+            <p class="text-gray-600 leading-relaxed translate-target" data-translate="process-step5-desc">
+              锅中留少许底油，放入剩余的葱段、姜片、蒜末炒出香味，加入白糖、生抽、陈醋、清水，大火烧开后转小火煮3分钟，
+              让调料充分融合。取少量淀粉加清水调成水淀粉，分次加入锅中，边加边搅拌，至汤汁浓稠、呈琥珀色时关火。
+            </p>
+          </div>
+          
+          <!-- 步骤6 -->
+          <div class="process-step">
+            <h3 class="text-xl font-bold mb-3 flex items-center translate-target" data-translate="process-step6-title">
+              <span class="bg-primary text-white w-8 h-8 rounded-full flex items-center justify-center mr-3">6</span>
+              收汁裹汁
+            </h3>
+            <p class="text-gray-600 leading-relaxed translate-target" data-translate="process-step6-desc">
+              将熬好的糖醋汁均匀浇在炸好的鱼身上，确保每一处都裹满汤汁。
+              可将鱼放入锅中快速翻炒均匀（或用勺子反复浇淋），让汤汁更好地吸附在鱼身上，最后撒上葱花点缀，即可装盘上桌。
+            </p>
+          </div>
+        </div>
+        
+        <!-- 烹饪小贴士（添加翻译标记） -->
+        <div class="mt-12 bg-primary/5 p-6 rounded-lg border-l-4 border-primary">
+          <h4 class="font-bold text-lg mb-3 flex items-center translate-target" data-translate="cooking-tips">
+            <i class="fa fa-lightbulb-o text-primary mr-2"></i> 烹饪小贴士
+          </h4>
+          <ul class="text-gray-600 space-y-2">
+            <li class="flex items-start translate-target" data-translate="tip1">
+              <i class="fa fa-angle-right text-primary mt-1 mr-2"></i>
+              <span>鱼的选择：优选黄河鲤鱼，肉质鲜嫩、体型修长，便于改刀造型；若没有黄河鲤鱼，也可选用草鱼、鲈鱼替代，但口感稍逊。</span>
+            </li>
+            <li class="flex items-start translate-target" data-translate="tip2">
+              <i class="fa fa-angle-right text-primary mt-1 mr-2"></i>
+              <span>改刀技巧：花刀深度至鱼骨但不切断，间距均匀，这样既便于入味，又能让鱼炸后形成美观的造型。</span>
+            </li>
+            <li class="flex items-start translate-target" data-translate="tip3">
+              <i class="fa fa-angle-right text-primary mt-1 mr-2"></i>
+              <span>糖醋比例：白糖与陈醋的比例建议为5:4，可根据个人口味调整；喜欢偏甜可增加白糖，喜欢酸香可增加陈醋。</span>
+            </li>
+            <li class="flex items-start translate-target" data-translate="tip4">
+              <i class="fa fa-angle-right text-primary mt-1 mr-2"></i>
+              <span>油炸火候：第一次炸用中火定型，复炸用高温脆化，这样能保证外皮酥脆、内里鲜嫩，避免外焦里生。</span>
+            </li>
+            <li class="flex items-start translate-target" data-translate="tip5">
+              <i class="fa fa-angle-right text-primary mt-1 mr-2"></i>
+              <span>裹汁时机：糖醋汁熬好后立即浇在热鱼上，利用鱼的余温让汤汁更好地吸附，口感更浓郁；避免鱼凉后再裹汁，影响酥脆度。</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 相关推荐菜品（添加翻译标记+补全链接） -->
+  <section class="py-16 bg-white">
+    <div class="container mx-auto px-4">
+      <h2 class="text-[clamp(1.5rem,3vw,2rem)] font-serif font-bold text-dark mb-10 text-center translate-target" data-translate="related-dishes">
+        相关推荐菜品
+      </h2>
+      
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
+        <!-- 推荐菜品1 -->
+        <div class="dish-card bg-neutral rounded-lg overflow-hidden shadow-md">
+          <div class="relative h-48 overflow-hidden">
+            <img src="../wy/images/红焖牛肉2.jpg" alt="红焖牛肉" class="w-full h-full object-cover transition-transform duration-500 hover:scale-110 translate-target" data-translate="related-dish1-name">
+            <div class="absolute top-4 right-4 bg-primary text-white text-xs font-bold px-3 py-1 rounded-full translate-target" data-translate="category-classic">
+              经典鲁菜
+            </div>
+          </div>
+          <div class="p-6">
+            <h3 class="text-xl font-bold mb-2 translate-target" data-translate="related-dish1-name">红焖牛肉</h3>
+            <p class="text-gray-600 text-sm mb-4 translate-target" data-translate="related-dish1-desc">
+              鲁菜经典硬菜，选用带筋牛腩，经焯水、煸炒后小火慢焖。肉质酥烂不柴，酱汁浓郁红亮，咸香醇厚，配饭绝佳。
+            </p>
+            <a href="红焖牛肉.html" class="text-primary font-medium hover:text-primary/80 transition-colors flex items-center translate-target" data-translate="view-details">
+              查看详情 <i class="fa fa-angle-right ml-1"></i>
+            </a>
+          </div>
+        </div>
+        
+        <!-- 推荐菜品2 -->
+        <div class="dish-card bg-neutral rounded-lg overflow-hidden shadow-md">
+          <div class="relative h-48 overflow-hidden">
+            <img src="../wy/images/hs2.jpg" alt="葱烧海参" class="w-full h-full object-cover transition-transform duration-500 hover:scale-110 translate-target" data-translate="related-dish2-name">
+            <div class="absolute top-4 right-4 bg-primary text-white text-xs font-bold px-3 py-1 rounded-full translate-target" data-translate="category-classic">
+              经典鲁菜
+            </div>
+          </div>
+          <div class="p-6">
+            <h3 class="text-xl font-bold mb-2 translate-target" data-translate="related-dish2-name">葱烧海参</h3>
+            <p class="text-gray-600 text-sm mb-4 translate-target" data-translate="related-dish2-desc">
+              鲁菜"海八珍"代表，海参软糯弹牙，葱段香甜浓郁，汤汁醇厚挂味，咸鲜适口。
+            </p>
+            <a href="葱烧海参.html" class="text-primary font-medium hover:text-primary/80 transition-colors flex items-center translate-target" data-translate="view-details">
+              查看详情 <i class="fa fa-angle-right ml-1"></i>
+            </a>
+          </div>
+        </div>
+        
+        <!-- 推荐菜品3 -->
+        <div class="dish-card bg-neutral rounded-lg overflow-hidden shadow-md">
+          <div class="relative h-48 overflow-hidden">
+            <img src="../wy/images/12.jpg" alt="四喜丸子" class="w-full h-full object-cover transition-transform duration-500 hover:scale-110 translate-target" data-translate="related-dish3-name">
+            <div class="absolute top-4 right-4 bg-primary text-white text-xs font-bold px-3 py-1 rounded-full translate-target" data-translate="category-classic">
+              经典鲁菜
+            </div>
+          </div>
+          <div class="p-6">
+            <h3 class="text-xl font-bold mb-2 translate-target" data-translate="related-dish3-name">四喜丸子</h3>
+            <p class="text-gray-600 text-sm mb-4 translate-target" data-translate="related-dish3-desc">
+              鲁菜经典名菜，四个大肉丸组成，寓意喜庆吉祥，肉质鲜嫩，味道醇厚。
+            </p>
+            <a href="四喜丸子.html" class="text-primary font-medium hover:text-primary/80 transition-colors flex items-center translate-target" data-translate="view-details">
+              查看详情 <i class="fa fa-angle-right ml-1"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 页脚（统一链接+添加翻译标记） -->
+  <footer class="bg-dark text-white py-12">
+    <div class="container mx-auto px-4">
+      <div class="grid md:grid-cols-4 gap-8">
+        <div>
+          <div class="flex items-center space-x-2 mb-6">
+            <i class="fa fa-cutlery text-secondary text-2xl"></i>
+            <span class="text-xl font-serif font-bold text-secondary translate-target" data-translate="footer-brand">鲁菜传承</span>
+          </div>
+          <p class="text-gray-400 mb-6 translate-target" data-translate="footer-desc">
+            传承鲁菜文化，弘扬中华美食，让更多人了解和喜爱鲁菜。
+          </p>
+          <div class="flex space-x-4">
+            <a href="#" class="text-gray-400 hover:text-secondary transition-colors" aria-label="微信">
+              <i class="fa fa-weixin text-xl"></i>
+            </a>
+            <a href="#" class="text-gray-400 hover:text-secondary transition-colors" aria-label="微博">
+              <i class="fa fa-weibo text-xl"></i>
+            </a>
+            <a href="#" class="text-gray-400 hover:text-secondary transition-colors" aria-label="Instagram">
+              <i class="fa fa-instagram text-xl"></i>
+            </a>
+          </div>
+        </div>
+        
+        <div>
+          <h4 class="text-lg font-bold mb-6 text-secondary translate-target" data-translate="quick-links">快速链接</h4>
+          <ul class="space-y-3">
+            <li><a href="主界面.html#home" class="text-gray-400 hover:text-secondary transition-colors translate-target" data-translate="nav-home">首页</a></li>
+            <li><a href="主界面.html#about" class="text-gray-400 hover:text-secondary transition-colors translate-target" data-translate="nav-about">关于鲁菜</a></li>
+            <li><a href="主界面.html#dishes" class="text-gray-400 hover:text-secondary transition-colors translate-target" data-translate="nav-dishes">菜品展示</a></li>
+            <li><a href="主界面.html#culture" class="text-gray-400 hover:text-secondary transition-colors translate-target" data-translate="nav-culture">鲁菜文化</a></li>
+          </ul>
+        </div>
+        
+        <div>
+          <h4 class="text-lg font-bold mb-6 text-secondary translate-target" data-translate="classic-dishes">经典菜品</h4>
+          <ul class="space-y-3">
+            <li><a href="红焖牛肉.html" class="text-gray-400 hover:text-secondary transition-colors translate-target" data-translate="related-dish1-name">红焖牛肉</a></li>
+            <li><a href="葱烧海参.html" class="text-gray-400 hover:text-secondary transition-colors translate-target" data-translate="related-dish2-name">葱烧海参</a></li>
+            <li><a href="糖醋鲤鱼.html" class="text-gray-400 hover:text-secondary transition-colors translate-target" data-translate="dish-name">糖醋鲤鱼</a></li>
+            <li><a href="德州扒鸡.html" class="text-gray-400 hover:text-secondary transition-colors translate-target" data-translate="related-dish4-name">德州扒鸡</a></li>
+          </ul>
+        </div>
+        
+        <div></div>
+      </div>
+      
+      <div class="border-t border-gray-800 mt-10 pt-6 text-center text-gray-500 text-sm translate-target" data-translate="copyright">
+        <p>&copy; 2025 鲁味风华 - AI素材库 - 保留所有权利</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- 回到顶部按钮 -->
+  <button id="back-to-top" class="fixed bottom-8 right-8 bg-primary text-white w-12 h-12 rounded-full flex items-center justify-center shadow-lg opacity-0 invisible transition-all duration-300 hover:bg-primary/90">
+    <i class="fa fa-arrow-up"></i>
+  </button>
+
+  <script>
+    // ========================== 翻译核心配置 ==========================
+    // 页面标题多语言映射
+    const PAGE_TITLES = {
+      zh: "糖醋鲤鱼 - 鲁味风华",
+      en: "Sweet and Sour Carp - Shandong Cuisine Elegance",
+      jp: "甘酢コイ - 魯菜風華",
+      kor: "간장거울 잉어 - 루채 풍화",
+      fra: "Carpe à la Sauce Aigre-Douce - Élégance de la Cuisine Lu",
+      de: "Süß-Saures Karpfenfilet - Eleganz der Lu-Küche",
+      spa: "Carpa Agria Dulce - Elegancia de la Cocina Lu",
+      ru: "Карп в кисло-сладком соусе - Элегантность кухни Лу",
+      ara: "الكارب في الصلصة الحمضية الحلوة - أناقة مطبخ لو"
+    };
+    
+    // 百度翻译语言代码映射
+    const LANG_CODE_MAP = {
+      zh: "zh",    // 中文
+      en: "en",    // 英语
+      jp: "jp",    // 日语
+      kor: "kor",  // 韩语
+      fra: "fra",  // 法语
+      de: "de",    // 德语
+      spa: "spa",  // 西班牙语
+      ru: "ru",    // 俄语
+      ara: "ara"   // 阿拉伯语
+    };
+    
+    // 语言显示名称映射
+    const LANG_NAME_MAP = {
+      zh: "中文",
+      en: "English",
+      jp: "日本語",
+      kor: "한국어",
+      fra: "Français",
+      de: "Deutsch",
+      spa: "Español",
+      ru: "Русский",
+      ara: "العربية"
+    };
+    
+    // 翻译状态管理
+    let translateState = {
+      currentLang: "zh",  // 当前语言
+      originalTexts: {},  // 存储原始中文文本
+      translatedTexts: {},// 存储已翻译文本（缓存）
+      isTranslating: false
+    };
+
+    // ========================== 原有功能保持不变 ==========================
+    // 移动端菜单切换
+    const menuToggle = document.getElementById('menu-toggle');
+    const mobileMenu = document.getElementById('mobile-menu');
+    const navbar = document.getElementById('navbar');
+    const backToTop = document.getElementById('back-to-top');
+    const langBtn = document.getElementById('lang-btn');
+    const langDropdown = document.getElementById('lang-dropdown');
+    const currentLangText = document.getElementById('current-lang-text');
+    const translateTargets = document.querySelectorAll('[data-translate]');
+    const langOptions = document.querySelectorAll('.lang-option');
+
+    menuToggle.addEventListener('click', function() {
+      mobileMenu.classList.toggle('hidden');
+      const icon = this.querySelector('i');
+      if (mobileMenu.classList.contains('hidden')) {
+        icon.classList.remove('fa-times');
+        icon.classList.add('fa-bars');
+      } else {
+        icon.classList.remove('fa-bars');
+        icon.classList.add('fa-times');
+      }
+    });
+
+    // 导航栏滚动效果
+    window.addEventListener('scroll', function() {
+      if (window.scrollY > 100) {
+        navbar.classList.add('py-2', 'shadow');
+        navbar.classList.remove('py-3');
+        
+        // 显示回到顶部按钮
+        backToTop.classList.remove('opacity-0', 'invisible');
+        backToTop.classList.add('opacity-100', 'visible');
+      } else {
+        navbar.classList.add('py-3');
+        navbar.classList.remove('py-2', 'shadow');
+        
+        // 隐藏回到顶部按钮
+        backToTop.classList.add('opacity-0', 'invisible');
+        backToTop.classList.remove('opacity-100', 'visible');
+      }
+    });
+
+    // 回到顶部功能
+    backToTop.addEventListener('click', function() {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    });
+
+    // 图片画廊切换
+    const galleryImages = document.querySelectorAll('.dish-gallery-img');
+    const mainImage = document.querySelector('.bg-neutral img');
+    
+    galleryImages.forEach(img => {
+      img.addEventListener('click', function() {
+        mainImage.src = this.src;
+        // 同步更新alt属性（翻译后）
+        const imgKey = this.getAttribute('data-translate');
+        if (imgKey) {
+          const originalText = translateState.originalTexts[imgKey];
+          const cacheKey = `${originalText}-zh-${LANG_CODE_MAP[translateState.currentLang]}`;
+          mainImage.alt = translateState.currentLang === 'zh' 
+            ? originalText 
+            : translateState.translatedTexts[cacheKey] || originalText;
+        }
+      });
+    });
+
+    // 点击移动端菜单链接后关闭菜单
+    const mobileLinks = mobileMenu.querySelectorAll('a');
+    mobileLinks.forEach(link => {
+      link.addEventListener('click', function() {
+        mobileMenu.classList.add('hidden');
+        const icon = menuToggle.querySelector('i');
+        icon.classList.remove('fa-times');
+        icon.classList.add('fa-bars');
+      });
+    });
+
+    // ========================== 翻译功能实现（与统一模块对齐） ==========================
+    /**
+     * 调用本地Node.js翻译服务（统一接口交互逻辑）
+     * @param {string} text - 待翻译文本
+     * @param {string} to - 目标语言代码（源语言固定为zh）
+     * @returns {string} 翻译结果
+     */
+    async function translateText(text, to = "en") {
+      // 空文本直接返回
+      if (!text.trim()) return text;
+      
+      // 缓存key：统一格式为「文本-源语言-目标语言」（源语言固定为zh）
+      const cacheKey = `${text}-zh-${to}`;
+      
+      // 优先读取缓存
+      if (translateState.translatedTexts[cacheKey]) {
+        return translateState.translatedTexts[cacheKey];
+      }
+
+      try {
+        // 调用本地翻译服务（POST请求，参数与服务端统一）
+        const response = await fetch('http://localhost:3000/translate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            text: text, 
+            from: 'zh',  // 源语言固定为中文（页面原始文本）
+            to: to 
+          }),
+          timeout: 10000
+        });
+
+        // 检查响应状态
+        if (!response.ok) {
+          throw new Error(`服务请求失败：${response.status} ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        
+        // 处理服务端返回的错误（与Node.js服务错误码统一）
+        if (data.error_code) {
+          console.error(`翻译服务错误: ${data.error_code} - ${data.error_msg}`);
+          
+          // 统一错误提示文案
+          let errorMsg = "翻译失败，请稍后重试";
+          switch(data.error_code) {
+            case "400": errorMsg = "无效请求：" + data.error_msg; break;
+            case "500": errorMsg = "服务器错误：" + data.error_msg; break;
+            case "52001": errorMsg = "翻译超时，请重试"; break;
+            case "52003": errorMsg = "APPID或密钥错误（请检查服务端配置）"; break;
+            case "54001": errorMsg = "签名错误（请检查服务端配置）"; break;
+          }
+          
+          alert(errorMsg);
+          return text;
+        }
+
+        // 提取翻译结果（与服务端返回字段统一：data.translated）
+        if (data.success && data.translated) {
+          const translatedText = data.translated;
+          translateState.translatedTexts[cacheKey] = translatedText; // 缓存结果
+          return translatedText;
+        } else {
+          console.warn("未获取到翻译结果", data);
+          return text;
+        }
+      } catch (error) {
+        console.error("翻译接口异常:", error);
+        
+        // 网络错误分类提示
+        if (error.message.includes('Failed to fetch') || error.message.includes('超时')) {
+          alert("翻译失败：请确保本地翻译服务已启动（http://localhost:3000）");
+        } else {
+          alert(`翻译失败：${error.message}`);
+        }
+        return text;
+      }
+    }
+
+    /**
+     * 页面加载时存储原始中文文本（统一缓存逻辑）
+     */
+    window.addEventListener('DOMContentLoaded', function() {
+      // 存储所有原始中文文本（包括图片alt属性）
+      translateTargets.forEach(el => {
+        const key = el.getAttribute('data-translate');
+        translateState.originalTexts[key] = el.textContent.trim();
+        if (el.tagName === 'IMG') {
+          translateState.originalTexts[`${key}_alt`] = el.alt.trim();
+        }
+      });
+      
+      // 检查URL中的语言参数，自动切换
+      const urlParams = new URLSearchParams(window.location.search);
+      const langParam = urlParams.get('lang');
+      if (langParam && LANG_CODE_MAP[langParam]) {
+        setTimeout(() => {
+          translateToLang(langParam);
+        }, 500);
+      }
+    });
+
+    /**
+     * 切换语言（统一流程）
+     */
+    async function translateToLang(targetLang) {
+      // 防止重复操作或相同语言切换
+      if (translateState.isTranslating || translateState.currentLang === targetLang) {
+        langDropdown.classList.remove('show');
+        return;
+      }
+
+      // 更新加载状态
+      translateState.isTranslating = true;
+      langBtn.classList.add('loading');
+      langBtn.innerHTML = '<i class="fa fa-language"></i> 翻译中... <i class="fa fa-angle-down text-xs"></i>';
+
+      try {
+        // 切换中文：直接恢复原始文本（无需调用翻译）
+        if (targetLang === "zh") {
+          document.title = PAGE_TITLES.zh;
+          
+          // 恢复所有翻译元素的原始中文
+          translateTargets.forEach(el => {
+            const key = el.getAttribute('data-translate');
+            const originalText = translateState.originalTexts[key];
+            if (originalText) {
+              el.textContent = originalText;
+              if (el.tagName === 'IMG') {
+                el.alt = translateState.originalTexts[`${key}_alt`] || originalText;
+              }
+            }
+          });
+          
+          // 清除非中文缓存，优化性能
+          Object.keys(translateState.translatedTexts).forEach(key => {
+            if (!key.endsWith('-zh')) {
+              delete translateState.translatedTexts[key];
+            }
+          });
+        } 
+        // 切换其他语言：串行翻译（避免频率限制）
+        else {
+          const targetLangCode = LANG_CODE_MAP[targetLang] || "en";
+          document.title = PAGE_TITLES[targetLang] || PAGE_TITLES.en;
+          
+          // 串行翻译所有带翻译标记的元素
+          for (const el of translateTargets) {
+            const key = el.getAttribute('data-translate');
+            const originalText = translateState.originalTexts[key];
+            if (originalText) {
+              const translated = await translateText(originalText, targetLangCode);
+              el.textContent = translated;
+              if (el.tagName === 'IMG') {
+                el.alt = translated;
+              }
+            }
+          }
+        }
+
+        // 更新全局状态和UI
+        translateState.currentLang = targetLang;
+        document.body.className = `bg-neutral text-dark lang-${targetLang}`;
+        
+        // 更新语言选项激活状态
+        langOptions.forEach(option => {
+          option.classList.toggle('active', option.dataset.lang === targetLang);
+        });
+        
+        // 恢复语言按钮显示
+        const activeLangName = document.querySelector(`.lang-option[data-lang="${targetLang}"]`).dataset.langName;
+        langBtn.innerHTML = `<i class="fa fa-language"></i> ${activeLangName} <i class="fa fa-angle-down text-xs"></i>`;
+
+        // 更新URL语言参数（保持页面跳转一致性）
+        const url = new URL(window.location);
+        url.searchParams.set('lang', targetLang);
+        window.history.pushState({}, '', url);
+
+      } catch (error) {
+        console.error('语言切换失败:', error);
+        alert('语言切换出错，请检查服务是否正常后重试');
+        
+        // 恢复原始语言状态
+        const activeLangName = document.querySelector(`.lang-option[data-lang="${translateState.currentLang}"]`).dataset.langName;
+        langBtn.innerHTML = `<i class="fa fa-language"></i> ${activeLangName} <i class="fa fa-angle-down text-xs"></i>`;
+      } finally {
+        // 结束加载状态
+        translateState.isTranslating = false;
+        langBtn.classList.remove('loading');
+        langDropdown.classList.remove('show');
+      }
+    }
+
+    // 语言切换事件监听（保持原有交互）
+    langBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      langDropdown.classList.toggle('show');
+    });
+    
+    langOptions.forEach(option => {
+      option.addEventListener('click', function() {
+        const targetLang = this.dataset.lang;
+        translateToLang(targetLang);
+      });
+    });
+    
+    document.addEventListener('click', () => {
+      langDropdown.classList.remove('show');
+    });
+    
+    langDropdown.addEventListener('click', (e) => {
+      e.stopPropagation();
+    });
+
+    // 未处理的Promise错误捕获
+    window.addEventListener('unhandledrejection', (event) => {
+      console.error('未处理的Promise错误:', event.reason);
+      event.preventDefault();
+    });
+  </script>
+</body>
+</html>

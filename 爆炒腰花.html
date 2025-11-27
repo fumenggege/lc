@@ -1,0 +1,1076 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>爆炒腰花 - 鲁味风华</title>
+  <!-- 引入外部资源 -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  
+  <!-- Tailwind 配置（保持原鲁菜色调） -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#A62928',      // 鲁菜主色调：深红色
+            secondary: '#D9B38C',    // 辅助色：暖棕色
+            neutral: '#F5F1E9',      // 中性色：米白色
+            dark: '#3A2E21'          // 深色：深棕色
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            serif: ['"Noto Serif SC"', 'serif']
+          }
+        }
+      }
+    }
+  </script>
+  
+  <!-- 自定义工具类（复用原逻辑） -->
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .content-auto {
+        content-visibility: auto;
+      }
+      .text-shadow {
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+      }
+      .card-hover {
+        transition: all 0.3s ease;
+      }
+      .card-hover:hover {
+        transform: translateY(-5px);
+      }
+    }
+  </style>
+  
+  <style>
+    /* 全局样式 */
+    html {
+      scroll-behavior: smooth;
+    }
+    
+    /* 菜品详情页样式（复用原交互逻辑） */
+    .dish-gallery-img {
+      transition: transform 0.3s ease;
+      cursor: pointer;
+    }
+    .dish-gallery-img:hover {
+      transform: scale(1.05);
+    }
+    
+    .ingredient-item {
+      transition: all 0.2s ease;
+    }
+    .ingredient-item:hover {
+      background-color: #F5F1E9;
+      transform: translateX(5px);
+    }
+    
+    .process-step {
+      position: relative;
+    }
+    .process-step::before {
+      content: '';
+      position: absolute;
+      left: -30px;
+      top: 8px;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background-color: #A62928;
+    }
+    .process-step::after {
+      content: '';
+      position: absolute;
+      left: -22px;
+      top: 24px;
+      width: 2px;
+      height: calc(100% + 16px);
+      background-color: #D9B38C;
+    }
+    .process-step:last-child::after {
+      display: none;
+    }
+    
+    /* 爆炒腰花特色样式（适配菜品特点） */
+    .kidney-bg {
+      background: linear-gradient(135deg, #faf6f1 0%, #f5efe6 100%);
+    }
+    
+    .kidney-card {
+      background: linear-gradient(to bottom right, #ffffff, #faf6f1);
+      border: 1px solid rgba(217, 179, 140, 0.3);
+    }
+    
+    /* 腰花装饰动画（保持轻盈感） */
+    @keyframes float-kidney {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      25% { transform: translateY(-4px) rotate(2deg); }
+      50% { transform: translateY(-8px) rotate(0deg); }
+      75% { transform: translateY(-4px) rotate(-2deg); }
+    }
+    
+    .floating-kidney {
+      animation: float-kidney 3.5s ease-in-out infinite;
+    }
+
+    /* 翻译相关样式（完全复用） */
+    .translate-btn {
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .translate-btn:hover {
+      transform: scale(1.05);
+    }
+    .translate-btn.loading {
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
+    .translate-btn.loading::after {
+      content: "";
+      width: 16px;
+      height: 16px;
+      border: 2px solid #ffffff;
+      border-top: 2px solid transparent;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    .lang-dropdown {
+      position: absolute;
+      top: 100%;
+      right: 0;
+      margin-top: 4px;
+      width: 180px;
+      background: white;
+      border-radius: 4px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      z-index: 100;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.2s ease;
+    }
+    .lang-dropdown.show {
+      opacity: 1;
+      visibility: visible;
+    }
+    .lang-option {
+      padding: 12px 16px;
+      cursor: pointer;
+      transition: background 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .lang-option:hover {
+      background: #f5f5f5;
+    }
+    .lang-option.active {
+      color: #A62928;
+      font-weight: 600;
+      background: #f0f8fb;
+    }
+    .lang-flag {
+      width: 24px;
+      height: 24px;
+      border-radius: 4px;
+      object-fit: cover;
+    }
+  </style>
+</head>
+
+<body class="bg-neutral text-dark lang-zh">
+  <!-- 导航栏（完全复用原结构，保持导航一致性） -->
+  <header id="navbar" class="fixed w-full top-0 z-50 transition-all duration-300 bg-white/90 backdrop-blur-sm shadow-sm">
+    <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+      <a href="主界面.html#home" class="flex items-center space-x-2">
+        <i class="fa fa-cutlery text-primary text-2xl"></i>
+        <span class="text-xl font-serif font-bold text-primary translate-target" data-translate="brand">鲁味风华</span>
+      </a>
+      
+      <!-- 桌面导航 -->
+      <nav class="hidden md:flex items-center space-x-8">
+        <a href="主界面.html#home" class="font-medium hover:text-primary transition-colors translate-target" data-translate="nav-home">首页</a>
+        <a href="主界面.html#about" class="font-medium hover:text-primary transition-colors translate-target" data-translate="nav-about">关于鲁菜</a>
+        <a href="主界面.html#dishes" class="font-medium text-primary transition-colors translate-target" data-translate="nav-dishes">菜品展示</a>
+        <a href="主界面.html#culture" class="font-medium hover:text-primary transition-colors translate-target" data-translate="nav-culture">鲁菜文化</a>
+        <!-- 语言切换按钮 -->
+        <div class="relative">
+          <button id="lang-btn" class="translate-btn bg-secondary hover:bg-secondary/90 text-white font-medium py-2 px-4 rounded-md">
+            <i class="fa fa-language"></i>
+            <span id="current-lang-text">中文</span>
+            <i class="fa fa-angle-down text-xs"></i>
+          </button>
+          <div id="lang-dropdown" class="lang-dropdown">
+            <div class="lang-option active" data-lang="zh" data-lang-name="中文">
+              <img src="https://flagcdn.com/w40/cn.png" alt="中文" class="lang-flag">
+              <span>中文</span>
+            </div>
+            <div class="lang-option" data-lang="en" data-lang-name="English">
+              <img src="https://flagcdn.com/w40/gb.png" alt="English" class="lang-flag">
+              <span>English</span>
+            </div>
+            <div class="lang-option" data-lang="jp" data-lang-name="日本語">
+              <img src="https://flagcdn.com/w40/jp.png" alt="日本語" class="lang-flag">
+              <span>日本語</span>
+            </div>
+            <div class="lang-option" data-lang="kor" data-lang-name="한국어">
+              <img src="https://flagcdn.com/w40/kr.png" alt="한국어" class="lang-flag">
+              <span>한국어</span>
+            </div>
+            <div class="lang-option" data-lang="fra" data-lang-name="Français">
+              <img src="https://flagcdn.com/w40/fr.png" alt="Français" class="lang-flag">
+              <span>Français</span>
+            </div>
+            <div class="lang-option" data-lang="de" data-lang-name="Deutsch">
+              <img src="https://flagcdn.com/w40/de.png" alt="Deutsch" class="lang-flag">
+              <span>Deutsch</span>
+            </div>
+            <div class="lang-option" data-lang="spa" data-lang-name="Español">
+              <img src="https://flagcdn.com/w40/es.png" alt="Español" class="lang-flag">
+              <span>Español</span>
+            </div>
+            <div class="lang-option" data-lang="ru" data-lang-name="Русский">
+              <img src="https://flagcdn.com/w40/ru.png" alt="Русский" class="lang-flag">
+              <span>Русский</span>
+            </div>
+            <div class="lang-option" data-lang="ara" data-lang-name="العربية">
+              <img src="https://flagcdn.com/w40/sa.png" alt="العربية" class="lang-flag">
+              <span>العربية</span>
+            </div>
+            <div class="lang-option" data-lang="nl" data-lang-name="Nederlands">
+              <img src="https://flagcdn.com/w40/nl.png" alt="Nederlands" class="lang-flag">
+              <span>Nederlands</span>
+            </div>
+          </div>
+        </div>
+      </nav>
+      
+      <!-- 移动端菜单按钮 -->
+      <div class="flex items-center md:hidden">
+        <button id="menu-toggle" class="text-dark focus:outline-none mr-4">
+          <i class="fa fa-bars text-xl"></i>
+        </button>
+      </div>
+    </div>
+    
+
+    <!-- 移动端导航菜单 -->
+    <div id="mobile-menu" class="hidden md:hidden bg-white shadow-lg absolute w-full">
+      <div class="container mx-auto px-4 py-3 flex flex-col space-y-4">
+        <a href="主界面.html#home" class="font-medium py-2 hover:text-primary transition-colors translate-target" data-translate="nav-home">首页</a>
+        <a href="主界面.html#about" class="font-medium py-2 hover:text-primary transition-colors translate-target" data-translate="nav-about">关于鲁菜</a>
+        <a href="主界面.html#dishes" class="font-medium py-2 text-primary transition-colors translate-target" data-translate="nav-dishes">菜品展示</a>
+        <a href="主界面.html#culture" class="font-medium py-2 hover:text-primary transition-colors translate-target" data-translate="nav-culture">鲁菜文化</a>
+        <!-- 移动端语言切换 -->
+        <div class="pt-2 border-t border-gray-100">
+          <div class="relative w-full">
+            <button id="mobile-lang-btn" class="translate-btn bg-secondary hover:bg-secondary/90 text-white font-medium py-2 px-4 rounded-md w-full justify-center">
+              <i class="fa fa-language"></i>
+              <span id="mobile-current-lang">中文</span>
+              <i class="fa fa-angle-down text-xs"></i>
+            </button>
+            <div id="mobile-lang-dropdown" class="lang-dropdown w-full">
+              <div class="lang-option active" data-lang="zh" data-lang-name="中文">
+                <img src="https://flagcdn.com/w40/cn.png" alt="中文" class="lang-flag">
+                <span>中文</span>
+              </div>
+              <div class="lang-option" data-lang="en" data-lang-name="English">
+                <img src="https://flagcdn.com/w40/gb.png" alt="English" class="lang-flag">
+                <span>English</span>
+              </div>
+              <div class="lang-option" data-lang="jp" data-lang-name="日本語">
+                <img src="https://flagcdn.com/w40/jp.png" alt="日本語" class="lang-flag">
+                <span>日本語</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <section class="pt-32 pb-16 bg-white">
+    <div class="container mx-auto px-4">
+      <div class="flex flex-col md:flex-row gap-8 items-start">
+        <div class="w-full md:w-1/2">
+          <div class="bg-neutral rounded-xl overflow-hidden shadow-lg relative">
+            <img id="main-dish-img" src="./images/爆炒腰花1.jpg" alt="爆炒腰花" class="w-full h-[400px] object-cover translate-target" data-translate="dish-kidney-main">
+            <div class="absolute top-4 left-4 floating-kidney">
+              <div class="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center">
+                <i class="fa fa-cutlery text-primary text-xl"></i>
+              </div>
+            </div>
+          </div>
+          
+          <!-- 菜品图片画廊（替换为爆炒腰花图片集） -->
+          <div class="grid grid-cols-4 gap-4 mt-4">
+            <div class="rounded-lg overflow-hidden shadow-md">
+              <img src="" alt="爆炒腰花1" class="w-full h-24 object-cover dish-gallery-img translate-target" data-translate="dish-kidney-1">
+            </div>
+            <div class="rounded-lg overflow-hidden shadow-md">
+              <img src="" alt="爆炒腰花2" class="w-full h-24 object-cover dish-gallery-img translate-target" data-translate="dish-kidney-2">
+            </div>
+            <div class="rounded-lg overflow-hidden shadow-md">
+              <img src="" alt="爆炒腰花3" class="w-full h-24 object-cover dish-gallery-img translate-target" data-translate="dish-kidney-3">
+            </div>
+            <div class="rounded-lg overflow-hidden shadow-md">
+              <img src="" alt="爆炒腰花4" class="w-full h-24 object-cover dish-gallery-img translate-target" data-translate="dish-kidney-4">
+            </div>
+          </div>
+        </div>
+        
+        <!-- 菜品信息（替换为爆炒腰花详情） -->
+        <div class="w-full md:w-1/2">
+          <div class="flex items-center gap-3 mb-4 flex-wrap">
+            <span class="bg-primary/10 text-primary text-xs font-bold px-3 py-1 rounded-full translate-target" data-translate="category-classic">经典鲁菜</span>
+            <span class="bg-secondary/20 text-dark text-xs font-medium px-3 py-1 rounded-full flex items-center translate-target" data-translate="dish-feature-3">
+              <i class="fa fa-bolt text-orange-500 mr-1"></i> 快炒代表
+            </span>
+            <span class="bg-secondary/20 text-dark text-xs font-medium px-3 py-1 rounded-full flex items-center translate-target" data-translate="dish-feature-2">
+              <i class="fa fa-star text-yellow-500 mr-1"></i> 4.8 好评
+            </span>
+          </div>
+          
+          <h1 class="text-[clamp(1.8rem,4vw,2.5rem)] font-serif font-bold text-dark mb-4 translate-target" data-translate="dish-kidney-name">爆炒腰花</h1>
+          
+          <p class="text-gray-600 mb-6 leading-relaxed translate-target" data-translate="dish-kidney-desc">
+            爆炒腰花是鲁菜"爆"技法的巅峰之作，选用新鲜猪腰为主料，经精细剞花、去臊处理后，
+            大火快速翻炒而成。菜品刀工精湛，腰花卷曲如麦穗，色泽红亮，口感脆嫩鲜香，
+            蒜香、醋香与腰花的鲜味完美融合，咸鲜微酸，回味悠长。既是考验厨师刀工与火候掌控的硬菜，
+            也是鲁菜宴席中不可或缺的经典菜品，彰显鲁菜"快炒保嫩、调味精准"的烹饪精髓。
+          </p>
+          
+          <!-- 菜品基本信息（适配爆炒腰花特点） -->
+          <div class="grid grid-cols-2 gap-6 mb-8">
+            <div class="flex items-center">
+              <i class="fa fa-clock-o text-primary text-xl mr-3"></i>
+              <div>
+                <p class="text-sm text-gray-500 translate-target" data-translate="dish-make-time">制作时长</p>
+                <p class="font-medium translate-target" data-translate="dish-kidney-time-value">约20分钟</p>
+              </div>
+            </div>
+            <div class="flex items-center">
+              <i class="fa fa-map-marker text-primary text-xl mr-3"></i>
+              <div>
+                <p class="text-sm text-gray-500 translate-target" data-translate="dish-origin">起源地</p>
+                <p class="font-medium translate-target" data-translate="dish-origin-value">山东济南</p>
+              </div>
+            </div>
+            <div class="flex items-center">
+              <i class="fa fa-fire text-primary text-xl mr-3"></i>
+              <div>
+                <p class="text-sm text-gray-500 translate-target" data-translate="dish-calorie">热量</p>
+                <p class="font-medium translate-target" data-translate="dish-kidney-calorie">280 大卡/份</p>
+              </div>
+            </div>
+            <div class="flex items-center">
+              <i class="fa fa-history text-primary text-xl mr-3"></i>
+              <div>
+                <p class="text-sm text-gray-500 translate-target" data-translate="dish-history">历史渊源</p>
+                <p class="font-medium translate-target" data-translate="dish-kidney-history">清代中叶</p>
+              </div>
+            </div>
+          </div>
+          
+          <a href="#process" class="inline-block bg-primary hover:bg-primary/90 text-white font-medium py-3 px-8 rounded-md transition-all transform hover:scale-105 mb-4 translate-target" data-translate="dish-view-process">
+            查看制作工艺 <i class="fa fa-arrow-right ml-2"></i>
+          </a>
+          <a href="主界面.html#dishes" class="inline-block bg-white border border-gray-300 hover:border-primary text-dark font-medium py-3 px-8 rounded-md transition-all ml-4 translate-target" data-translate="dish-back-list">
+            <i class="fa fa-arrow-left ml-1"></i> 返回菜品列表
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 菜品历史渊源（替换为爆炒腰花历史） -->
+  <section class="py-16 kidney-bg">
+    <div class="container mx-auto px-4">
+      <div class="max-w-3xl mx-auto">
+        <h2 class="text-[clamp(1.5rem,3vw,2rem)] font-serif font-bold text-dark mb-6 flex items-center translate-target" data-translate="dish-history-title">
+          <i class="fa fa-history text-primary mr-3"></i> 历史渊源
+        </h2>
+        <div class="kidney-card p-8 rounded-xl shadow-md">
+          <p class="text-gray-600 mb-4 leading-relaxed translate-target" data-translate="dish-kidney-history-desc1">
+            爆炒腰花起源于清代中叶的济南府，是鲁菜"爆"法的经典代表。济南作为鲁菜发源地，
+            厨师们对火候和刀工的追求极为严苛，而腰花作为高蛋白食材，质地细嫩却易老易腥，
+            恰好成为展现鲁菜"快炒保嫩"技艺的最佳载体。最初为济南酒楼的招牌菜，后因其口感独特、
+            制作精妙，逐渐传遍山东乃至全国，成为鲁菜的标志性菜品之一。
+          </p>
+          <p class="text-gray-600 mb-4 leading-relaxed translate-target" data-translate="dish-kidney-history-desc2">
+            传统爆炒腰花的制作深受鲁菜"清鲜脆嫩、原汁原味"理念影响，强调去臊留鲜、火候精准。
+            旧时济南名厨在剞花刀、腌渍去臊、火候把控上各有绝技，形成了不同流派的制作工艺，
+            但核心始终围绕"脆嫩不腥、咸鲜微酸"的风味特点。这道菜不仅是民间宴席的常客，
+            更曾作为鲁菜代表菜品登上国宴舞台，展现了鲁菜的精湛技艺。
+          </p>
+          <p class="text-gray-600 leading-relaxed translate-target" data-translate="dish-kidney-history-desc3">
+            现代爆炒腰花在保留传统刀工和火候精髓的基础上，对去臊方法和调味进行了优化，
+            更符合现代食客的口味需求。如今，这道经典鲁菜不仅是济南老字号餐馆的必点菜品，
+            更成为各地鲁菜馆的"试金石"——一道爆炒腰花的好坏，直接体现了厨师的刀工、火候和调味功力，
+            承载着鲁菜"食不厌精，脍不厌细"的饮食文化。
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 食材准备（替换为爆炒腰花食材） -->
+  <section class="py-16 bg-white">
+    <div class="container mx-auto px-4">
+      <h2 class="text-[clamp(1.5rem,3vw,2rem)] font-serif font-bold text-dark mb-10 text-center translate-target" data-translate="dish-ingredients-title">
+        食材准备
+      </h2>
+      
+      <div class="grid md:grid-cols-2 gap-10">
+        <!-- 主料 -->
+        <div class="bg-neutral p-8 rounded-xl shadow-md">
+          <h3 class="text-xl font-bold mb-6 flex items-center translate-target" data-translate="dish-main-ingredients">
+            <i class="fa fa-cutlery text-primary mr-2"></i> 主料
+          </h3>
+          <ul class="space-y-3">
+            <li class="flex items-center ingredient-item p-2 rounded-lg translate-target" data-translate="dish-kidney-ingredient-1">
+              <i class="fa fa-check-circle text-primary mr-3"></i>
+              <span>新鲜猪腰 2个（约400克）</span>
+            </li>
+            <li class="flex items-center ingredient-item p-2 rounded-lg translate-target" data-translate="dish-kidney-ingredient-2">
+              <i class="fa fa-check-circle text-primary mr-3"></i>
+              <span>青椒 1个（约100克）</span>
+            </li>
+            <li class="flex items-center ingredient-item p-2 rounded-lg translate-target" data-translate="dish-kidney-ingredient-3">
+              <i class="fa fa-check-circle text-primary mr-3"></i>
+              <span>红椒 1个（约100克）</span>
+            </li>
+            <li class="flex items-center ingredient-item p-2 rounded-lg translate-target" data-translate="dish-kidney-ingredient-4">
+              <i class="fa fa-check-circle text-primary mr-3"></i>
+              <span>洋葱 1/2个（约100克）</span>
+            </li>
+            <li class="flex items-center ingredient-item p-2 rounded-lg translate-target" data-translate="dish-kidney-ingredient-5">
+              <i class="fa fa-check-circle text-primary mr-3"></i>
+              <span>大蒜 5瓣</span>
+            </li>
+            <li class="flex items-center ingredient-item p-2 rounded-lg translate-target" data-translate="dish-kidney-ingredient-6">
+              <i class="fa fa-check-circle text-primary mr-3"></i>
+              <span>生姜 30克</span>
+            </li>
+          </ul>
+        </div>
+        
+        <!-- 调料 -->
+        <div class="bg-neutral p-8 rounded-xl shadow-md">
+          <h3 class="text-xl font-bold mb-6 flex items-center translate-target" data-translate="dish-seasonings">
+            <i class="fa fa-flask text-primary mr-2"></i> 调料
+          </h3>
+          <ul class="space-y-3">
+            <li class="flex items-center ingredient-item p-2 rounded-lg translate-target" data-translate="dish-kidney-seasoning-1">
+              <i class="fa fa-check-circle text-primary mr-3"></i>
+              <span>生抽 30毫升</span>
+            </li>
+            <li class="flex items-center ingredient-item p-2 rounded-lg translate-target" data-translate="dish-kidney-seasoning-2">
+              <i class="fa fa-check-circle text-primary mr-3"></i>
+              <span>米醋 20毫升（提鲜去臊）</span>
+            </li>
+            <li class="flex items-center ingredient-item p-2 rounded-lg translate-target" data-translate="dish-kidney-seasoning-3">
+              <i class="fa fa-check-circle text-primary mr-3"></i>
+              <span>料酒 50毫升（腌渍用）</span>
+            </li>
+            <li class="flex items-center ingredient-item p-2 rounded-lg translate-target" data-translate="dish-kidney-seasoning-4">
+              <i class="fa fa-check-circle text-primary mr-3"></i>
+              <span>淀粉 15克（腌渍用）</span>
+            </li>
+            <li class="flex items-center ingredient-item p-2 rounded-lg translate-target" data-translate="dish-kidney-seasoning-5">
+              <i class="fa fa-check-circle text-primary mr-3"></i>
+              <span>盐 适量</span>
+            </li>
+            <li class="flex items-center ingredient-item p-2 rounded-lg translate-target" data-translate="dish-kidney-seasoning-6">
+              <i class="fa fa-check-circle text-primary mr-3"></i>
+              <span>白糖 5克（提鲜）</span>
+            </li>
+            <li class="flex items-center ingredient-item p-2 rounded-lg translate-target" data-translate="dish-kidney-seasoning-7">
+              <i class="fa fa-check-circle text-primary mr-3"></i>
+              <span>胡椒粉 3克</span>
+            </li>
+            <li class="flex items-center ingredient-item p-2 rounded-lg translate-target" data-translate="dish-kidney-seasoning-8">
+              <i class="fa fa-check-circle text-primary mr-3"></i>
+              <span>食用油 60毫升（需多油快炒）</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 制作工艺（替换为爆炒腰花步骤） -->
+  <section id="process" class="py-16 kidney-bg">
+    <div class="container mx-auto px-4">
+      <h2 class="text-[clamp(1.5rem,3vw,2rem)] font-serif font-bold text-dark mb-10 text-center translate-target" data-translate="dish-process-title">
+        制作工艺
+      </h2>
+      
+      <div class="max-w-4xl mx-auto kidney-card p-8 md:p-12 rounded-xl shadow-md">
+        <div class="pl-10 space-y-12">
+          <!-- 步骤1：腰花处理（核心去臊步骤） -->
+          <div class="process-step">
+            <h3 class="text-xl font-bold mb-3 flex items-center translate-target" data-translate="dish-kidney-step-1-title">
+              <span class="bg-primary text-white w-8 h-8 rounded-full flex items-center justify-center mr-3">1</span>
+              腰花处理与剞花
+            </h3>
+            <p class="text-gray-600 leading-relaxed translate-target" data-translate="dish-kidney-step-1-desc">
+              猪腰从中间剖开，去除内部白色筋膜（臊腺），这是去臊的关键。将处理干净的腰花表面打斜刀（深度为腰花厚度的2/3），
+              再垂直切成交叉花刀，最后切成3厘米见方的块。放入碗中，加入20毫升料酒、5克盐、10克淀粉抓匀，
+              腌渍10分钟进一步去臊并锁住水分。
+            </p>
+          </div>
+          
+          <!-- 步骤2：配料准备 -->
+          <div class="process-step">
+            <h3 class="text-xl font-bold mb-3 flex items-center translate-target" data-translate="dish-kidney-step-2-title">
+              <span class="bg-primary text-white w-8 h-8 rounded-full flex items-center justify-center mr-3">2</span>
+              配料处理与调汁
+            </h3>
+            <p class="text-gray-600 leading-relaxed translate-target" data-translate="dish-kidney-step-2-desc">
+              青椒、红椒去籽切菱形块，洋葱切小块；大蒜、生姜切末备用。
+              调碗汁：碗中放入生抽、剩余料酒、米醋、白糖、胡椒粉、5克淀粉和30毫升清水，搅拌均匀备用（提前调汁可避免炒制时手忙脚乱）。
+            </p>
+          </div>
+          
+          <!-- 步骤3：滑炒腰花（火候核心） -->
+          <div class="process-step">
+            <h3 class="text-xl font-bold mb-3 flex items-center translate-target" data-translate="dish-kidney-step-3-title">
+              <span class="bg-primary text-white w-8 h-8 rounded-full flex items-center justify-center mr-3">3</span>
+              大火滑炒
+            </h3>
+            <p class="text-gray-600 leading-relaxed translate-target" data-translate="dish-kidney-step-3-desc">
+              锅中倒入食用油，烧至七成热（约180℃，油面微微冒烟），放入腌好的腰花快速滑炒，
+              待腰花卷曲成麦穗状、表面变色（约15秒），立即捞出控油（腰花不可久炒，否则会老）。
+              同一口锅留少许底油，放入姜蒜末爆香，加入青椒、红椒、洋葱块翻炒至断生（约30秒）。
+            </p>
+          </div>
+          
+          <!-- 步骤4：调味出锅 -->
+          <div class="process-step">
+            <h3 class="text-xl font-bold mb-3 flex items-center translate-target" data-translate="dish-kidney-step-4-title">
+              <span class="bg-primary text-white w-8 h-8 rounded-full flex items-center justify-center mr-3">4</span>
+              合炒收汁
+            </h3>
+            <p class="text-gray-600 leading-relaxed translate-target" data-translate="dish-kidney-step-4-desc">
+              将滑炒好的腰花倒回锅中，沿锅边淋入调好的碗汁，大火快速翻炒均匀（整个合炒过程不超过1分钟），
+              让腰花和配料均匀裹上酱汁，待酱汁微微浓稠即可关火出锅。
+              装盘后可撒少许葱花点缀，趁热食用，确保腰花的脆嫩口感。
+            </p>
+          </div>
+        </div>
+        
+        <!-- 烹饪小贴士（突出爆炒腰花的关键技巧） -->
+        <div class="mt-12 bg-primary/5 p-6 rounded-lg border-l-4 border-primary">
+          <h4 class="font-bold text-lg mb-3 flex items-center translate-target" data-translate="dish-tips-title">
+            <i class="fa fa-lightbulb-o text-primary mr-2"></i> 烹饪小贴士
+          </h4>
+          <ul class="text-gray-600 space-y-2">
+            <li class="flex items-start translate-target" data-translate="dish-kidney-tip-1">
+              <i class="fa fa-angle-right text-primary mt-1 mr-2"></i>
+              <span>去臊关键：必须彻底去除腰花内部的白色筋膜和臊腺，这是避免腥味的核心；腌渍时加料酒和淀粉，既能去臊又能保嫩。</span>
+            </li>
+            <li class="flex items-start translate-target" data-translate="dish-kidney-tip-2">
+              <i class="fa fa-angle-right text-primary mt-1 mr-2"></i>
+              <span>火候把控：全程大火快炒，腰花滑炒时间不超过15秒，合炒不超过1分钟，否则腰花会变老发柴，失去脆嫩口感。</span>
+            </li>
+            <li class="flex items-start translate-target" data-translate="dish-kidney-tip-3">
+              <i class="fa fa-angle-right text-primary mt-1 mr-2"></i>
+              <span>剞花技巧：花刀深度要均匀（约为腰花厚度的2/3），切得太浅不易卷曲，太深容易炒碎，影响造型和口感。</span>
+            </li>
+            <li class="flex items-start translate-target" data-translate="dish-kidney-tip-4">
+              <i class="fa fa-angle-right text-primary mt-1 mr-2"></i>
+              <span>调味比例：米醋不可过多，仅用于提鲜去臊，比例约为生抽的2/3；加少许白糖能中和酸味，让口感更圆润。</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 相关推荐（替换为鲁菜快炒类菜品） -->
+  <section class="py-16 bg-white">
+    <div class="container mx-auto px-4">
+      <h2 class="text-[clamp(1.5rem,3vw,2rem)] font-serif font-bold text-dark mb-10 text-center translate-target" data-translate="dish-related-title">
+        相关推荐菜品
+      </h2>
+      
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
+        <!-- 推荐菜品1：宫保鸡丁（鲁菜快炒类） -->
+        <div class="dish-card bg-neutral rounded-lg overflow-hidden shadow-md">
+          <div class="relative h-48 overflow-hidden">
+            <img src="./images/宫保鸡丁.jpg" alt="宫保鸡丁" class="w-full h-full object-cover transition-transform duration-500 hover:scale-110 translate-target" data-translate="dish-related-4-name">
+            <div class="absolute top-4 right-4 bg-primary text-white text-xs font-bold px-3 py-1 rounded-full translate-target" data-translate="category-stir-fry">
+              快炒类
+            </div>
+          </div>
+          <div class="p-6">
+            <h3 class="text-xl font-bold mb-2 translate-target" data-translate="dish-related-4-name">宫保鸡丁</h3>
+            <p class="text-gray-600 text-sm mb-4 translate-target" data-translate="dish-related-4-desc">
+              鲁菜经典快炒，鸡肉鲜嫩，花生酥脆，咸鲜微辣，酸甜适口，下饭神器。
+            </p>
+            <a href="宫保鸡丁.html" class="text-primary font-medium hover:text-primary/80 transition-colors flex items-center translate-target" data-translate="dish-view-detail">
+              查看详情 <i class="fa fa-angle-right ml-1"></i>
+            </a>
+          </div>
+        </div>
+        
+        <!-- 推荐菜品2：葱爆羊肉（鲁菜爆法代表） -->
+        <div class="dish-card bg-neutral rounded-lg overflow-hidden shadow-md">
+          <div class="relative h-48 overflow-hidden">
+            <img src="./images/葱爆羊肉.jpg" alt="葱爆羊肉" class="w-full h-full object-cover transition-transform duration-500 hover:scale-110 translate-target" data-translate="dish-related-5-name">
+            <div class="absolute top-4 right-4 bg-primary text-white text-xs font-bold px-3 py-1 rounded-full translate-target" data-translate="category-stir-fry">
+              快炒类
+            </div>
+          </div>
+          <div class="p-6">
+            <h3 class="text-xl font-bold mb-2 translate-target" data-translate="dish-related-5-name">葱爆羊肉</h3>
+            <p class="text-gray-600 text-sm mb-4 translate-target" data-translate="dish-related-5-desc">
+              鲁菜"爆"法经典，羊肉鲜嫩无膻，葱段香甜，酱香浓郁，火候精湛的代表之作。
+            </p>
+            <a href="葱爆羊肉.html" class="text-primary font-medium hover:text-primary/80 transition-colors flex items-center translate-target" data-translate="dish-view-detail">
+              查看详情 <i class="fa fa-angle-right ml-1"></i>
+            </a>
+          </div>
+        </div>
+        
+        <!-- 推荐菜品3：醋溜土豆丝（鲁菜家常菜） -->
+        <div class="dish-card bg-neutral rounded-lg overflow-hidden shadow-md">
+          <div class="relative h-48 overflow-hidden">
+            <img src="./images/醋溜土豆丝.jpg" alt="醋溜土豆丝" class="w-full h-full object-cover transition-transform duration-500 hover:scale-110 translate-target" data-translate="dish-related-6-name">
+            <div class="absolute top-4 right-4 bg-primary text-white text-xs font-bold px-3 py-1 rounded-full translate-target" data-translate="category-stir-fry">
+              快炒类
+            </div>
+          </div>
+          <div class="p-6">
+            <h3 class="text-xl font-bold mb-2 translate-target" data-translate="dish-related-6-name">醋溜土豆丝</h3>
+            <p class="text-gray-600 text-sm mb-4 translate-target" data-translate="dish-related-6-desc">
+              鲁菜家常菜代表，土豆丝脆嫩爽口，酸咸适中，简单食材彰显鲁菜调味精髓。
+            </p>
+            <a href="醋溜土豆丝.html" class="text-primary font-medium hover:text-primary/80 transition-colors flex items-center translate-target" data-translate="dish-view-detail">
+              查看详情 <i class="fa fa-angle-right ml-1"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 页脚（完全复用原结构，保持一致性） -->
+  <footer class="bg-dark text-white py-12">
+    <div class="container mx-auto px-4">
+      <div class="grid md:grid-cols-4 gap-8">
+        <div>
+          <div class="flex items-center space-x-2 mb-6">
+            <i class="fa fa-cutlery text-secondary text-2xl"></i>
+            <span class="text-xl font-serif font-bold text-secondary translate-target" data-translate="footer-brand">鲁菜传承</span>
+          </div>
+          <p class="text-gray-400 mb-6 translate-target" data-translate="footer-desc">
+            传承鲁菜文化，弘扬中华美食，让更多人了解和喜爱鲁菜。
+          </p>
+          <div class="flex space-x-4">
+            <a href="#" class="text-gray-400 hover:text-secondary transition-colors" aria-label="微信">
+              <i class="fa fa-weixin text-xl"></i>
+            </a>
+            <a href="#" class="text-gray-400 hover:text-secondary transition-colors" aria-label="微博">
+              <i class="fa fa-weibo text-xl"></i>
+            </a>
+            <a href="#" class="text-gray-400 hover:text-secondary transition-colors" aria-label="Instagram">
+              <i class="fa fa-instagram text-xl"></i>
+            </a>
+          </div>
+        </div>
+        
+        <div>
+          <h4 class="text-lg font-bold mb-6 text-secondary translate-target" data-translate="footer-quick-links">快速链接</h4>
+          <ul class="space-y-3">
+            <li><a href="主界面.html#home" class="text-gray-400 hover:text-secondary transition-colors translate-target" data-translate="nav-home">首页</a></li>
+            <li><a href="主界面.html#about" class="text-gray-400 hover:text-secondary transition-colors translate-target" data-translate="nav-about">关于鲁菜</a></li>
+            <li><a href="主界面.html#dishes" class="text-gray-400 hover:text-secondary transition-colors translate-target" data-translate="nav-dishes">菜品展示</a></li>
+            <li><a href="主界面.html#culture" class="text-gray-400 hover:text-secondary transition-colors translate-target" data-translate="nav-culture">鲁菜文化</a></li>
+          </ul>
+        </div>
+        
+        <div>
+          <h4 class="text-lg font-bold mb-6 text-secondary translate-target" data-translate="footer-snacks">特色小吃</h4>
+          <ul class="space-y-3">
+            <li><a href="鲅鱼饺子.html" class="text-gray-400 hover:text-secondary transition-colors translate-target" data-translate="dish-related-4-name">鲅鱼饺子</a></li>
+            <li><a href="海肠炒饭.html" class="text-gray-400 hover:text-secondary transition-colors translate-target" data-translate="dish-related-1-name">海肠炒饭</a></li>
+            <li><a href="辣炒蛤蜊.html" class="text-gray-400 hover:text-secondary transition-colors translate-target" data-translate="dish-related-2-name">辣炒蛤蜊</a></li>
+            <li><a href="济南把子肉.html" class="text-gray-400 hover:text-secondary transition-colors translate-target" data-translate="dish-related-3-name">济南把子肉</a></li>
+          </ul>
+        </div>
+        <div>
+        </div>
+      </div>
+      
+      <div class="border-t border-gray-800 mt-10 pt-6 text-center text-gray-500 text-sm translate-target" data-translate="copyright">
+        <p>&copy; 2025 鲁味风华 -AI素材库- 保留所有权利</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- 回到顶部按钮（复用原功能） -->
+  <button id="back-to-top" class="fixed bottom-8 right-8 bg-primary text-white w-12 h-12 rounded-full flex items-center justify-center shadow-lg opacity-0 invisible transition-all duration-300 hover:bg-primary/90">
+    <i class="fa fa-arrow-up"></i>
+  </button>
+
+  <script>
+    // 页面标题多语言映射（更新为爆炒腰花）
+    const PAGE_TITLES = {
+      zh: "爆炒腰花 - 鲁味风华",
+      en: "Sautéed Pork Kidneys - Shandong Cuisine Elegance",
+      jp: "炒め腰子 - 魯菜風華",
+      kor: "볶음 신장 - 루채 풍화",
+      fra: "Rognons de Porc Sautés - Élégance de la Cuisine Lu",
+      de: "Gebratene Schweinekidneys - Eleganz der Lu-Küche",
+      spa: "Riñones de Cerdo Salteados - Elegancia de la Cocina Lu",
+      ru: "Жареные свиные почки - Элегантность кухни Лу",
+      ara: "كلويات الخنزير المقليّة - أناقة مطبخ لو"
+    };
+    
+    // 百度翻译语言代码映射（完全复用）
+    const LANG_CODE_MAP = {
+      zh: "zh",    // 中文
+      en: "en",    // 英语
+      jp: "jp",    // 日语
+      kor: "kor",  // 韩语
+      fra: "fra",  // 法语
+      de: "de",    // 德语
+      spa: "spa",  // 西班牙语
+      ru: "ru",    // 俄语
+      ara: "ara",
+      nl :"nl"
+    };
+    
+    // 语言显示名称映射（完全复用）
+    const LANG_NAME_MAP = {
+      zh: "中文",
+      en: "English",
+      jp: "日本語",
+      kor: "한국어",
+      fra: "Français",
+      de: "Deutsch",
+      spa: "Español",
+      ru: "Русский",
+      ara: "العربية",
+      nl : "Nederlands"
+    };
+    
+    // 翻译状态管理（完全复用）
+    let translateState = {
+      currentLang: "zh",
+      originalTexts: {}, 
+      translatedTexts: {},
+      isTranslating: false
+    };
+
+    // ========================== DOM元素获取（完全复用） ==========================
+    const langBtn = document.getElementById('lang-btn');
+    const mobileLangBtn = document.getElementById('mobile-lang-btn');
+    const langDropdown = document.getElementById('lang-dropdown');
+    const mobileLangDropdown = document.getElementById('mobile-lang-dropdown');
+    const currentLangText = document.getElementById('current-lang-text');
+    const mobileCurrentLang = document.getElementById('mobile-current-lang');
+    const translateTargets = document.querySelectorAll('[data-translate]');
+    const langOptions = document.querySelectorAll('.lang-option');
+    const menuToggle = document.getElementById('menu-toggle');
+    const mobileMenu = document.getElementById('mobile-menu');
+    const navbar = document.getElementById('navbar');
+    const backToTop = document.getElementById('back-to-top');
+
+    // ========================== 翻译核心函数（完全复用） ==========================
+    async function translateText(text, to = "en") {
+      if (!text.trim()) return text;
+      const cacheKey = `${text}-zh-${to}`;
+      if (translateState.translatedTexts[cacheKey]) {
+        return translateState.translatedTexts[cacheKey];
+      }
+
+      try {
+        const response = await fetch('http://localhost:3000/translate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            text: text, 
+            from: 'zh', 
+            to: to 
+          }),
+          timeout: 10000
+        });
+
+        if (!response.ok) {
+          throw new Error(`服务请求失败：${response.status} ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        
+        if (data.error_code) {
+          console.error(`翻译服务错误: ${data.error_code} - ${data.error_msg}`);
+          let errorMsg = "翻译失败，请稍后重试";
+          switch(data.error_code) {
+            case "400": errorMsg = "无效请求：" + data.error_msg; break;
+            case "500": errorMsg = "服务器错误：" + data.error_msg; break;
+            case "52001": errorMsg = "翻译超时，请重试"; break;
+            case "52003": errorMsg = "APPID或密钥错误（请检查服务端配置）"; break;
+          }
+          alert(errorMsg);
+          return text;
+        }
+
+        if (data.success && data.translated) {
+          const translatedText = data.translated;
+          translateState.translatedTexts[cacheKey] = translatedText;
+          return translatedText;
+        } else {
+          console.warn("未获取到翻译结果", data);
+          return text;
+        }
+      } catch (error) {
+        console.error("翻译接口异常:", error);
+        if (error.message.includes('Failed to fetch') || error.message.includes('超时')) {
+          alert("翻译失败：请确保本地翻译服务已启动（http://localhost:3000）");
+        } else {
+          alert(`翻译失败：${error.message}`);
+        }
+        return text;
+      }
+    }
+
+    /**
+     * 页面加载时存储原始中文文本（完全复用）
+     */
+    window.addEventListener('DOMContentLoaded', function() {
+      translateTargets.forEach(el => {
+        const key = el.getAttribute('data-translate');
+        translateState.originalTexts[key] = el.textContent.trim();
+        if (el.tagName === 'IMG') {
+          translateState.originalTexts[`${key}_alt`] = el.alt.trim();
+        }
+      });
+      
+      const urlParams = new URLSearchParams(window.location.search);
+      const langParam = urlParams.get('lang');
+      if (langParam && LANG_CODE_MAP[langParam]) {
+        setTimeout(() => {
+          translateToLang(langParam);
+        }, 500);
+      }
+    });
+
+    /**
+     * 切换语言（核心函数，完全复用）
+     */
+    async function translateToLang(targetLang) {
+      if (translateState.isTranslating || translateState.currentLang === targetLang) {
+        langDropdown.classList.remove('show');
+        mobileLangDropdown.classList.remove('show');
+        return;
+      }
+
+      translateState.isTranslating = true;
+      [langBtn, mobileLangBtn].forEach(btn => {
+        if (btn) {
+          btn.classList.add('loading');
+          btn.innerHTML = '<i class="fa fa-language"></i> 翻译中... <i class="fa fa-angle-down text-xs"></i>';
+        }
+      });
+
+      try {
+        if (targetLang === "zh") {
+          document.title = PAGE_TITLES.zh;
+          translateTargets.forEach(el => {
+            const key = el.getAttribute('data-translate');
+            const originalText = translateState.originalTexts[key];
+            if (originalText) {
+              el.textContent = originalText;
+              if (el.tagName === 'IMG') {
+                el.alt = translateState.originalTexts[`${key}_alt`] || originalText;
+              }
+            }
+          });
+        } else {
+          const targetLangCode = LANG_CODE_MAP[targetLang] || "en";
+          document.title = PAGE_TITLES[targetLang] || PAGE_TITLES.en;
+          
+          for (const el of translateTargets) {
+            const key = el.getAttribute('data-translate');
+            const originalText = translateState.originalTexts[key];
+            if (originalText) {
+              const translated = await translateText(originalText, targetLangCode);
+              el.textContent = translated;
+              if (el.tagName === 'IMG') {
+                el.alt = translated;
+              }
+            }
+          }
+        }
+
+        translateState.currentLang = targetLang;
+        document.body.className = `bg-neutral text-dark lang-${targetLang}`;
+        
+        langOptions.forEach(option => {
+          option.classList.toggle('active', option.dataset.lang === targetLang);
+        });
+        
+        const activeLangName = document.querySelector(`.lang-option[data-lang="${targetLang}"]`).dataset.langName;
+        [langBtn, mobileLangBtn].forEach((btn, index) => {
+          if (btn) {
+            btn.innerHTML = `<i class="fa fa-language"></i> ${activeLangName} <i class="fa fa-angle-down text-xs"></i>`;
+            if (index === 0) currentLangText.innerText = activeLangName;
+            if (index === 1) mobileCurrentLang.innerText = activeLangName;
+          }
+        });
+
+      } catch (error) {
+        console.error('语言切换失败:', error);
+        alert('语言切换出错，请检查服务是否正常后重试');
+        
+        const originalLang = translateState.currentLang;
+        const originalLangName = LANG_NAME_MAP[originalLang];
+        [langBtn, mobileLangBtn].forEach((btn, index) => {
+          if (btn) {
+            btn.innerHTML = `<i class="fa fa-language"></i> ${originalLangName} <i class="fa fa-angle-down text-xs"></i>`;
+            if (index === 0) currentLangText.innerText = originalLangName;
+            if (index === 1) mobileCurrentLang.innerText = originalLangName;
+          }
+        });
+      } finally {
+        translateState.isTranslating = false;
+        [langBtn, mobileLangBtn].forEach(btn => {
+          if (btn) btn.classList.remove('loading');
+        });
+        langDropdown.classList.remove('show');
+        mobileLangDropdown.classList.remove('show');
+      }
+    }
+
+    // ========================== 事件绑定（完全复用） ==========================
+    if (langBtn) {
+      langBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        langDropdown.classList.toggle('show');
+        mobileLangDropdown.classList.remove('show');
+      });
+    }
+
+    if (mobileLangBtn) {
+      mobileLangBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        mobileLangDropdown.classList.toggle('show');
+        langDropdown.classList.remove('show');
+      });
+    }
+
+    langOptions.forEach(option => {
+      option.addEventListener('click', function() {
+        const targetLang = this.dataset.lang;
+        translateToLang(targetLang);
+      });
+    });
+
+    document.addEventListener('click', () => {
+      langDropdown.classList.remove('show');
+      mobileLangDropdown.classList.remove('show');
+    });
+
+    [langDropdown, mobileLangDropdown].forEach(dropdown => {
+      if (dropdown) {
+        dropdown.addEventListener('click', (e) => {
+          e.stopPropagation();
+        });
+      }
+    });
+
+    if (menuToggle) {
+      menuToggle.addEventListener('click', function() {
+        mobileMenu.classList.toggle('hidden');
+        const icon = this.querySelector('i');
+        if (mobileMenu.classList.contains('hidden')) {
+          icon.classList.remove('fa-times');
+          icon.classList.add('fa-bars');
+        } else {
+          icon.classList.remove('fa-bars');
+          icon.classList.add('fa-times');
+        }
+      });
+    }
+
+    window.addEventListener('scroll', function() {
+      if (window.scrollY > 100) {
+        navbar.classList.add('py-2', 'shadow');
+        navbar.classList.remove('py-3');
+        backToTop.classList.remove('opacity-0', 'invisible');
+        backToTop.classList.add('opacity-100', 'visible');
+      } else {
+        navbar.classList.add('py-3');
+        navbar.classList.remove('py-2', 'shadow');
+        backToTop.classList.add('opacity-0', 'invisible');
+        backToTop.classList.remove('opacity-100', 'visible');
+      }
+    });
+
+    if (backToTop) {
+      backToTop.addEventListener('click', function() {
+        window.scrollTo({
+          top: 0,
+          behavior: 'smooth'
+        });
+      });
+    }
+
+    // ========================== 图片预览功能（完全复用） ==========================
+    const mainImage = document.getElementById('main-dish-img');
+    const galleryImages = document.querySelectorAll('.dish-gallery-img');
+    
+    galleryImages.forEach(img => {
+      img.addEventListener('click', function() {
+        mainImage.src = this.src;
+        
+        const imgTranslateKey = this.getAttribute('data-translate');
+        if (imgTranslateKey && translateState.originalTexts[imgTranslateKey]) {
+          const originalAlt = translateState.originalTexts[imgTranslateKey];
+          const targetLangCode = LANG_CODE_MAP[translateState.currentLang];
+          const cacheKey = `${originalAlt}-zh-${targetLangCode}`;
+          
+          mainImage.alt = translateState.currentLang === 'zh' 
+            ? originalAlt 
+            : translateState.translatedTexts[cacheKey] || originalAlt;
+        }
+        
+        mainImage.style.opacity = '0.5';
+        setTimeout(() => {
+          mainImage.style.opacity = '1';
+        }, 150);
+      });
+    });
+
+    // 点击移动端菜单链接后关闭菜单（完全复用）
+    const mobileLinks = mobileMenu.querySelectorAll('a');
+    mobileLinks.forEach(link => {
+      link.addEventListener('click', function() {
+        mobileMenu.classList.add('hidden');
+        const icon = menuToggle.querySelector('i');
+        icon.classList.remove('fa-times');
+        icon.classList.add('fa-bars');
+      });
+    });
+
+    // 错误处理（完全复用）
+    window.addEventListener('unhandledrejection', (event) => {
+      console.error('未处理的Promise错误:', event.reason);
+      event.preventDefault();
+    });
+  </script>
+</body>
+</html>

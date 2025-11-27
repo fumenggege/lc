@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>糖醋里脊 - 鲁味风华</title>
+  <!-- 引入外部资源 -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  
+  <!-- Tailwind 配置 -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#A62928',      // 鲁菜主色调：深红色
+            secondary: '#D9B38C',    // 辅助色：暖棕色
+            neutral: '#F5F1E9',      // 中性色：米白色
+            dark: '#3A2E21'          // 深色：深棕色
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            serif: ['"Noto Serif SC"', 'serif']
+          }
+        }
+      }
+    }
+  </script>
+  
+  <!-- 自定义工具类 -->
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .content-auto {
+        content-visibility: auto;
+      }
+      .text-shadow {
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+      }
+      .card-hover {
+        transition: all 0.3s ease;
+      }
+      .card-hover:hover {
+        transform: translateY(-5px);
+      }
+    }
+  </style>
+  
+  <style>
+    /* 全局样式 */
+    html {
+      scroll-behavior: smooth;
+    }
+    
+    /* 菜品详情页样式 */
+    .dish-gallery-img {
+      transition: transform 0.3s ease;
+    }
+    .dish-gallery-img:hover {
+      transform: scale(1.05);
+    }
+    
+    .ingredient-item {
+      transition: all 0.2s ease;
+    }
+    .ingredient-item:hover {
+      background-color: #F5F1E9;
+      transform: translateX(5px);
+    }
+    
+    .process-step {
+      position: relative;
+    }
+    .process-step::before {
+      content: '';
+      position: absolute;
+      left: -30px;
+      top: 8px;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background-color: #A62928;
+    }
+    .process-step::after {
+      content: '';
+      position: absolute;
+      left: -22px;
+      top: 24px;
+      width: 2px;
+      height: calc(100% + 16px);
+      background-color: #D9B38C;
+    }
+    .process-step:last-child::after {
+      display: none;
+    }
+  </style>
+</head>
+
+<body class="bg-neutral text-dark">
+  <!-- 导航栏（保持原网站样式） -->
+  <header id="navbar" class="fixed w-full top-0 z-50 transition-all duration-300 bg-white/90 backdrop-blur-sm shadow-sm">
+    <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+      <a href="index.html" class="flex items-center space-x-2">
+        <i class="fa fa-cutlery text-primary text-2xl"></i>
+        <span class="text-xl font-serif font-bold text-primary">鲁味风华</span>
+      </a>
+      
+      <!-- 桌面导航 -->
+      <nav class="hidden md:flex items-center space-x-8">
+        <a href="主界面.html" class="font-medium hover:text-primary transition-colors">首页</a>
+        <a href="主界面.html" class="font-medium hover:text-primary transition-colors">关于鲁菜</a>
+        菜品展示
+        <a href="index.html#culture" class="font-medium hover:text-primary transition-colors">鲁菜文化</a>
+      </nav>
+      
+      <!-- 移动端菜单按钮 -->
+      <button id="menu-toggle" class="md:hidden text-dark focus:outline-none">
+        <i class="fa fa-bars text-xl"></i>
+      </button>
+    </div>
+    
+    <!-- 移动端导航菜单 -->
+    <div id="mobile-menu" class="hidden md:hidden bg-white shadow-lg absolute w-full">
+      <div class="container mx-auto px-4 py-3 flex flex-col space-y-4">
+        <a href="index.html#home" class="font-medium py-2 hover:text-primary transition-colors">首页</a>
+        <a href="index.html#about" class="font-medium py-2 hover:text-primary transition-colors">关于鲁菜</a>
+        <a href="index.html#dishes" class="font-medium py-2 text-primary transition-colors">菜品展示</a>
+        <a href="index.html#culture" class="font-medium py-2 hover:text-primary transition-colors">鲁菜文化</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- 菜品详情头部 -->
+  <section class="pt-32 pb-16 bg-white">
+    <div class="container mx-auto px-4">
+
+
+      <div class="flex flex-col md:flex-row gap-8 items-start">
+        <!-- 菜品主图 -->
+        <div class="w-full md:w-1/2">
+          <div class="bg-neutral rounded-xl overflow-hidden shadow-lg">
+            <img src="../wy/images/14.jpg" alt="糖醋里脊" class="w-full h-[400px] object-cover">
+          </div>
+          
+          <!-- 菜品图片画廊（糖醋里脊本地图片） -->
+          <div class="grid grid-cols-4 gap-4 mt-4">
+            <div class="rounded-lg overflow-hidden shadow-md cursor-pointer">
+              <img src="../wy/images/14.jpg" alt="糖醋里脊1" class="w-full h-24 object-cover dish-gallery-img">
+            </div>
+            <div class="rounded-lg overflow-hidden shadow-md cursor-pointer">
+              <img src="../wy/images/tangculiji2.jpg" alt="糖醋里脊2" class="w-full h-24 object-cover dish-gallery-img">
+            </div>
+            <div class="rounded-lg overflow-hidden shadow-md cursor-pointer">
+              <img src="../wy/images/tangculiji3.jpg" alt="糖醋里脊3" class="w-full h-24 object-cover dish-gallery-img">
+            </div>
+            <div class="rounded-lg overflow-hidden shadow-md cursor-pointer">
+              <img src="../wy/images/tangculiji4.jpg" alt="糖醋里脊4" class="w-full h-24 object-cover dish-gallery-img">
+            </div>
+          </div>
+        </div>
+        
+        <!-- 菜品信息 -->
+        <div class="w-full md:w-1/2">
+          <div class="flex items-center gap-3 mb-4">
+            <span class="bg-primary/10 text-primary text-xs font-bold px-3 py-1 rounded-full">经典鲁菜·荤菜</span>
+            <span class="bg-secondary/20 text-dark text-xs font-medium px-3 py-1 rounded-full flex items-center">
+              <i class="fa fa-star text-yellow-500 mr-1"></i> 4.9 好评
+            </span>
+          </div>
+          
+          <h1 class="text-[clamp(1.8rem,4vw,2.5rem)] font-serif font-bold text-dark mb-4">糖醋里脊</h1>
+          
+          <p class="text-gray-600 mb-6 leading-relaxed">
+            糖醋里脊是鲁菜中最具代表性的酸甜口荤菜，以鲜嫩猪里脊为原料，经切条、腌制、挂糊、复炸，
+            再裹上酸甜醇厚的糖醋汁而成。菜品色泽红亮诱人，外皮酥脆不回软，内里肉质鲜嫩多汁，
+            酸甜比例恰到好处，不腻不齁，兼具果香与酱香的复合风味。作为鲁菜“酸甜调味”的经典之作，
+            它既登上过高端宴席的餐桌，也是家家户户喜爱的家常菜，凭借“外酥里嫩、酸甜适口”的特质，
+            成为老少皆宜的国民级鲁菜。
+          </p>
+          
+          <!-- 菜品基本信息 -->
+          <div class="grid grid-cols-2 gap-6 mb-8">
+            <div class="flex items-center">
+              <i class="fa fa-clock-o text-primary text-xl mr-3"></i>
+              <div>
+                <p class="text-sm text-gray-500">制作时长</p>
+                <p class="font-medium">约40分钟</p>
+              </div>
+            </div>
+            <div class="flex items-center">
+              <i class="fa fa-map-marker text-primary text-xl mr-3"></i>
+              <div>
+                <p class="text-sm text-gray-500">起源地</p>
+                <p class="font-medium">山东（鲁菜核心）</p>
+              </div>
+            </div>
+            <div class="flex items-center">
+              <i class="fa fa-fire text-primary text-xl mr-3"></i>
+              <div>
+                <p class="text-sm text-gray-500">热量</p>
+                <p class="font-medium">380 大卡/份</p>
+              </div>
+            </div>
+            <div class="flex items-center">
+              <i class="fa fa-history text-primary text-xl mr-3"></i>
+              <div>
+                <p class="text-sm text-gray-500">历史渊源</p>
+                <p class="font-medium">清代中期</p>
+              </div>
+            </div>
+          </div>
+          
+          <a href="#process" class="inline-block bg-primary hover:bg-primary/90 text-white font-medium py-3 px-8 rounded-md transition-all transform hover:scale-105 mb-4">
+            查看制作工艺 <i class="fa fa-arrow-right ml-2"></i>
+          </a>
+          <a href="主界面.html" class="inline-block bg-white border border-gray-300 hover:border-primary text-dark font-medium py-3 px-8 rounded-md transition-all ml-4">
+            <i class="fa fa-arrow-left ml-1"></i> 返回菜品列表
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 菜品历史渊源 -->
+  <section class="py-16 bg-neutral">
+    <div class="container mx-auto px-4">
+      <div class="max-w-3xl mx-auto">
+        <h2 class="text-[clamp(1.5rem,3vw,2rem)] font-serif font-bold text-dark mb-6 flex items-center">
+          <i class="fa fa-history text-primary mr-3"></i> 历史渊源
+        </h2>
+        <div class="bg-white p-8 rounded-xl shadow-md">
+          <p class="text-gray-600 mb-4 leading-relaxed">
+            糖醋里脊的起源可追溯至清代中期的鲁菜体系，当时鲁菜作为宫廷御膳的核心菜系，擅长以酸甜调味平衡荤菜的油腻感。
+            最初的“糖醋肉”以五花肉为原料，后经厨师改良，选用更鲜嫩的猪里脊替代，口感更清爽，逐渐定名为“糖醋里脊”。
+            清代《调鼎集》中曾记载类似菜品的做法，强调“糖酸得宜，外焦里嫩”，与现代糖醋里脊的烹饪理念一脉相承。
+          </p>
+          <p class="text-gray-600 mb-4 leading-relaxed">
+            民国时期，糖醋里脊随鲁菜的传播走向全国，济南、青岛等地的鲁菜名店对其工艺进一步优化：
+            创新“复炸挂糊”技法，让外皮更酥脆；调整糖醋比例，加入番茄酱提亮色泽，使菜品既保留鲁菜的醇厚，
+            又更符合大众对酸甜口的接受度。因其兼具“颜值”与口感，成为宴席中“冷热交替、荤素搭配”的重要菜品。
+          </p>
+          <p class="text-gray-600 leading-relaxed">
+            如今，糖醋里脊已成为鲁菜的“代名词”之一，不仅在山东本地长盛不衰，更成为全国各地餐馆的必备菜品。
+            它的制作工艺看似简单，实则蕴含鲁菜“火候精准、调味平衡”的精髓——挂糊的厚薄、炸制的油温、糖醋的比例，
+            都直接影响菜品口感。作为鲁菜“酸甜调味”的典范，糖醋里脊既承载着传统饮食文化，又适应现代口味需求，
+            成为跨越地域和年龄的经典美食。
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 食材准备 -->
+  <section class="py-16 bg-white">
+    <div class="container mx-auto px-4">
+      <h2 class="text-[clamp(1.5rem,3vw,2rem)] font-serif font-bold text-dark mb-10 text-center">
+        食材准备
+      </h2>
+      
+      <div class="grid md:grid-cols-2 gap-10">
+        <!-- 主料 -->
+        <div class="bg-neutral p-8 rounded-xl shadow-md">
+          <h3 class="text-xl font-bold mb-6 flex items-center">
+            <i class="fa fa-cutlery text-primary mr-2"></i> 主料
+          </h3>
+          <ul class="space-y-3">
+            <li class="flex items-center ingredient-item p-2 rounded-lg">
+              <i class="fa fa-check-circle text-primary mr-3"></i>
+              <span>猪里脊肉 500克（选猪外脊肉，鲜嫩无筋膜）</span>
+            </li>
+            <li class="flex items-center ingredient-item p-2 rounded-lg">
+              <i class="fa fa-check-circle text-primary mr-3"></i>
+              <span>鸡蛋 1个（全蛋，用于挂糊）</span>
+            </li>
+            <li class="flex items-center ingredient-item p-2 rounded-lg">
+              <i class="fa fa-check-circle text-primary mr-3"></i>
+              <span>玉米淀粉 80克（挂糊+勾芡）</span>
+            </li>
+            <li class="flex items-center ingredient-item p-2 rounded-lg">
+              <i class="fa fa-check-circle text-primary mr-3"></i>
+              <span>面粉 20克（混合挂糊，增加酥脆度）</span>
+            </li>
+            <li class="flex items-center ingredient-item p-2 rounded-lg">
+              <i class="fa fa-check-circle text-primary mr-3"></i>
+              <span>清水 适量（调糊用）</span>
+            </li>
+          </ul>
+        </div>
+        
+        <!-- 调料 -->
+        <div class="bg-neutral p-8 rounded-xl shadow-md">
+          <h3 class="text-xl font-bold mb-6 flex items-center">
+            <i class="fa fa-flask text-primary mr-2"></i> 调料
+          </h3>
+          <ul class="space-y-3">
+            <li class="flex items-center ingredient-item p-2 rounded-lg">
+              <i class="fa fa-check-circle text-primary mr-3"></i>
+              <span>白糖 50克（酸甜核心，可按口味调整）</span>
+            </li>
+            <li class="flex items-center ingredient-item p-2 rounded-lg">
+              <i class="fa fa-check-circle text-primary mr-3"></i>
+              <span>香醋 40毫升（优选镇江香醋，香味浓郁）</span>
+            </li>
+            <li class="flex items-center ingredient-item p-2 rounded-lg">
+              <i class="fa fa-check-circle text-primary mr-3"></i>
+              <span>生抽 15毫升（提鲜，不宜过多避免发咸）</span>
+            </li>
+            <li class="flex items-center ingredient-item p-2 rounded-lg">
+              <i class="fa fa-check-circle text-primary mr-3"></i>
+              <span>番茄酱 30克（增色增味，关键调料）</span>
+            </li>
+            <li class="flex items-center ingredient-item p-2 rounded-lg">
+              <i class="fa fa-check-circle text-primary mr-3"></i>
+              <span>料酒 20毫升（腌制去腥）</span>
+            </li>
+            <li class="flex items-center ingredient-item p-2 rounded-lg">
+              <i class="fa fa-check-circle text-primary mr-3"></i>
+              <span>盐 2克（提味，平衡酸甜）</span>
+            </li>
+            <li class="flex items-center ingredient-item p-2 rounded-lg">
+              <i class="fa fa-check-circle text-primary mr-3"></i>
+              <span>食用油 适量（炸制用）</span>
+            </li>
+            <li class="flex items-center ingredient-item p-2 rounded-lg">
+              <i class="fa fa-check-circle text-primary mr-3"></i>
+              <span>白芝麻 少许（点缀用，可选）</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 制作工艺 -->
+  <section id="process" class="py-16 bg-neutral">
+    <div class="container mx-auto px-4">
+      <h2 class="text-[clamp(1.5rem,3vw,2rem)] font-serif font-bold text-dark mb-10 text-center">
+        制作工艺
+      </h2>
+      
+      <div class="max-w-4xl mx-auto bg-white p-8 md:p-12 rounded-xl shadow-md">
+        <div class="pl-10 space-y-12">
+          <!-- 步骤1 -->
+          <div class="process-step">
+            <h3 class="text-xl font-bold mb-3 flex items-center">
+              <span class="bg-primary text-white w-8 h-8 rounded-full flex items-center justify-center mr-3">1</span>
+              处理里脊、切条腌制
+            </h3>
+            <p class="text-gray-600 leading-relaxed">
+              猪里脊肉洗净，用厨房纸吸干表面水分，剔除筋膜（筋膜会影响口感，必须去除），切成1.5厘米粗的长条。
+              将肉条放入碗中，加入料酒、1克盐，用手抓匀，腌制15分钟去腥入味（腌制时间不宜过长，避免肉质出水）。
+              腌制完成后，倒出碗中渗出的水分，确保肉条表面干燥，便于挂糊。
+            </p>
+          </div>
+          
+          <!-- 步骤2 -->
+          <div class="process-step">
+            <h3 class="text-xl font-bold mb-3 flex items-center">
+              <span class="bg-primary text-white w-8 h-8 rounded-full flex items-center justify-center mr-3">2</span>
+              调制粉糊、均匀挂糊
+            </h3>
+            <p class="text-gray-600 leading-relaxed">
+              另取一碗，放入玉米淀粉、面粉，混合均匀（淀粉与面粉比例4:1，保证酥脆度）。打入鸡蛋，
+              分多次加入少量清水，搅拌成“厚而能流动”的粉糊（粉糊浓度以能均匀裹住肉条、不滴落为准，过稀易脱糊，过稠外皮过厚）。
+              将腌制好的肉条倒入粉糊中，用手抓拌，确保每根肉条都均匀裹上一层粉糊。
+            </p>
+          </div>
+          
+          <!-- 步骤3 -->
+          <div class="process-step">
+            <h3 class="text-xl font-bold mb-3 flex items-center">
+              <span class="bg-primary text-white w-8 h-8 rounded-full flex items-center justify-center mr-3">3</span>
+              首次炸制、定型酥脆
+            </h3>
+            <p class="text-gray-600 leading-relaxed">
+              锅中倒入足量食用油，烧至六成热（约180℃，判断标准：插入筷子，周围冒泡）。将挂好糊的肉条分批放入油中，
+              用筷子轻轻划散，避免粘连。炸至肉条表面微黄、定型酥脆时，捞出沥干油分（首次炸制时间约3分钟，
+              核心是定型，不要炸至全熟，避免复炸后肉质变老）。
+            </p>
+          </div>
+          
+          <!-- 步骤4 -->
+          <div class="process-step">
+            <h3 class="text-xl font-bold mb-3 flex items-center">
+              <span class="bg-primary text-white w-8 h-8 rounded-full flex items-center justify-center mr-3">4</span>
+              复炸增脆、色泽金黄
+            </h3>
+            <p class="text-gray-600 leading-relaxed">
+              将首次炸好的肉条全部捞出后，将油温升高至八成热（约220℃，油面微微冒烟）。
+              再次将所有肉条倒入锅中，快速复炸30-40秒，至表面金黄酥脆、外皮变硬时，立即捞出，
+              放在吸油纸上吸去多余油脂（复炸是外皮酥脆不回软的关键，时间不宜过长，避免炸焦）。
+            </p>
+          </div>
+          
+          <!-- 步骤5 -->
+          <div class="process-step">
+            <h3 class="text-xl font-bold mb-3 flex items-center">
+              <span class="bg-primary text-white w-8 h-8 rounded-full flex items-center justify-center mr-3">5</span>
+              调制糖醋汁、熬制浓稠
+            </h3>
+            <p class="text-gray-600 leading-relaxed">
+              锅中留少许底油，放入番茄酱，小火煸炒出红油（煸炒番茄酱能提升色泽和香味，不可省略）。
+              加入白糖、剩余1克盐、生抽，翻炒均匀。倒入香醋，搅拌至白糖完全融化，加入50毫升清水，
+              大火烧开后转小火熬煮2分钟。取10克玉米淀粉加20毫升清水调成水淀粉，分次加入锅中，
+              边加边搅拌，至汤汁浓稠、能挂在勺子上（糖醋汁比例参考：糖:醋:番茄酱=5:4:3，可按口味调整）。
+            </p>
+          </div>
+          
+          <!-- 步骤6 -->
+          <div class="process-step">
+            <h3 class="text-xl font-bold mb-3 flex items-center">
+              <span class="bg-primary text-white w-8 h-8 rounded-full flex items-center justify-center mr-3">6</span>
+              裹汁出锅、点缀装盘
+            </h3>
+            <p class="text-gray-600 leading-relaxed">
+              将复炸好的里脊条倒入糖醋汁中，转大火快速翻炒，让每根肉条都均匀裹上酱汁（翻炒动作要快，
+              避免肉质吸汁变软，失去酥脆口感）。翻炒10-15秒后，立即关火，盛出装盘。
+              可撒上少许白芝麻点缀，趁热食用，才能品尝到“外酥里嫩、酸甜浓郁”的最佳口感。
+            </p>
+          </div>
+        </div>
+        
+        <!-- 烹饪小贴士 -->
+        <div class="mt-12 bg-primary/5 p-6 rounded-lg border-l-4 border-primary">
+          <h4 class="font-bold text-lg mb-3 flex items-center">
+            <i class="fa fa-lightbulb-o text-primary mr-2"></i> 烹饪小贴士
+          </h4>
+          <ul class="text-gray-600 space-y-2">
+            <li class="flex items-start">
+              <i class="fa fa-angle-right text-primary mt-1 mr-2"></i>
+              <span>选肉技巧：必须选用猪外脊肉（里脊外层的嫩肉），肉质鲜嫩无筋；避免用猪里脊芯，虽嫩但缺乏嚼劲，炸后易散。</span>
+            </li>
+            <li class="flex items-start">
+              <i class="fa fa-angle-right text-primary mt-1 mr-2"></i>
+              <span>挂糊关键：粉糊的“浓度”是核心，过稀脱糊、过稠外皮硬；可加入少许食用油到粉糊中，让外皮更酥脆、不易回软。</span>
+            </li>
+            <li class="flex items-start">
+              <i class="fa fa-angle-right text-primary mt-1 mr-2"></i>
+              <span>炸制火候：首次炸制用六成热油温定型，复炸用八成热油温增脆，两次油温差异是“外酥里嫩”的关键；分批炸制，避免油温下降。</span>
+            </li>
+            <li class="flex items-start">
+              <i class="fa fa-angle-right text-primary mt-1 mr-2"></i>
+              <span>糖醋比例：经典比例为糖:醋=5:4，加入番茄酱后酸甜更柔和；喜欢偏酸可增加醋的用量，喜欢偏甜可增加白糖，生抽仅提鲜，用量别多。</span>
+            </li>
+            <li class="flex items-start">
+              <i class="fa fa-angle-right text-primary mt-1 mr-2"></i>
+              <span>搭配推荐：经典搭配是“糖醋里脊+白米饭”，酸甜酱汁拌米饭风味极佳；也可搭配馒头、花卷，或搭配清爽的凉拌黄瓜解腻。</span>
+            </li>
+            <li class="flex items-start">
+              <i class="fa fa-angle-right text-primary mt-1 mr-2"></i>
+              <span>进阶技巧：想要酱汁更亮泽，可在熬制糖醋汁时加入少许黄油；担心外皮回软，可在裹汁后放入烤箱180℃烤3分钟，复脆效果更佳。</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 相关推荐菜品 -->
+  <section class="py-16 bg-white">
+    <div class="container mx-auto px-4">
+      <h2 class="text-[clamp(1.5rem,3vw,2rem)] font-serif font-bold text-dark mb-10 text-center">
+        相关推荐菜品
+      </h2>
+      
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
+        <!-- 推荐菜品1 -->
+        <div class="dish-card bg-neutral rounded-lg overflow-hidden shadow-md">
+          <div class="relative h-48 overflow-hidden">
+            <img src="../wy/images/红焖牛肉2.jpg" alt="红焖牛肉" class="w-full h-full object-cover transition-transform duration-500 hover:scale-110">
+            <div class="absolute top-4 right-4 bg-primary text-white text-xs font-bold px-3 py-1 rounded-full">
+              经典鲁菜
+            </div>
+          </div>
+          <div class="p-6">
+            <h3 class="text-xl font-bold mb-2">红焖牛肉</h3>
+            <p class="text-gray-600 text-sm mb-4">
+              鲁菜经典硬菜，选用带筋牛腩，经焯水、煸炒后小火慢焖。肉质酥烂不柴，酱汁浓郁红亮，咸香醇厚，配饭绝佳。
+            </p>
+            <a href="#" class="text-primary font-medium hover:text-primary/80 transition-colors flex items-center">
+              查看详情 <i class="fa fa-angle-right ml-1"></i>
+            </a>
+          </div>
+        </div>
+        
+        <!-- 推荐菜品2（修改为鲅鱼饺子） -->
+        <div class="dish-card bg-neutral rounded-lg overflow-hidden shadow-md">
+          <div class="relative h-48 overflow-hidden">
+            <img src="../wy/images/by3.jpg" alt="鲅鱼饺子" class="w-full h-full object-cover transition-transform duration-500 hover:scale-110">
+            <div class="absolute top-4 right-4 bg-primary text-white text-xs font-bold px-3 py-1 rounded-full">
+              经典鲁菜
+            </div>
+          </div>
+          <div class="p-6">
+            <h3 class="text-xl font-bold mb-2">鲅鱼饺子</h3>
+            <p class="text-gray-600 text-sm mb-4">
+              鲁菜海鲜水饺代表，选用新鲜鲅鱼为馅，皮薄馅大，肉质鲜嫩弹牙，鲜而不腥，汤汁饱满。
+            </p>
+            <a href="#" class="text-primary font-medium hover:text-primary/80 transition-colors flex items-center">
+              查看详情 <i class="fa fa-angle-right ml-1"></i>
+            </a>
+          </div>
+        </div>
+        
+        <!-- 推荐菜品3 -->
+        <div class="dish-card bg-neutral rounded-lg overflow-hidden shadow-md">
+          <div class="relative h-48 overflow-hidden">
+            <img src="../wy/images/dx4.jpg" alt="油焖大虾" class="w-full h-full object-cover transition-transform duration-500 hover:scale-110">
+            <div class="absolute top-4 right-4 bg-primary text-white text-xs font-bold px-3 py-1 rounded-full">
+              经典鲁菜
+            </div>
+          </div>
+          <div class="p-6">
+            <h3 class="text-xl font-bold mb-2">油焖大虾</h3>
+            <p class="text-gray-600 text-sm mb-4">
+              鲁菜海鲜代表，虾身红润油亮，肉质鲜嫩紧实，咸鲜香甜，酱汁浓郁入味。
+            </p>
+            <a href="#" class="text-primary font-medium hover:text-primary/80 transition-colors flex items-center">
+              查看详情 <i class="fa fa-angle-right ml-1"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 页脚（保持原网站样式） -->
+  <footer class="bg-dark text-white py-12">
+    <div class="container mx-auto px-4">
+      <div class="grid md:grid-cols-4 gap-8">
+        <div>
+          <div class="flex items-center space-x-2 mb-6">
+            <i class="fa fa-cutlery text-secondary text-2xl"></i>
+            <span class="text-xl font-serif font-bold text-secondary">鲁菜传承</span>
+          </div>
+          <p class="text-gray-400 mb-6">
+            传承鲁菜文化，弘扬中华美食，让更多人了解和喜爱鲁菜。
+          </p>
+          <div class="flex space-x-4">
+            <a href="#" class="text-gray-400 hover:text-secondary transition-colors">
+              <i class="fa fa-weixin text-xl"></i>
+            </a>
+            <a href="#" class="text-gray-400 hover:text-secondary transition-colors">
+              <i class="fa fa-weibo text-xl"></i>
+            </a>
+            <a href="#" class="text-gray-400 hover:text-secondary transition-colors">
+              <i class="fa fa-instagram text-xl"></i>
+            </a>
+          </div>
+        </div>
+        
+        <div>
+          <h4 class="text-lg font-bold mb-6 text-secondary">快速链接</h4>
+          <ul class="space-y-3">
+            <li><a href="index.html#home" class="text-gray-400 hover:text-secondary transition-colors">首页</a></li>
+            <li><a href="index.html#about" class="text-gray-400 hover:text-secondary transition-colors">关于鲁菜</a></li>
+            <li><a href="index.html#dishes" class="text-gray-400 hover:text-secondary transition-colors">菜品展示</a></li>
+            <li><a href="index.html#culture" class="text-gray-400 hover:text-secondary transition-colors">鲁菜文化</a></li>
+          </ul>
+        </div>
+        
+        <div>
+          <h4 class="text-lg font-bold mb-6 text-secondary">经典菜品</h4>
+          <ul class="space-y-3">
+            <li><a href="#" class="text-gray-400 hover:text-secondary transition-colors">糖醋里脊</a></li>
+            <li><a href="#" class="text-gray-400 hover:text-secondary transition-colors">红焖牛肉</a></li>
+            <li><a href="#" class="text-gray-400 hover:text-secondary transition-colors">鲅鱼饺子</a></li>
+            <li><a href="#" class="text-gray-400 hover:text-secondary transition-colors">油焖大虾</a></li>
+          </ul>
+        </div>
+        
+        <div></div>
+      </div>
+      
+      <div class="border-t border-gray-800 mt-10 pt-6 text-center text-gray-500 text-sm">
+        <p>&copy; 2025 鲁味风华 -AI素材库- 保留所有权利</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- 回到顶部按钮 -->
+  <button id="back-to-top" class="fixed bottom-8 right-8 bg-primary text-white w-12 h-12 rounded-full flex items-center justify-center shadow-lg opacity-0 invisible transition-all duration-300 hover:bg-primary/90">
+    <i class="fa fa-arrow-up"></i>
+  </button>
+
+  <script>
+    // 移动端菜单切换
+    const menuToggle = document.getElementById('menu-toggle');
+    const mobileMenu = document.getElementById('mobile-menu');
+    const navbar = document.getElementById('navbar');
+    const backToTop = document.getElementById('back-to-top');
+
+    menuToggle.addEventListener('click', function() {
+      mobileMenu.classList.toggle('hidden');
+      const icon = this.querySelector('i');
+      if (mobileMenu.classList.contains('hidden')) {
+        icon.classList.remove('fa-times');
+        icon.classList.add('fa-bars');
+      } else {
+        icon.classList.remove('fa-bars');
+        icon.classList.add('fa-times');
+      }
+    });
+
+    // 导航栏滚动效果
+    window.addEventListener('scroll', function() {
+      if (window.scrollY > 100) {
+        navbar.classList.add('py-2', 'shadow');
+        navbar.classList.remove('py-3');
+        
+        // 显示回到顶部按钮
+        backToTop.classList.remove('opacity-0', 'invisible');
+        backToTop.classList.add('opacity-100', 'visible');
+      } else {
+        navbar.classList.add('py-3');
+        navbar.classList.remove('py-2', 'shadow');
+        
+        // 隐藏回到顶部按钮
+        backToTop.classList.add('opacity-0', 'invisible');
+        backToTop.classList.remove('opacity-100', 'visible');
+      }
+    });
+
+    // 回到顶部功能
+    backToTop.addEventListener('click', function() {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    });
+
+    // 图片画廊切换
+    const galleryImages = document.querySelectorAll('.dish-gallery-img');
+    const mainImage = document.querySelector('.bg-neutral img');
+    
+    galleryImages.forEach(img => {
+      img.addEventListener('click', function() {
+        mainImage.src = this.src;
+        mainImage.alt = this.alt;
+      });
+    });
+
+    // 点击移动端菜单链接后关闭菜单
+    const mobileLinks = mobileMenu.querySelectorAll('a');
+    mobileLinks.forEach(link => {
+      link.addEventListener('click', function() {
+        mobileMenu.classList.add('hidden');
+        const icon = menuToggle.querySelector('i');
+        icon.classList.remove('fa-times');
+        icon.classList.add('fa-bars');
+      });
+    });
+  </script>
+</body>
+</html>

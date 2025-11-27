@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>济南把子肉 - 鲁味风华</title>
+  <!-- 引入外部资源 -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  
+  <!-- Tailwind 配置 -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#A62928',      // 鲁菜主色调：深红色
+            secondary: '#D9B38C',    // 辅助色：暖棕色
+            neutral: '#F5F1E9',      // 中性色：米白色
+            dark: '#3A2E21'          // 深色：深棕色
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            serif: ['"Noto Serif SC"', 'serif']
+          }
+        }
+      }
+    }
+  </script>
+  
+  <!-- 自定义工具类 -->
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .content-auto {
+        content-visibility: auto;
+      }
+      .text-shadow {
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+      }
+      .card-hover {
+        transition: all 0.3s ease;
+      }
+      .card-hover:hover {
+        transform: translateY(-5px);
+      }
+    }
+  </style>
+  
+  <style>
+    /* 全局样式 */
+    html {
+      scroll-behavior: smooth;
+    }
+    
+    /* 菜品详情页样式 */
+    .dish-gallery-img {
+      transition: transform 0.3s ease;
+    }
+    .dish-gallery-img:hover {
+      transform: scale(1.05);
+    }
+    
+    .ingredient-item {
+      transition: all 0.2s ease;
+    }
+    .ingredient-item:hover {
+      background-color: #F5F1E9;
+      transform: translateX(5px);
+    }
+    
+    .process-step {
+      position: relative;
+    }
+    .process-step::before {
+      content: '';
+      position: absolute;
+      left: -30px;
+      top: 8px;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background-color: #A62928;
+    }
+    .process-step::after {
+      content: '';
+      position: absolute;
+      left: -22px;
+      top: 24px;
+      width: 2px;
+      height: calc(100% + 16px);
+      background-color: #D9B38C;
+    }
+    .process-step:last-child::after {
+      display: none;
+    }
+  </style>
+</head>
+
+<body class="bg-neutral text-dark">
+  <!-- 导航栏（保持原网站样式） -->
+  <header id="navbar" class="fixed w-full top-0 z-50 transition-all duration-300 bg-white/90 backdrop-blur-sm shadow-sm">
+    <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+      <a href="index.html" class="flex items-center space-x-2">
+        <i class="fa fa-cutlery text-primary text-2xl"></i>
+        <span class="text-xl font-serif font-bold text-primary">鲁味风华</span>
+      </a>
+      
+      <!-- 桌面导航 -->
+      <nav class="hidden md:flex items-center space-x-8">
+        <a href="主界面.html" class="font-medium hover:text-primary transition-colors">首页</a>
+        <a href="主界面.html" class="font-medium hover:text-primary transition-colors">关于鲁菜</a>
+        菜品展示
+        <a href="index.html#culture" class="font-medium hover:text-primary transition-colors">鲁菜文化</a>
+      </nav>
+      
+      <!-- 移动端菜单按钮 -->
+      <button id="menu-toggle" class="md:hidden text-dark focus:outline-none">
+        <i class="fa fa-bars text-xl"></i>
+      </button>
+    </div>
+    
+    <!-- 移动端导航菜单 -->
+    <div id="mobile-menu" class="hidden md:hidden bg-white shadow-lg absolute w-full">
+      <div class="container mx-auto px-4 py-3 flex flex-col space-y-4">
+        <a href="index.html#home" class="font-medium py-2 hover:text-primary transition-colors">首页</a>
+        <a href="index.html#about" class="font-medium py-2 hover:text-primary transition-colors">关于鲁菜</a>
+        <a href="index.html#dishes" class="font-medium py-2 text-primary transition-colors">菜品展示</a>
+        <a href="index.html#culture" class="font-medium py-2 hover:text-primary transition-colors">鲁菜文化</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- 菜品详情头部 -->
+  <section class="pt-32 pb-16 bg-white">
+    <div class="container mx-auto px-4">
+      <div class="flex flex-col md:flex-row gap-8 items-start">
+        <!-- 菜品主图 -->
+        <div class="w-full md:w-1/2">
+          <div class="bg-neutral rounded-xl overflow-hidden shadow-lg">
+            <img src="../wy/images/11.jpg" alt="济南把子肉" class="w-full h-[400px] object-cover">
+          </div>
+          
+          <!-- 菜品图片画廊（济南把子肉本地图片） -->
+          <div class="grid grid-cols-4 gap-4 mt-4">
+            <div class="rounded-lg overflow-hidden shadow-md cursor-pointer">
+              <img src="../wy/images/11.jpg" alt="济南把子肉1" class="w-full h-24 object-cover dish-gallery-img">
+            </div>
+            <div class="rounded-lg overflow-hidden shadow-md cursor-pointer">
+              <img src="../wy/images/bazirou2.jpg" alt="济南把子肉2" class="w-full h-24 object-cover dish-gallery-img">
+            </div>
+            <div class="rounded-lg overflow-hidden shadow-md cursor-pointer">
+              <img src="../wy/images/bazirou3.jpg" alt="济南把子肉3" class="w-full h-24 object-cover dish-gallery-img">
+            </div>
+            <div class="rounded-lg overflow-hidden shadow-md cursor-pointer">
+              <img src="../wy/images/bazirou4.jpg" alt="济南把子肉4" class="w-full h-24 object-cover dish-gallery-img">
+            </div>
+          </div>
+        </div>
+        
+        <!-- 菜品信息 -->
+        <div class="w-full md:w-1/2">
+          <div class="flex items-center gap-3 mb-4">
+            <span class="bg-primary/10 text-primary text-xs font-bold px-3 py-1 rounded-full">经典鲁菜·荤菜</span>
+            <span class="bg-secondary/20 text-dark text-xs font-medium px-3 py-1 rounded-full flex items-center">
+              <i class="fa fa-star text-yellow-500 mr-1"></i> 4.9 好评
+            </span>
+          </div>
+          
+          <h1 class="text-[clamp(1.8rem,4vw,2.5rem)] font-serif font-bold text-dark mb-4">济南把子肉</h1>
+          
+          <p class="text-gray-600 mb-6 leading-relaxed">
+            济南把子肉是鲁菜中最具烟火气的经典荤菜，以带皮五花肉为核心原料，经切块、焯水、煸炒、慢炖、收汁而成。
+            菜品色泽红亮油润，肉块肥瘦相间、软糯不柴，肥油部分入口即化，瘦肉部分吸满酱汁、酱香浓郁，
+            咸鲜适口且带着微微回甘，无需过多香料堆砌，仅凭酱油、冰糖和时间的沉淀，成就“肥而不腻、瘦而不柴”的极致口感，
+            是济南人早餐、午餐的必备佳肴，也是鲁菜“大口吃肉、醇厚入味”风格的典型代表。
+          </p>
+          
+          <!-- 菜品基本信息 -->
+          <div class="grid grid-cols-2 gap-6 mb-8">
+            <div class="flex items-center">
+              <i class="fa fa-clock-o text-primary text-xl mr-3"></i>
+              <div>
+                <p class="text-sm text-gray-500">制作时长</p>
+                <p class="font-medium">约90分钟</p>
+              </div>
+            </div>
+            <div class="flex items-center">
+              <i class="fa fa-map-marker text-primary text-xl mr-3"></i>
+              <div>
+                <p class="text-sm text-gray-500">起源地</p>
+                <p class="font-medium">山东济南</p>
+              </div>
+            </div>
+            <div class="flex items-center">
+              <i class="fa fa-fire text-primary text-xl mr-3"></i>
+              <div>
+                <p class="text-sm text-gray-500">热量</p>
+                <p class="font-medium">450 大卡/份</p>
+              </div>
+            </div>
+            <div class="flex items-center">
+              <i class="fa fa-history text-primary text-xl mr-3"></i>
+              <div>
+                <p class="text-sm text-gray-500">历史渊源</p>
+                <p class="font-medium">清代早期</p>
+              </div>
+            </div>
+          </div>
+          
+          <a href="#process" class="inline-block bg-primary hover:bg-primary/90 text-white font-medium py-3 px-8 rounded-md transition-all transform hover:scale-105 mb-4">
+            查看制作工艺 <i class="fa fa-arrow-right ml-2"></i>
+          </a>
+          <a href="主界面.html" class="inline-block bg-white border border-gray-300 hover:border-primary text-dark font-medium py-3 px-8 rounded-md transition-all ml-4">
+            <i class="fa fa-arrow-left ml-1"></i> 返回菜品列表
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 菜品历史渊源 -->
+  <section class="py-16 bg-neutral">
+    <div class="container mx-auto px-4">
+      <div class="max-w-3xl mx-auto">
+        <h2 class="text-[clamp(1.5rem,3vw,2rem)] font-serif font-bold text-dark mb-6 flex items-center">
+          <i class="fa fa-history text-primary mr-3"></i> 历史渊源
+        </h2>
+        <div class="bg-white p-8 rounded-xl shadow-md">
+          <p class="text-gray-600 mb-4 leading-relaxed">
+            济南把子肉起源于清代早期，相传与明末清初的“把子会”有关，当时民众为纪念抗清义士，将猪肉切成大块，
+            用草绳捆扎成“把子”形状祭祀，祭祀后煮食，逐渐形成“把子肉”的雏形。清代中期，济南成为鲁菜核心发源地，
+            把子肉从祭祀食品转变为街头小吃，商贩们在集市、码头支起大锅，慢炖把子肉，搭配米饭、馒头售卖，
+            因其实惠、入味、饱腹感强，深受百姓喜爱。
+          </p>
+          <p class="text-gray-600 mb-4 leading-relaxed">
+            民国时期，济南把子肉的制作工艺逐渐成熟，“超意兴”“闫府私房菜”等老字号将其纳入固定菜单，
+            并优化配方：选用带皮五花肉，以酱油、冰糖、甜面酱调味，不用复杂香料，突出肉本身的香味和酱汁的醇厚。
+            这种“大道至简”的烹饪方式，恰好契合鲁菜“以鲜为尊、入味为魂”的理念，使把子肉成为济南的城市美食符号。
+          </p>
+          <p class="text-gray-600 leading-relaxed">
+            如今，济南把子肉不仅是本地人日常饮食的重要组成部分，更成为外地游客到济南必尝的经典菜品。
+            它没有精致的摆盘，却凭着“肥而不腻、瘦而不柴”的口感和浓郁的烟火气，征服了无数食客。
+            其制作工艺被代代相传，既保留了传统风味，又适应现代饮食需求，成为鲁菜中“平民美食”与“经典工艺”完美结合的典范。
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 食材准备 -->
+  <section class="py-16 bg-white">
+    <div class="container mx-auto px-4">
+      <h2 class="text-[clamp(1.5rem,3vw,2rem)] font-serif font-bold text-dark mb-10 text-center">
+        食材准备
+      </h2>
+      
+      <div class="grid md:grid-cols-2 gap-10">
+        <!-- 主料 -->
+        <div class="bg-neutral p-8 rounded-xl shadow-md">
+          <h3 class="text-xl font-bold mb-6 flex items-center">
+            <i class="fa fa-cutlery text-primary mr-2"></i> 主料
+          </h3>
+          <ul class="space-y-3">
+            <li class="flex items-center ingredient-item p-2 rounded-lg">
+              <i class="fa fa-check-circle text-primary mr-3"></i>
+              <span>带皮五花肉 800克（选三层肥瘦相间的猪肋条肉）</span>
+            </li>
+            <li class="flex items-center ingredient-item p-2 rounded-lg">
+              <i class="fa fa-check-circle text-primary mr-3"></i>
+              <span>章丘大葱 60克（切段）</span>
+            </li>
+            <li class="flex items-center ingredient-item p-2 rounded-lg">
+              <i class="fa fa-check-circle text-primary mr-3"></i>
+              <span>生姜 30克（切片）</span>
+            </li>
+            <li class="flex items-center ingredient-item p-2 rounded-lg">
+              <i class="fa fa-check-circle text-primary mr-3"></i>
+              <span>大蒜 4瓣（拍碎）</span>
+            </li>
+            <li class="flex items-center ingredient-item p-2 rounded-lg">
+              <i class="fa fa-check-circle text-primary mr-3"></i>
+              <span>草绳（或棉线）适量（捆扎肉块用）</span>
+            </li>
+          </ul>
+        </div>
+        
+        <!-- 调料 -->
+        <div class="bg-neutral p-8 rounded-xl shadow-md">
+          <h3 class="text-xl font-bold mb-6 flex items-center">
+            <i class="fa fa-flask text-primary mr-2"></i> 调料
+          </h3>
+          <ul class="space-y-3">
+            <li class="flex items-center ingredient-item p-2 rounded-lg">
+              <i class="fa fa-check-circle text-primary mr-3"></i>
+              <span>生抽 50毫升（提鲜）</span>
+            </li>
+            <li class="flex items-center ingredient-item p-2 rounded-lg">
+              <i class="fa fa-check-circle text-primary mr-3"></i>
+              <span>老抽 15毫升（上色）</span>
+            </li>
+            <li class="flex items-center ingredient-item p-2 rounded-lg">
+              <i class="fa fa-check-circle text-primary mr-3"></i>
+              <span>冰糖 20克（增甜、提亮）</span>
+            </li>
+            <li class="flex items-center ingredient-item p-2 rounded-lg">
+              <i class="fa fa-check-circle text-primary mr-3"></i>
+              <span>甜面酱 15克（增香、提味）</span>
+            </li>
+            <li class="flex items-center ingredient-item p-2 rounded-lg">
+              <i class="fa fa-check-circle text-primary mr-3"></i>
+              <span>料酒 40毫升（去腥）</span>
+            </li>
+            <li class="flex items-center ingredient-item p-2 rounded-lg">
+              <i class="fa fa-check-circle text-primary mr-3"></i>
+              <span>盐 4克（根据口味调整）</span>
+            </li>
+            <li class="flex items-center ingredient-item p-2 rounded-lg">
+              <i class="fa fa-check-circle text-primary mr-3"></i>
+              <span>八角 2个、桂皮 1小块（可选，增香）</span>
+            </li>
+            <li class="flex items-center ingredient-item p-2 rounded-lg">
+              <i class="fa fa-check-circle text-primary mr-3"></i>
+              <span>清水 适量（没过肉块）</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 制作工艺 -->
+  <section id="process" class="py-16 bg-neutral">
+    <div class="container mx-auto px-4">
+      <h2 class="text-[clamp(1.5rem,3vw,2rem)] font-serif font-bold text-dark mb-10 text-center">
+        制作工艺
+      </h2>
+      
+      <div class="max-w-4xl mx-auto bg-white p-8 md:p-12 rounded-xl shadow-md">
+        <div class="pl-10 space-y-12">
+          <!-- 步骤1 -->
+          <div class="process-step">
+            <h3 class="text-xl font-bold mb-3 flex items-center">
+              <span class="bg-primary text-white w-8 h-8 rounded-full flex items-center justify-center mr-3">1</span>
+              处理五花肉、捆扎成形
+            </h3>
+            <p class="text-gray-600 leading-relaxed">
+              带皮五花肉洗净，用厨房纸吸干表面水分，切成5厘米见方的大块（保持肥瘦相连，避免散架）。
+              用草绳（或棉线）将肉块紧紧捆扎成“十字花”形状（捆扎可防止炖制时肉块散开，让口感更紧实），
+              捆扎后放入盆中备用（若肉块较大，可切至4-5厘米，确保入味均匀）。
+            </p>
+          </div>
+          
+          <!-- 步骤2 -->
+          <div class="process-step">
+            <h3 class="text-xl font-bold mb-3 flex items-center">
+              <span class="bg-primary text-white w-8 h-8 rounded-full flex items-center justify-center mr-3">2</span>
+              焯水去腥
+            </h3>
+            <p class="text-gray-600 leading-relaxed">
+              锅中加入足量清水，放入20毫升料酒、10克姜片、半段葱段，大火烧开后放入捆扎好的五花肉块。
+              再次烧开后撇去表面的血沫和杂质（血沫要撇干净，避免影响菜品口感和色泽），继续焯水3分钟，
+              至肉块表面变色、无血水渗出时，捞出用温水冲洗干净，沥干水分备用（用温水冲洗，避免肉质遇冷收缩变柴）。
+            </p>
+          </div>
+          
+          <!-- 步骤3 -->
+          <div class="process-step">
+            <h3 class="text-xl font-bold mb-3 flex items-center">
+              <span class="bg-primary text-white w-8 h-8 rounded-full flex items-center justify-center mr-3">3</span>
+              煸炒上色
+            </h3>
+            <p class="text-gray-600 leading-relaxed">
+              锅中放入少许食用油（五花肉会出油，油无需过多），烧至五成热（约150℃），放入剩余葱段、姜片、大蒜、八角、桂皮，
+              小火煸炒出香味。倒入焯好水的五花肉块，转中火慢慢煸炒，至肉块表面微黄、析出部分油脂，
+              加入甜面酱，快速翻炒均匀，让每块肉都均匀裹上酱色（煸炒可去除部分肥油，让口感更不腻，酱色能增加菜品酱香）。
+            </p>
+          </div>
+          
+          <!-- 步骤4 -->
+          <div class="process-step">
+            <h3 class="text-xl font-bold mb-3 flex items-center">
+              <span class="bg-primary text-white w-8 h-8 rounded-full flex items-center justify-center mr-3">4</span>
+              调味加汤
+            </h3>
+            <p class="text-gray-600 leading-relaxed">
+              加入生抽、老抽、剩余料酒，翻炒均匀，让肉块充分吸收调料香味。放入冰糖，翻炒至冰糖开始融化，
+              倒入足量清水（清水需完全没过肉块，约800毫升），大火烧开后转小火，用勺子撇去表面残留的浮沫，
+              加盐调味（盐不宜过多，生抽和甜面酱已有咸味，后续收汁会让味道变浓）。
+            </p>
+          </div>
+          
+          <!-- 步骤5 -->
+          <div class="process-step">
+            <h3 class="text-xl font-bold mb-3 flex items-center">
+              <span class="bg-primary text-white w-8 h-8 rounded-full flex items-center justify-center mr-3">5</span>
+              慢炖入味
+            </h3>
+            <p class="text-gray-600 leading-relaxed">
+              盖上锅盖，小火慢炖1小时（若用高压锅，上汽后压30分钟即可），期间每隔20分钟打开锅盖，
+              将肉块翻面一次，确保每面都能均匀吸收酱汁（小火慢炖是关键，让肉质逐渐软糯，酱汁慢慢渗透）。
+              炖至60分钟后，检查肉质：用筷子能轻松插入肉块最厚处，且无阻力时，说明肉质已软糯。
+            </p>
+          </div>
+          
+          <!-- 步骤6 -->
+          <div class="process-step">
+            <h3 class="text-xl font-bold mb-3 flex items-center">
+              <span class="bg-primary text-white w-8 h-8 rounded-full flex items-center justify-center mr-3">6</span>
+              收汁出锅
+            </h3>
+            <p class="text-gray-600 leading-relaxed">
+              打开锅盖，转大火收汁，期间不断用勺子将锅中的酱汁舀起，浇在肉块上（让肉块表面更红亮、酱汁更浓郁）。
+              收汁至酱汁浓稠、能挂在肉块表面时，关火。将炖好的把子肉取出，解开草绳，整齐摆入盘中，
+              淋上剩余的酱汁，可撒上少许葱花点缀，搭配米饭、馒头或面筋食用，风味更佳。
+            </p>
+          </div>
+        </div>
+        
+        <!-- 烹饪小贴士 -->
+        <div class="mt-12 bg-primary/5 p-6 rounded-lg border-l-4 border-primary">
+          <h4 class="font-bold text-lg mb-3 flex items-center">
+            <i class="fa fa-lightbulb-o text-primary mr-2"></i> 烹饪小贴士
+          </h4>
+          <ul class="text-gray-600 space-y-2">
+            <li class="flex items-start">
+              <i class="fa fa-angle-right text-primary mt-1 mr-2"></i>
+              <span>选肉技巧：必须选用带皮五花肉，且要“三层肥两层瘦”的肋条肉，这种肉炖后软糯不柴，肥油入口即化；避免选纯肥或纯瘦的肉，影响口感。</span>
+            </li>
+            <li class="flex items-start">
+              <i class="fa fa-angle-right text-primary mt-1 mr-2"></i>
+              <span>捆扎要点：草绳捆扎要松紧适度，过松会导致肉块散开，过紧会影响酱汁渗透；没有草绳可用棉线替代，捆扎成“十字花”最稳固。</span>
+            </li>
+            <li class="flex items-start">
+              <i class="fa fa-angle-right text-primary mt-1 mr-2"></i>
+              <span>火候控制：焯水用大火，煸炒用中火，慢炖用小火，收汁用大火；尤其慢炖阶段，火不能太大，否则汤汁蒸发过快，肉质未软就已干锅。</span>
+            </li>
+            <li class="flex items-start">
+              <i class="fa fa-angle-right text-primary mt-1 mr-2"></i>
+              <span>调味关键：甜面酱是增香核心，不能省略；老抽仅用于上色，用量不宜过多，否则会发苦；冰糖不仅增甜，还能让酱汁更亮泽。</span>
+            </li>
+            <li class="flex items-start">
+              <i class="fa fa-angle-right text-primary mt-1 mr-2"></i>
+              <span>搭配推荐：经典搭配是“把子肉+白米饭”，酱汁拌米饭堪称“米饭杀手”；也可搭配馒头、花卷，或在炖肉时加入面筋、鸡蛋、豆腐，吸满酱汁后风味极佳。</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 相关推荐菜品 -->
+  <section class="py-16 bg-white">
+    <div class="container mx-auto px-4">
+      <h2 class="text-[clamp(1.5rem,3vw,2rem)] font-serif font-bold text-dark mb-10 text-center">
+        相关推荐菜品
+      </h2>
+      
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
+        <!-- 推荐菜品1 -->
+        <div class="dish-card bg-neutral rounded-lg overflow-hidden shadow-md">
+          <div class="relative h-48 overflow-hidden">
+            <img src="../wy/images/红焖牛肉2.jpg" alt="红焖牛肉" class="w-full h-full object-cover transition-transform duration-500 hover:scale-110">
+            <div class="absolute top-4 right-4 bg-primary text-white text-xs font-bold px-3 py-1 rounded-full">
+              经典鲁菜
+            </div>
+          </div>
+          <div class="p-6">
+            <h3 class="text-xl font-bold mb-2">红焖牛肉</h3>
+            <p class="text-gray-600 text-sm mb-4">
+             鲁菜经典硬菜，选用带筋牛腩，经焯水、煸炒后小火慢焖。肉质酥烂不柴，酱汁浓郁红亮，咸香醇厚，配饭绝佳。
+            </p>
+            <a href="#" class="text-primary font-medium hover:text-primary/80 transition-colors flex items-center">
+              查看详情 <i class="fa fa-angle-right ml-1"></i>
+            </a>
+          </div>
+        </div>
+        
+        <!-- 推荐菜品2 -->
+        <div class="dish-card bg-neutral rounded-lg overflow-hidden shadow-md">
+          <div class="relative h-48 overflow-hidden">
+            <img src="../wy/images/hs2.jpg" alt="葱烧海参" class="w-full h-full object-cover transition-transform duration-500 hover:scale-110">
+            <div class="absolute top-4 right-4 bg-primary text-white text-xs font-bold px-3 py-1 rounded-full">
+              经典鲁菜
+            </div>
+          </div>
+          <div class="p-6">
+            <h3 class="text-xl font-bold mb-2">葱烧海参</h3>
+            <p class="text-gray-600 text-sm mb-4">
+              鲁菜"海八珍"代表，海参软糯弹牙，葱段香甜浓郁，汤汁醇厚挂味，咸鲜适口。
+            </p>
+            <a href="#" class="text-primary font-medium hover:text-primary/80 transition-colors flex items-center">
+              查看详情 <i class="fa fa-angle-right ml-1"></i>
+            </a>
+          </div>
+        </div>
+        
+        <!-- 推荐菜品3 -->
+        <div class="dish-card bg-neutral rounded-lg overflow-hidden shadow-md">
+          <div class="relative h-48 overflow-hidden">
+            <img src="../wy/images/dx3.jpg" alt="油焖大虾" class="w-full h-full object-cover transition-transform duration-500 hover:scale-110">
+            <div class="absolute top-4 right-4 bg-primary text-white text-xs font-bold px-3 py-1 rounded-full">
+              经典鲁菜
+            </div>
+          </div>
+          <div class="p-6">
+            <h3 class="text-xl font-bold mb-2">油焖大虾</h3>
+            <p class="text-gray-600 text-sm mb-4">
+              鲁菜海鲜代表，虾身红润油亮，肉质鲜嫩紧实，咸鲜香甜，酱汁浓郁入味。
+            </p>
+            <a href="#" class="text-primary font-medium hover:text-primary/80 transition-colors flex items-center">
+              查看详情 <i class="fa fa-angle-right ml-1"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 页脚（保持原网站样式） -->
+  <footer class="bg-dark text-white py-12">
+    <div class="container mx-auto px-4">
+      <div class="grid md:grid-cols-4 gap-8">
+        <div>
+          <div class="flex items-center space-x-2 mb-6">
+            <i class="fa fa-cutlery text-secondary text-2xl"></i>
+            <span class="text-xl font-serif font-bold text-secondary">鲁菜传承</span>
+          </div>
+          <p class="text-gray-400 mb-6">
+            传承鲁菜文化，弘扬中华美食，让更多人了解和喜爱鲁菜。
+          </p>
+          <div class="flex space-x-4">
+            <a href="#" class="text-gray-400 hover:text-secondary transition-colors">
+              <i class="fa fa-weixin text-xl"></i>
+            </a>
+            <a href="#" class="text-gray-400 hover:text-secondary transition-colors">
+              <i class="fa fa-weibo text-xl"></i>
+            </a>
+            <a href="#" class="text-gray-400 hover:text-secondary transition-colors">
+              <i class="fa fa-instagram text-xl"></i>
+            </a>
+          </div>
+        </div>
+        
+        <div>
+          <h4 class="text-lg font-bold mb-6 text-secondary">快速链接</h4>
+          <ul class="space-y-3">
+            <li><a href="index.html#home" class="text-gray-400 hover:text-secondary transition-colors">首页</a></li>
+            <li><a href="index.html#about" class="text-gray-400 hover:text-secondary transition-colors">关于鲁菜</a></li>
+            <li><a href="index.html#dishes" class="text-gray-400 hover:text-secondary transition-colors">菜品展示</a></li>
+            <li><a href="index.html#culture" class="text-gray-400 hover:text-secondary transition-colors">鲁菜文化</a></li>
+          </ul>
+        </div>
+        
+        <div>
+          <h4 class="text-lg font-bold mb-6 text-secondary">经典菜品</h4>
+          <ul class="space-y-3">
+            <li><a href="#" class="text-gray-400 hover:text-secondary transition-colors">济南把子肉</a></li>
+            <li><a href="#" class="text-gray-400 hover:text-secondary transition-colors">红焖牛肉</a></li>
+            <li><a href="#" class="text-gray-400 hover:text-secondary transition-colors">葱烧海参</a></li>
+            <li><a href="#" class="text-gray-400 hover:text-secondary transition-colors">油焖大虾</a></li>
+          </ul>
+        </div>
+        
+        <div></div>
+      </div>
+      
+      <div class="border-t border-gray-800 mt-10 pt-6 text-center text-gray-500 text-sm">
+        <p>&copy; 2025 鲁味风华 -AI素材库- 保留所有权利</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- 回到顶部按钮 -->
+  <button id="back-to-top" class="fixed bottom-8 right-8 bg-primary text-white w-12 h-12 rounded-full flex items-center justify-center shadow-lg opacity-0 invisible transition-all duration-300 hover:bg-primary/90">
+    <i class="fa fa-arrow-up"></i>
+  </button>
+
+  <script>
+    // 移动端菜单切换
+    const menuToggle = document.getElementById('menu-toggle');
+    const mobileMenu = document.getElementById('mobile-menu');
+    const navbar = document.getElementById('navbar');
+    const backToTop = document.getElementById('back-to-top');
+
+    menuToggle.addEventListener('click', function() {
+      mobileMenu.classList.toggle('hidden');
+      const icon = this.querySelector('i');
+      if (mobileMenu.classList.contains('hidden')) {
+        icon.classList.remove('fa-times');
+        icon.classList.add('fa-bars');
+      } else {
+        icon.classList.remove('fa-bars');
+        icon.classList.add('fa-times');
+      }
+    });
+
+    // 导航栏滚动效果
+    window.addEventListener('scroll', function() {
+      if (window.scrollY > 100) {
+        navbar.classList.add('py-2', 'shadow');
+        navbar.classList.remove('py-3');
+        
+        // 显示回到顶部按钮
+        backToTop.classList.remove('opacity-0', 'invisible');
+        backToTop.classList.add('opacity-100', 'visible');
+      } else {
+        navbar.classList.add('py-3');
+        navbar.classList.remove('py-2', 'shadow');
+        
+        // 隐藏回到顶部按钮
+        backToTop.classList.add('opacity-0', 'invisible');
+        backToTop.classList.remove('opacity-100', 'visible');
+      }
+    });
+
+    // 回到顶部功能
+    backToTop.addEventListener('click', function() {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    });
+
+    // 图片画廊切换
+    const galleryImages = document.querySelectorAll('.dish-gallery-img');
+    const mainImage = document.querySelector('.bg-neutral img');
+    
+    galleryImages.forEach(img => {
+      img.addEventListener('click', function() {
+        mainImage.src = this.src;
+        mainImage.alt = this.alt;
+      });
+    });
+
+    // 点击移动端菜单链接后关闭菜单
+    const mobileLinks = mobileMenu.querySelectorAll('a');
+    mobileLinks.forEach(link => {
+      link.addEventListener('click', function() {
+        mobileMenu.classList.add('hidden');
+        const icon = menuToggle.querySelector('i');
+        icon.classList.remove('fa-times');
+        icon.classList.add('fa-bars');
+      });
+    });
+  </script>
+</body>
+</html>

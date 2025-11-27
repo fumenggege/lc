@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="shortcut icon" href="images/logo.jpg">
+  <title>鲁味风华</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#A62928',
+            secondary: '#D9B38C',
+            neutral: '#F5F1E9',
+            dark: '#3A2E21'
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            serif: ['"Noto Serif SC"', 'serif']
+          }
+        }
+      }
+    }
+  </script>
+  
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .content-auto {
+        content-visibility: auto;
+      }
+      .text-shadow {
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+      }
+    }
+  </style>
+  
+  <style>
+    html {
+      scroll-behavior: smooth;
+    }
+    
+    .dish-card {
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .dish-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+    }
+    
+    .search-container:focus-within {
+      box-shadow: 0 0 0 3px rgba(166, 41, 40, 0.2);
+    }
+    
+    .translate-btn {
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .translate-btn:hover {
+      transform: scale(1.05);
+    }
+    .translate-btn.loading {
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
+    .translate-btn.loading::after {
+      content: "";
+      width: 16px;
+      height: 16px;
+      border: 2px solid #ffffff;
+      border-top: 2px solid transparent;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    .lang-dropdown {
+      position: absolute;
+      top: 100%;
+      right: 0;
+      margin-top: 4px;
+      width: 180px;
+      background: white;
+      border-radius: 4px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      z-index: 100;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.2s ease;
+    }
+    .lang-dropdown.show {
+      opacity: 1;
+      visibility: visible;
+    }
+    .lang-option {
+      padding: 12px 16px;
+      cursor: pointer;
+      transition: background 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .lang-option:hover {
+      background: #f5f5f5;
+    }
+    .lang-option.active {
+      color: #A62928;
+      font-weight: 600;
+      background: #f0f8fb;
+    }
+    .lang-flag {
+      width: 24px;
+      height: 24px;
+      border-radius: 4px;
+      object-fit: cover;
+    }
+  </style>
+</head>
+
+<body class="text-dark lang-zh">
+  <header id="navbar" class="fixed w-full top-0 z-50 transition-all duration-300 bg-white/90 backdrop-blur-sm shadow-sm">
+    <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+      <a href="#" class="flex items-center space-x-2">
+        <i class="fa fa-cutlery text-primary text-2xl"></i>
+        <span class="text-xl font-serif font-bold text-primary translate-target" data-translate="brand">鲁味风华</span>
+      </a>
+      
+      <nav class="flex items-center space-x-8">
+        <a href="#home" class="font-medium hover:text-primary transition-colors translate-target" data-translate="nav-home">首页</a>
+        <a href="#about" class="font-medium hover:text-primary transition-colors translate-target" data-translate="nav-about">关于鲁菜</a>
+        <a href="#dishes" class="font-medium hover:text-primary transition-colors translate-target" data-translate="nav-dishes">菜品展示</a>
+        <a href="#culture" class="font-medium hover:text-primary transition-colors translate-target" data-translate="nav-culture">鲁菜文化</a>
+        <div class="relative">
+          <button id="lang-btn" class="translate-btn bg-secondary hover:bg-secondary/90 text-white font-medium py-2 px-4 rounded-md">
+            <i class="fa fa-language"></i>
+            <span id="current-lang-text">中文</span>
+            <i class="fa fa-angle-down text-xs"></i>
+          </button>
+          <div id="lang-dropdown" class="lang-dropdown">
+            <div class="lang-option active" data-lang="zh" data-lang-name="中文">
+              <img src="https://flagcdn.com/w40/cn.png" alt="中文" class="lang-flag">
+              <span>中文</span>
+            </div>
+            <div class="lang-option" data-lang="en" data-lang-name="English">
+              <img src="https://flagcdn.com/w40/gb.png" alt="English" class="lang-flag">
+              <span>English</span>
+            </div>
+            <div class="lang-option" data-lang="ru" data-lang-name="Русский">
+              <img src="https://flagcdn.com/w40/ru.png" alt="Русский" class="lang-flag">
+              <span>Русский</span>
+            </div>      
+            <div class="lang-option" data-lang="kor" data-lang-name="한국어">
+              <img src="https://flagcdn.com/w40/kr.png" alt="한국어" class="lang-flag">
+              <span>한국어</span>
+            </div>
+            <div class="lang-option" data-lang="fra" data-lang-name="Français">
+              <img src="https://flagcdn.com/w40/fr.png" alt="Français" class="lang-flag">
+              <span>Français</span>
+            </div>
+            <div class="lang-option" data-lang="de" data-lang-name="Deutsch">
+              <img src="https://flagcdn.com/w40/de.png" alt="Deutsch" class="lang-flag">
+              <span>Deutsch</span>
+            </div>
+            <div class="lang-option" data-lang="spa" data-lang-name="Español">
+              <img src="https://flagcdn.com/w40/es.png" alt="Español" class="lang-flag">
+              <span>Español</span>
+            </div>
+            <div class="lang-option" data-lang="ara" data-lang-name="العربية">
+              <img src="https://flagcdn.com/w40/sa.png" alt="العربية" class="lang-flag">
+              <span>العربية</span>
+            </div>
+            </div>
+          </div>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <section id="home" class="relative h-[70vh] flex items-center justify-center overflow-hidden">
+    <div class="absolute inset-0 z-0">
+      <div class="w-full h-full relative bg-dark">
+        <img src="images/90.jpg" alt="鲁菜展示1" class="w-full h-full object-cover object-center opacity-60 absolute top-0 left-0 transition-opacity duration-1500">
+        <img src="images/91.jpg" alt="鲁菜展示2" class="w-full h-full object-cover object-center opacity-0 absolute top-0 left-0 transition-opacity duration-1500">
+        <img src="images/92.jpg" alt="鲁菜展示3" class="w-full h-full object-cover object-center opacity-0 absolute top-0 left-0 transition-opacity duration-1500">
+        <img src="images/93.jpg" alt="鲁菜展示4" class="w-full h-full object-cover object-center opacity-0 absolute top-0 left-0 transition-opacity duration-1500">
+      </div>
+      <div class="absolute inset-0 bg-gradient-to-r from-dark/40 to-dark/20"></div>
+    </div>
+    
+    <div class="container mx-auto px-4 z-10 text-center md:text-left max-w-4xl">
+      <h1 class="text-[clamp(2.5rem,6vw,4.5rem)] font-serif font-bold text-white leading-tight text-shadow mb-4 translate-target" data-translate="hero-title">
+        鲁菜<br>中国八大菜系之首
+      </h1>
+      <p clas="text-[clamp(1rem,2vw,1.25rem)] text-white/90 mb-8 max-w-2xl mx-auto md:mx-0 translate-target" data-translate="hero-desc">
+        传承千年的烹饪技艺，讲究火候，注重调味，彰显齐鲁文化的厚重与大气
+      </p>
+      <a href="#dishes" class="inline-block bg-primary hover:bg-primary/90 text-white font-medium py-3 px-8 rounded-md transition-all transform hover:scale-105 translate-target" data-translate="hero-btn">
+        探索鲁菜 <i class="fa fa-arrow-right ml-2"></i>
+      </a>
+    </div>
+    
+    <div class="absolute bottom-10 left-1/2 transform -translate-x-1/2 text-white animate-bounce z-10">
+      <a href="#about" class="flex flex-col items-center">
+        <span class="mb-2 text-sm translate-target" data-translate="scroll-more">了解更多</span>
+        <i class="fa fa-angle-down text-2xl"></i>
+      </a>
+    </div>
+  </section>
+
+  <script>
+    const bannerImages = document.querySelectorAll('#home .absolute.object-cover');
+    let currentIndex = 0;
+    
+    function switchBannerImage() {
+      bannerImages[currentIndex].style.opacity = 0;
+      currentIndex = (currentIndex + 1) % bannerImages.length;
+      bannerImages[currentIndex].style.opacity = 0.6;
+    }
+    
+    setInterval(switchBannerImage, 3000);
+  </script>
+
+  <section id="about" class="py-16 bg-white">
+    <div class="container mx-auto px-4">
+      <div class="text-center mb-16">
+        <h2 class="text-[clamp(1.8rem,4vw,2.5rem)] font-serif font-bold text-dark mb-4 translate-target" data-translate="about-title">关于鲁菜</h2>
+        <div class="w-20 h-1 bg-primary mx-auto mb-6"></div>
+        <p class="max-w-3xl mx-auto text-gray-600 translate-target" data-translate="about-desc">
+          鲁菜，也称山东菜，是中国八大菜系之一，历史悠久，影响深远，是北方菜的代表。其形成和发展与山东地区的文化历史、地理环境、经济条件和习俗风尚密切相关。
+        </p>
+      </div>
+      
+      <div class="grid md:grid-cols-3 gap-8">
+        <div class="bg-white p-8 rounded-lg shadow-sm hover:shadow-md transition-shadow border border-gray-100">
+          <div class="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-6">
+            <i class="fa fa-history text-primary text-2xl"></i>
+          </div>
+          <h3 class="text-xl font-bold mb-3 translate-target" data-translate="about-feature1">历史悠久</h3>
+          <p class="text-gray-600 translate-target" data-translate="about-feature1-desc">
+            鲁菜起源于春秋时期，成熟于秦汉，在唐宋时期已经成为北方菜的代表，明清时期更是宫廷菜的重要来源。
+          </p>
+        </div>
+        
+        <div class="bg-white p-8 rounded-lg shadow-sm hover:shadow-md transition-shadow border border-gray-100">
+          <div class="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-6">
+            <i class="fa fa-fire text-primary text-2xl"></i>
+          </div>
+          <h3 class="text-xl font-bold mb-3 translate-target" data-translate="about-feature2">技法独特</h3>
+          <p class="text-gray-600 translate-target" data-translate="about-feature2-desc">
+            鲁菜讲究火候，擅长爆、炒、烧、炸、扒等技法，尤其以"爆"法最为独特，要求快速成菜，保持食材本味。
+          </p>
+        </div>
+        
+        <div class="bg-white p-8 rounded-lg shadow-sm hover:shadow-md transition-shadow border border-gray-100">
+          <div class="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-6">
+            <i class="fa fa-leaf text-primary text-2xl"></i>
+          </div>
+          <h3 class="text-xl font-bold mb-3 translate-target" data-translate="about-feature3">注重本味</h3>
+          <p class="text-gray-600 translate-target" data-translate="about-feature3-desc">
+            鲁菜注重突出食材本身的味道，调味讲究"咸鲜为主，五味调和"，善用葱香、蒜香、酒香等提味增香。
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+  
+  <section id="dishes" class="py-20 bg-neutral">
+    <div class="container mx-auto px-4">
+      <div class="text-center mb-12">
+        <h2 class="text-[clamp(2.5rem,6vw,3.5rem)] font-serif font-bold text-dark mb-4 translate-target" data-translate="dishes-title">鲁菜精选</h2>
+        <div class="w-28 h-1.5 bg-primary mx-auto mb-6"></div>
+        <p class="max-w-3xl mx-auto text-gray-600 text-xl leading-relaxed mb-8 translate-target" data-translate="dishes-desc">
+          精选经典鲁菜，带您领略齐鲁大地的饮食文化精髓
+        </p>
+        <div class="max-w-2xl mx-auto mb-12 search-container transition-all duration-300">
+          <div class="relative">
+            <input
+            class="w-full px-10 pr-16 py-4 border border-gray-300 focus:outline-none focus:border-pirmary rounded-lg text-lg"
+            id="search-input"
+            type="text"
+            placeholder="搜索菜品名称"
+            >
+
+          </div>
+        </div>       
+        <div class="flex flex-wrap justify-center gap-3 mb-10" id="category-container">
+          <button class="category-btn bg-primary text-white px-5 py-2 rounded-full text-sm font-medium" data-category="all" data-translate="category-all">
+            全部菜品
+          </button>
+          <button class="category-btn bg-primary text-white px-5 py-2 rounded-full text-sm font-medium hover:bg-primary/10 transition-colors" data-category="classic" data-translate="category-classic">
+            经典鲁菜
+          </button>
+          <button class="category-btn bg-primary text-white px-5 py-2 rounded-full text-sm font-medium hover:bg-primary/10 transition-colors" data-category="seafood" data-translate="category-seafood">
+            海鲜类
+          </button>
+          <button class="category-btn bg-primary text-white px-5 py-2 rounded-full text-sm font-medium hover:bg-primary/10 transition-colors" data-category="soup" data-translate="category-soup">
+            汤羹类
+          </button>
+        </div>
+      </div>
+      
+      <div id="dishes-grid" class="grid lg:grid-cols-3 gap-8">
+      </div>
+    </div>
+  </section>
+
+  <section id="culture" class="py-20 bg-white">
+    <div class="container mx-auto px-4">
+      <div class="text-center mb-16">
+        <h2 class="text-[clamp(1.8rem,4vw,2.5rem)] font-serif font-bold text-dark mb-4 translate-target" data-translate="culture-title">鲁菜文化</h2>
+        <div class="w-20 h-1 bg-primary mx-auto mb-6"></div>
+        <p class="max-w-3xl mx-auto text-gray-600 translate-target" data-translate="culture-desc">
+          鲁菜不仅是一种饮食，更是一种文化传承，体现了山东人民的生活智慧和文化底蕴
+        </p>
+      </div>
+      
+      <div class="grid md:grid-cols-2 gap-12 items-center">
+        <div class="order-2 md:order-1">
+          <h3 class="text-2xl font-bold mb-4 translate-target" data-translate="culture-subtitle">鲁菜与齐鲁文化</h3>
+          <p class="text-gray-600 mb-4 translate-target" data-translate="culture-paragraph1">
+            鲁菜的发展与齐鲁文化密不可分，孔子的"食不厌精，脍不厌细"思想深刻影响了鲁菜的烹饪理念，形成了注重食材、讲究刀工、追求精细的特点。
+          </p>
+          <p class="text-gray-600 mb-4 translate-target" data-translate="culture-paragraph2">
+            山东作为儒家文化的发源地，其饮食文化也体现了"礼"的思想，鲁菜的宴席礼仪、上菜顺序都有严格的讲究，体现了对宾客的尊重。
+          </p>
+          <p class="text-gray-600 translate-target" data-translate="culture-paragraph3">
+            如今，鲁菜不仅在国内广受欢迎，更是走向了世界，成为中国饮食文化的重要代表之一。
+          </p>
+        </div>
+        
+        <div class="order-1 md:order-2 grid grid-cols-2 gap-4">
+          <div class="space-y-4">
+            <img src="./images/culture/lucai-culture1.jpg" alt="鲁菜文化" class="w-full h-64 object-cover rounded-lg shadow-md"/> 
+            <img src="./images/culture/lucai-making.jpg" alt="鲁菜制作" class="w-full h-64 object-cover rounded-lg shadow-md"/></div>
+          <div class="space-y-4 mt-8">
+            <img src="./images/culture/lucai-banquet.jpg" alt="鲁菜宴席" class="w-full h-80 object-cover rounded-lg shadow-md"/> 
+            <img src="./images/culture/lucai-ingredients.jpg" alt="鲁菜食材" class="w-full h-64 object-cover rounded-lg shadow-md"/> </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="bg-dark text-white py-12">
+    <div class="container mx-auto px-4">
+      <div class="grid md:grid-cols-4 gap-8">
+        <div>
+          <div class="flex items-center space-x-2 mb-6">
+            <i class="fa fa-cutlery text-secondary text-2xl"></i>
+            <span class="text-xl font-serif font-bold text-secondary translate-target" data-translate="footer-brand">鲁菜传承</span>
+          </div>
+          <p class="text-gray-400 mb-6 translate-target" data-translate="footer-desc">
+            传承鲁菜文化，弘扬中华美食，让更多人了解和喜爱鲁菜。
+          </p>
+          <div class="flex space-x-4">
+            <a href="#" class="text-gray-400 hover:text-secondary transition-colors" aria-label="微信">
+              <i class="fa fa-weixin text-xl"></i>
+            </a>
+            <a href="#" class="text-gray-400 hover:text-secondary transition-colors" aria-label="微博">
+              <i class="fa fa-weibo text-xl"></i>
+            </a>
+            <a href="#" class="text-gray-400 hover:text-secondary transition-colors" aria-label="Instagram">
+              <i class="fa fa-instagram text-xl"></i>
+            </a>
+          </div>
+        </div>      
+        <div></div>
+      </div>
+      
+      <div class="border-t border-gray-800 mt-10 pt-6 text-center text-gray-500 text-sm translate-target" data-translate="copyright">
+        <p>&copy; 2025 鲁味风华 - AI—素材库- 保留所有权利</p>
+      </div>
+    </div>
+  </footer>
+
+  <button id="back-to-top" class="fixed bottom-8 right-8 bg-primary text-white w-12 h-12 rounded-full flex items-center justify-center shadow-lg opacity-0 invisible transition-all duration-300 hover:bg-primary/90">
+    <i class="fa fa-arrow-up"></i>
+  </button>
+
+  <script>
+    const PAGE_TITLES = {
+      zh: "鲁味风华",
+      en: "Shandong Cuisine Elegance",
+      jp: "魯菜風華",
+      kor: "루채 풍화",
+      fra: "Élégance de la Cuisine Lu",
+      de: "Eleganz der Lu-Küche",
+      spa: "Elegancia de la Cocina Lu",
+      ru: "Элегантность кухни Лу",
+      ara: "أناقة مطبخ لو",
+    };
+    
+    const LANG_CODE_MAP = {
+      zh: "zh",
+      en: "en",
+      jp: "jp",
+      kor: "kor",
+      fra: "fra",
+      de: "de",
+      spa: "spa",
+      ru: "ru",
+      ara: "ara",
+    };
+    
+    const LANG_NAME_MAP = {
+      zh: "中文",
+      en: "English",
+      jp: "日本語",
+      kor: "한국어",
+      fra: "Français",
+      de: "Deutsch",
+      spa: "Español",
+      ru: "Русский",
+      ara: "العربية",
+    };
+    
+    let translateState = {
+      currentLang: "zh",
+      originalTexts: {}, 
+      translatedTexts: {},
+      isTranslating: false
+    };
+    
+    const dishes = [
+		{
+      id: 1,
+      name: "红焖牛肉",
+      imageUrl: "./images/红焖牛肉2.jpg",
+      description: "鲁菜经典硬菜，选用带筋牛腩，经焯水、煸炒后小火慢焖。肉质酥烂不柴，酱汁浓郁红亮，咸香醇厚，配饭绝佳。",
+      category: "classic",
+      detailUrl: "红焖牛肉.html"
+      },
+      {
+        id: 2,
+        name: "葱烧海参",
+        imageUrl: "./images/hs3.jpg",
+        description: "葱烧海参是鲁菜的代表菜之一，选用优质海参和章丘大葱，葱香浓郁，海参软滑，色泽红亮，味道醇厚。",
+        category: "seafood",
+        detailUrl: "葱烧海参.html"
+
+      },
+      {
+        id: 3,
+        name: "糖醋鲤鱼",
+        imageUrl: "./images/dishes/tangculiyu.jpg",
+        description: "糖醋鲤鱼是山东传统名菜，选用黄河鲤鱼，造型美观，外焦里嫩，酸甜可口，寓意'年年有余'。",
+        category: "classic",
+        detailUrl: "糖醋鲤鱼.html"
+      },
+      {
+        id: 4,
+        name: "油焖大虾",
+        imageUrl: "./images/dishes/youmendaxia.jpg",
+        description: "油焖大虾选用新鲜对虾，色泽红亮，肉质鲜嫩，咸鲜微甜，是鲁菜中著名的海鲜菜品。",
+        category: "seafood",
+        detailUrl: "油焖大虾.html"
+      },
+      {
+        id: 5,
+        name: "德州扒鸡",
+        imageUrl: "./images/dishes/dezhoubaji.jpg",
+        description: "德州扒鸡是山东德州的传统名菜，皮黄肉嫩，肥而不腻，香气扑鼻，是中国著名的地方特产。",
+        category: "classic",
+        detailUrl: "德州扒鸡.html"
+      },
+      {
+        id: 6,
+        name: "炸荷花",
+        imageUrl: "./images/dishes/zhahuahe.jpg",
+        description: "造型美观，外酥里嫩，清香淡雅，甜而不腻，是鲁菜中极具特色的创意菜。",
+        category: "soup",
+        detailUrl: "炸荷花.html"
+      },
+      {
+        id: 7,
+        name: "糟熘鱼片",
+        imageUrl: "./images/dishes/zaoliupian.jpg",
+        description: "糟熘鱼片选用新鲜鱼肉，配以香糟酒调味，肉质滑嫩，糟香浓郁，是鲁菜中的代表菜品。",
+        category: "classic",
+        detailUrl: "糟熘鱼片.html"
+      },
+      {
+        id: 8,
+        name: "海肠炒饭",
+        imageUrl: "./images/dishes/haichangchaofan.jpg",
+        description: "胶东特色，海肠鲜脆，米饭粒粒分明，咸鲜可口，营养丰富。",
+        category: "snack",
+        detailUrl: "海肠炒饭.html"
+      },
+      {
+        id: 9,
+        name: "奶汤蒲菜",
+        imageUrl: "./images/dishes/naitangpucai.jpg",
+        description: "奶汤蒲菜是济南名菜，以大明湖特产蒲菜为主料，配以奶汤煮制，味道清鲜，营养丰富。",
+        category: "soup",
+        detailUrl: "奶香蒲菜.html"
+      },
+      {
+        id: 10,
+        name: "红烧肘子",
+        imageUrl: "./images/dishes/hongshaozhouzi.jpg",
+        description: "鲁菜硬菜，肘子炖至脱骨，色泽红亮，肉质酥烂，酱香浓郁。",
+        category: "classic",
+        detailUrl: "红烧肘子.html"
+      },
+      {
+        id: 11,
+        name: "济南把子肉",
+        imageUrl: "./images/dishes/jinanbazirou.jpg",
+        description: "济南把子肉是山东济南的传统小吃，选用大块五花肉，用酱油炖至酥烂，肥而不腻，酱香浓郁。",
+        category: "snack",
+        detailUrl: "济南把子肉.html"
+      },
+      {
+        id: 12,
+        name: "四喜丸子",
+        imageUrl: "./images/dishes/sixiwanzi.jpg",
+        description: "四喜丸子是鲁菜中的经典名菜，由四个大肉丸组成，寓意喜庆吉祥，肉质鲜嫩，味道醇厚。",
+        category: "classic",
+        detailUrl: "四喜丸子.html"
+      },
+      {
+        id: 13,
+        name: "辣炒蛤蜊",
+        imageUrl: "./images/dishes/laochao geli.jpg",
+        description: "胶东沿海家常菜，蛤蜊吐沙干净，鲜辣开胃，下酒神器。",
+        category: "snack",
+        detailUrl: "辣炒蛤蜊.html"
+      },
+      {
+        id: 14,
+        name: "糖醋里脊",
+        imageUrl: "./images/dishes/tangculiji.jpg",
+        description: "家常鲁菜，里脊外酥里嫩，糖醋汁酸甜适中，大人小孩都爱吃。",
+        category: "classic",
+        detailUrl: "糖醋里脊.html"
+      },
+      {
+        id: 15,
+        name: "鲅鱼饺子",
+        imageUrl: "./images/dishes/bayujiaozi.jpg",
+        description: "胶东海鲜饺子代表，鲅鱼馅细腻无刺，鲜香多汁，皮薄馅足。",
+        category: "seafood",
+        detailUrl: "鲅鱼饺子.html"
+      }
+    ];
+
+    const langBtn = document.getElementById('lang-btn');
+    const langDropdown = document.getElementById('lang-dropdown');
+    const currentLangText = document.getElementById('current-lang-text');
+    const translateTargets = document.querySelectorAll('[data-translate]');
+    const langOptions = document.querySelectorAll('.lang-option');
+    const dishesGrid = document.getElementById('dishes-grid');
+    const categoryBtns = document.querySelectorAll('.category-btn');
+    const navbar = document.getElementById('navbar');
+    const searchInput = document.getElementById('search-input');
+
+
+    async function translateText(text, to = "en") {
+      if (!text.trim()) return text;
+      
+      const cacheKey = `${text}-zh-${to}`;
+      
+      if (translateState.translatedTexts[cacheKey]) {
+        return translateState.translatedTexts[cacheKey];  
+      }
+ 
+      try {
+        const response = await fetch('http://localhost:3000/translate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            text: text, 
+            from: 'zh', 
+            to: to 
+          }),
+          timeout: 10000
+        });
+
+        if (!response.ok) {
+          throw new Error(`服务请求失败：${response.status} ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        
+        if (data.error_code) {
+          console.error(`翻译服务错误: ${data.error_code} - ${data.error_msg}`);
+          
+          let errorMsg = "翻译失败，请稍后重试";
+          switch(data.error_code) {
+            case "400": errorMsg = "无效请求：" + data.error_msg; break;
+            case "500": errorMsg = "服务器错误：" + data.error_msg; break;
+            case "52001": errorMsg = "翻译超时，请重试"; break;
+            case "52003": errorMsg = "APPID或密钥错误（请检查服务端配置）"; break;
+          }
+          
+          alert(errorMsg);
+          return text;
+        }
+
+        if (data.success && data.translated) {
+          const translatedText = data.translated;
+          translateState.translatedTexts[cacheKey] = translatedText;
+          return translatedText;
+        } else {
+          console.warn("未获取到翻译结果", data);
+          return text;
+        }
+      } catch (error) {
+        console.error("翻译接口异常:", error);
+        
+        if (error.message.includes('Failed to fetch') || error.message.includes('超时')) {
+          alert("翻译失败：请确保本地翻译服务已启动（http://localhost:3000）");
+        } else {
+          alert(`翻译失败：${error.message}`);
+        }
+        return text;
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', function() {
+      translateTargets.forEach(el => {
+        const key = el.getAttribute('data-translate');
+        translateState.originalTexts[key] = el.textContent.trim();
+        if (el.tagName === 'IMG') {
+          translateState.originalTexts[`${key}_alt`] = el.alt.trim();
+        }
+      });
+      
+      renderDishes(dishes);
+      
+      const urlParams = new URLSearchParams(window.location.search);
+      const langParam = urlParams.get('lang');
+      if (langParam && LANG_CODE_MAP[langParam]) {
+        setTimeout(() => {
+          translateToLang(langParam);
+        }, 500);
+      }
+    });
+
+    async function translateToLang(targetLang) {
+      if (translateState.isTranslating || translateState.currentLang === targetLang) {
+        langDropdown.classList.remove('show');
+        return;
+      }
+
+      translateState.isTranslating = true;
+      langBtn.classList.add('loading');
+      langBtn.innerHTML = '<i class="fa fa-language"></i> 翻译中... <i class="fa fa-angle-down text-xs"></i>';
+
+      try {
+        if (targetLang === "zh") {
+          document.title = PAGE_TITLES.zh;
+          
+          translateTargets.forEach(el => {
+            const key = el.getAttribute('data-translate');
+            const originalText = translateState.originalTexts[key];
+            if (originalText) {
+              el.textContent = originalText;
+              if (el.tagName === 'IMG') {
+                el.alt = translateState.originalTexts[`${key}_alt`] || originalText;
+              }
+            }
+          });
+          
+          searchInput.placeholder = '搜索菜品名称';
+          
+          renderDishes(dishes);
+        } else {
+          const targetLangCode = LANG_CODE_MAP[targetLang] || "en";
+          document.title = PAGE_TITLES[targetLang] || PAGE_TITLES.en;
+          
+          for (const el of translateTargets) {
+            const key = el.getAttribute('data-translate');
+            const originalText = translateState.originalTexts[key];
+            if (originalText) {
+              const translated = await translateText(originalText, targetLangCode);
+              el.textContent = translated;
+              if (el.tagName === 'IMG') {
+                el.alt = translated;
+              }
+            }
+          }
+          
+          searchInput.placeholder = await translateText('搜索菜品名称', targetLangCode);
+          
+          await renderDishesWithTranslation(targetLangCode);
+        }
+
+        translateState.currentLang = targetLang;
+        document.body.className = `text-dark lang-${targetLang}`; // 移除body的bg-neutral
+        
+        langOptions.forEach(option => {
+          option.classList.toggle('active', option.dataset.lang === targetLang);
+        });
+        
+        const activeLangName = document.querySelector(`.lang-option[data-lang="${targetLang}"]`).dataset.langName;
+        langBtn.innerHTML = `<i class="fa fa-language"></i> ${activeLangName} <i class="fa fa-angle-down text-xs"></i>`;
+
+      } catch (error) {
+        console.error('语言切换失败:', error);
+        alert('语言切换出错，请检查服务是否正常后重试');
+        
+        currentLangText.innerText = LANG_NAME_MAP[translateState.currentLang];
+        langBtn.innerHTML = `<i class="fa fa-language"></i> ${LANG_NAME_MAP[translateState.currentLang]} <i class="fa fa-angle-down text-xs"></i>`;
+      } finally {
+        translateState.isTranslating = false;
+        langBtn.classList.remove('loading');
+        langDropdown.classList.remove('show');
+      }
+    }
+
+    async function renderDishesWithTranslation(targetLangCode) {
+      let html = '';
+      
+      for (const dish of dishes) {
+        const translatedName = await translateText(dish.name, targetLangCode);
+        const translatedDesc = await translateText(dish.description, targetLangCode);
+        const translatedBtn = await translateText('查看详情', targetLangCode);
+        const translatedCategory = await translateText(getCategoryText(dish.category), targetLangCode);
+        
+        html += `
+          <div class="dish-card bg-white rounded-lg overflow-hidden shadow-md" data-category="${dish.category}" data-name="${translatedName.toLowerCase()}">
+            <div class="relative h-56 overflow-hidden">
+              <img src="${dish.imageUrl}" alt="${translatedName}" class="w-full h-full object-cover transition-transform duration-500 hover:scale-110">
+              <div class="absolute top-4 right-4 bg-primary text-white text-xs font-bold px-3 py-1 rounded-full">
+                ${translatedCategory}
+              </div>
+            </div>
+            <div class="p-6">
+              <h3 class="text-xl font-bold mb-2">${translatedName}</h3>
+              <p class="text-gray-600 text-sm mb-4">${translatedDesc}</p>
+              <a href="${dish.detailUrl}?lang=${targetLangCode}" class="text-primary font-medium hover:text-primary/80 transition-colors flex items-center">
+                ${translatedBtn} <i class="fa fa-angle-right ml-1"></i>
+              </a>
+            </div>
+          </div>
+        `;
+      }
+      
+      dishesGrid.innerHTML = html;
+    }
+    
+    function getCategoryText(category) {
+      switch(category) {
+        case 'classic': return '经典鲁菜';
+        case 'seafood': return '海鲜类';
+        case 'soup': return '汤羹类';
+        case 'snack': return '小吃类';
+      }
+    }
+    
+    function renderDishes(dishesToRender) {
+      let html = '';
+      for (const dish of dishesToRender) {
+        const categoryText = getCategoryText(dish.category);
+        
+        html += `
+          <div class="dish-card bg-white rounded-lg overflow-hidden shadow-md" data-category="${dish.category}" data-name="${dish.name.toLowerCase()}">
+            <div class="relative h-56 overflow-hidden">
+              <img src="${dish.imageUrl}" alt="${dish.name}" class="w-full h-full object-cover transition-transform duration-500 hover:scale-110">
+              <div class="absolute top-4 right-4 bg-primary text-white text-xs font-bold px-3 py-1 rounded-full">
+                ${categoryText}
+              </div>
+            </div>
+            <div class="p-6">
+              <h3 class="text-xl font-bold mb-2">${dish.name}</h3>
+              <p class="text-gray-600 text-sm mb-4">${dish.description}</p>
+              <a href="${dish.detailUrl}?lang=zh" class="text-primary font-medium hover:text-primary/80 transition-colors flex items-center">
+                查看详情 <i class="fa fa-angle-right ml-1"></i>
+              </a>
+            </div>
+          </div>
+        `;
+      }
+      dishesGrid.innerHTML = html;
+    }
+    
+    function filterDishesByCategory(category) {
+      categoryBtns.forEach(btn => {
+        btn.classList.remove('bg-primary', 'text-white');
+        btn.classList.add('bg-white', 'text-dark', 'hover:bg-primary/10');
+      });
+      const activeBtn = document.querySelector(`.category-btn[data-category="${category}"]`);
+      if (activeBtn) {
+        activeBtn.classList.add('bg-primary', 'text-white');
+        activeBtn.classList.remove('bg-white', 'text-dark', 'hover:bg-primary/10');
+      }
+      
+      const filteredDishes = category !== 'all' 
+        ? dishes.filter(dish => dish.category === category)
+        : dishes;
+      
+      if (translateState.currentLang === 'zh') {
+        renderDishes(filteredDishes);
+      } else {
+        renderDishesWithTranslation(LANG_CODE_MAP[translateState.currentLang]);
+      }
+    }
+    
+    function searchDishes(keyword) {
+      const lowerKeyword = keyword.toLowerCase().trim();
+      if (!lowerKeyword) {
+        const activeCategory = document.querySelector('.category-btn.bg-primary').dataset.category;
+        filterDishesByCategory(activeCategory);
+        return;
+      }
+      
+      const dishCards = document.querySelectorAll('.dish-card');
+      dishCards.forEach(card => {
+        const dishName = card.getAttribute('data-name') || '';
+        card.style.display = dishName.includes(lowerKeyword) ? 'block' : 'none';
+      });
+    }
+    
+    langBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      langDropdown.classList.toggle('show');
+    });
+    
+    langOptions.forEach(option => {
+      option.addEventListener('click', function() {
+        const targetLang = this.dataset.lang;
+        translateToLang(targetLang);
+      });
+    });
+    
+    document.addEventListener('click', () => {
+      langDropdown.classList.remove('show');
+    });
+    langDropdown.addEventListener('click', (e) => {
+      e.stopPropagation();
+    });
+    
+    categoryBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const category = btn.dataset.category;
+        filterDishesByCategory(category);
+      });
+    });
+    
+    let searchTimeout;
+    searchInput.addEventListener('input', (e) => {
+      clearTimeout(searchTimeout);
+      searchTimeout = setTimeout(() => {
+        searchDishes(e.target.value);
+      }, 300);
+    });
+    
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 100) {
+        navbar.classList.add('py-2', 'shadow');
+        navbar.classList.remove('py-3');
+        backToTop.classList.remove('opacity-0', 'invisible');
+        backToTop.classList.add('opacity-100', 'visible');
+      } else {
+        navbar.classList.add('py-3');
+        navbar.classList.remove('py-2', 'shadow');
+        backToTop.classList.add('opacity-0', 'invisible');
+        backToTop.classList.remove('opacity-100', 'visible');
+      }
+    });
+    
+    backToTop.addEventListener('click', () => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+    
+    window.addEventListener('unhandledrejection', (event) => {
+      console.error('未处理的Promise错误:', event.reason);
+      event.preventDefault();
+    });
+
+    const clearSearchBtn = document.getElementById('clear-search');
+    searchInput.addEventListener('input', () => {
+      clearSearchBtn.classList.toggle('hidden', !searchInput.value.trim());
+    });
+    clearSearchBtn.addEventListener('click', () => {
+      searchInput.value = '';
+      clearSearchBtn.classList.add('hidden');
+      searchDishes('');
+    });
+  </script>
+</body>
+</html>

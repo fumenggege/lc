@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>奶香蒲菜 - 鲁味风华</title>
+  <!-- 引入外部资源 -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  
+  <!-- Tailwind 配置 -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#A62928',      // 鲁菜主色调：深红色
+            secondary: '#D9B38C',    // 辅助色：暖棕色
+            neutral: '#F5F1E9',      // 中性色：米白色
+            dark: '#3A2E21'          // 深色：深棕色
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            serif: ['"Noto Serif SC"', 'serif']
+          }
+        }
+      }
+    }
+  </script>
+  
+  <!-- 自定义工具类 -->
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .content-auto {
+        content-visibility: auto;
+      }
+      .text-shadow {
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+      }
+      .card-hover {
+        transition: all 0.3s ease;
+      }
+      .card-hover:hover {
+        transform: translateY(-5px);
+      }
+    }
+  </style>
+  
+  <style>
+    /* 全局样式 */
+    html {
+      scroll-behavior: smooth;
+    }
+    
+    /* 菜品详情页样式 */
+    .dish-gallery-img {
+      transition: transform 0.3s ease;
+    }
+    .dish-gallery-img:hover {
+      transform: scale(1.05);
+    }
+    
+    .ingredient-item {
+      transition: all 0.2s ease;
+    }
+    .ingredient-item:hover {
+      background-color: #F5F1E9;
+      transform: translateX(5px);
+    }
+    
+    .process-step {
+      position: relative;
+    }
+    .process-step::before {
+      content: '';
+      position: absolute;
+      left: -30px;
+      top: 8px;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background-color: #A62928;
+    }
+    .process-step::after {
+      content: '';
+      position: absolute;
+      left: -22px;
+      top: 24px;
+      width: 2px;
+      height: calc(100% + 16px);
+      background-color: #D9B38C;
+    }
+    .process-step:last-child::after {
+      display: none;
+    }
+  </style>
+</head>
+
+<body class="bg-neutral text-dark">
+  <!-- 导航栏（保持原网站样式） -->
+  <header id="navbar" class="fixed w-full top-0 z-50 transition-all duration-300 bg-white/90 backdrop-blur-sm shadow-sm">
+    <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+      <a href="index.html" class="flex items-center space-x-2">
+        <i class="fa fa-cutlery text-primary text-2xl"></i>
+        <span class="text-xl font-serif font-bold text-primary">鲁味风华</span>
+      </a>
+      
+      <!-- 桌面导航 -->
+      <nav class="hidden md:flex items-center space-x-8">
+        <a href="主界面.html" class="font-medium hover:text-primary transition-colors">首页</a>
+        <a href="主界面.html" class="font-medium hover:text-primary transition-colors">关于鲁菜</a>
+        菜品展示
+        <a href="index.html#culture" class="font-medium hover:text-primary transition-colors">鲁菜文化</a>
+      </nav>
+      
+      <!-- 移动端菜单按钮 -->
+      <button id="menu-toggle" class="md:hidden text-dark focus:outline-none">
+        <i class="fa fa-bars text-xl"></i>
+      </button>
+    </div>
+    
+    <!-- 移动端导航菜单 -->
+    <div id="mobile-menu" class="hidden md:hidden bg-white shadow-lg absolute w-full">
+      <div class="container mx-auto px-4 py-3 flex flex-col space-y-4">
+        <a href="index.html#home" class="font-medium py-2 hover:text-primary transition-colors">首页</a>
+        <a href="index.html#about" class="font-medium py-2 hover:text-primary transition-colors">关于鲁菜</a>
+        <a href="index.html#dishes" class="font-medium py-2 text-primary transition-colors">菜品展示</a>
+        <a href="index.html#culture" class="font-medium py-2 hover:text-primary transition-colors">鲁菜文化</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- 菜品详情头部 -->
+  <section class="pt-32 pb-16 bg-white">
+    <div class="container mx-auto px-4">
+
+      <div class="flex flex-col md:flex-row gap-8 items-start">
+        <!-- 菜品主图 -->
+        <div class="w-full md:w-1/2">
+          <div class="bg-neutral rounded-xl overflow-hidden shadow-lg">
+            <img src="../wy/images/9.jpg" alt="奶香蒲菜" class="w-full h-[400px] object-cover">
+          </div>
+          
+          <!-- 菜品图片画廊（奶香蒲菜本地图片） -->
+          <div class="grid grid-cols-4 gap-4 mt-4">
+            <div class="rounded-lg overflow-hidden shadow-md cursor-pointer">
+              <img src="../wy/images/9.jpg" alt="奶香蒲菜1" class="w-full h-24 object-cover dish-gallery-img">
+            </div>
+            <div class="rounded-lg overflow-hidden shadow-md cursor-pointer">
+              <img src="../wy/images/naixiangpucai2.jpg" alt="奶香蒲菜2" class="w-full h-24 object-cover dish-gallery-img">
+            </div>
+            <div class="rounded-lg overflow-hidden shadow-md cursor-pointer">
+              <img src="../wy/images/naixiangpucai3.jpg" alt="奶香蒲菜3" class="w-full h-24 object-cover dish-gallery-img">
+            </div>
+            <div class="rounded-lg overflow-hidden shadow-md cursor-pointer">
+              <img src="../wy/images/naixiangpucai4.jpg" alt="奶香蒲菜4" class="w-full h-24 object-cover dish-gallery-img">
+            </div>
+          </div>
+        </div>
+        
+        <!-- 菜品信息 -->
+        <div class="w-full md:w-1/2">
+          <div class="flex items-center gap-3 mb-4">
+            <span class="bg-primary/10 text-primary text-xs font-bold px-3 py-1 rounded-full">经典鲁菜·素菜</span>
+            <span class="bg-secondary/20 text-dark text-xs font-medium px-3 py-1 rounded-full flex items-center">
+              <i class="fa fa-star text-yellow-500 mr-1"></i> 4.9 好评
+            </span>
+          </div>
+          
+          <h1 class="text-[clamp(1.8rem,4vw,2.5rem)] font-serif font-bold text-dark mb-4">奶香蒲菜</h1>
+          
+          <p class="text-gray-600 mb-6 leading-relaxed">
+            奶香蒲菜是鲁菜中极具代表性的清淡素菜，以济南大明湖特产蒲菜为原料，经焯水、挂糊、滑油，
+            搭配鲜牛奶调制的浓汁熘制而成。菜品色泽洁白莹润，蒲菜脆嫩多汁，奶香浓郁醇厚，咸鲜适口且不腻，
+            兼具蔬菜的清甜与牛奶的醇香，是鲁菜"清鲜淡雅"风格的极致体现，既是宴席中荤素搭配的点睛之笔，
+            也是素食者和养生人群的优选菜品。
+          </p>
+          
+          <!-- 菜品基本信息 -->
+          <div class="grid grid-cols-2 gap-6 mb-8">
+            <div class="flex items-center">
+              <i class="fa fa-clock-o text-primary text-xl mr-3"></i>
+              <div>
+                <p class="text-sm text-gray-500">制作时长</p>
+                <p class="font-medium">约30分钟</p>
+              </div>
+            </div>
+            <div class="flex items-center">
+              <i class="fa fa-map-marker text-primary text-xl mr-3"></i>
+              <div>
+                <p class="text-sm text-gray-500">起源地</p>
+                <p class="font-medium">山东济南</p>
+              </div>
+            </div>
+            <div class="flex items-center">
+              <i class="fa fa-fire text-primary text-xl mr-3"></i>
+              <div>
+                <p class="text-sm text-gray-500">热量</p>
+                <p class="font-medium">220 大卡/份</p>
+              </div>
+            </div>
+            <div class="flex items-center">
+              <i class="fa fa-history text-primary text-xl mr-3"></i>
+              <div>
+                <p class="text-sm text-gray-500">历史渊源</p>
+                <p class="font-medium">清代晚期</p>
+              </div>
+            </div>
+          </div>
+          
+          <a href="#process" class="inline-block bg-primary hover:bg-primary/90 text-white font-medium py-3 px-8 rounded-md transition-all transform hover:scale-105 mb-4">
+            查看制作工艺 <i class="fa fa-arrow-right ml-2"></i>
+          </a>
+          <a href="主界面.html" class="inline-block bg-white border border-gray-300 hover:border-primary text-dark font-medium py-3 px-8 rounded-md transition-all ml-4">
+            <i class="fa fa-arrow-left ml-1"></i> 返回菜品列表
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 菜品历史渊源 -->
+  <section class="py-16 bg-neutral">
+    <div class="container mx-auto px-4">
+      <div class="max-w-3xl mx-auto">
+        <h2 class="text-[clamp(1.5rem,3vw,2rem)] font-serif font-bold text-dark mb-6 flex items-center">
+          <i class="fa fa-history text-primary mr-3"></i> 历史渊源
+        </h2>
+        <div class="bg-white p-8 rounded-xl shadow-md">
+          <p class="text-gray-600 mb-4 leading-relaxed">
+            奶香蒲菜起源于清代晚期的山东济南，蒲菜是大明湖的特产之一，被誉为"济南三美"（蒲菜、茭白、莲藕）之首。
+            大明湖水质清澈，所产蒲菜茎白叶绿、脆嫩无丝，是天然的优质蔬菜原料。清代济南文人王士祯在《食宪鸿秘》中
+            曾记载蒲菜的食用方法，当时民间多以清炒、凉拌为主，后经鲁菜厨师改良，加入牛奶调制浓汁，形成了独具风味的"奶香蒲菜"。
+          </p>
+          <p class="text-gray-600 mb-4 leading-relaxed">
+            民国时期，济南"聚丰德"、"燕喜堂"等鲁菜名店将奶香蒲菜纳入宴席菜单，因其口感清淡、营养丰富，成为
+            宴席中"荤素搭配"的必备菜品。新中国成立后，这道菜被列入鲁菜经典素菜名录，多次作为国宴素菜招待中外宾客，
+            其制作工艺注重保留食材本味，体现了鲁菜"以鲜为尊、清鲜淡雅"的烹饪理念。
+          </p>
+          <p class="text-gray-600 leading-relaxed">
+            如今，奶香蒲菜不仅是济南本地家喻户晓的家常菜，更是鲁菜素菜的代表之作。随着养生理念的普及，
+            这道低脂、高蛋白、富含维生素的菜品备受青睐，其制作工艺被代代相传并不断优化，成为展示鲁菜素菜精湛技艺
+            和中华饮食文化"药食同源"思想的重要载体。
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 食材准备 -->
+  <section class="py-16 bg-white">
+    <div class="container mx-auto px-4">
+      <h2 class="text-[clamp(1.5rem,3vw,2rem)] font-serif font-bold text-dark mb-10 text-center">
+        食材准备
+      </h2>
+      
+      <div class="grid md:grid-cols-2 gap-10">
+        <!-- 主料 -->
+        <div class="bg-neutral p-8 rounded-xl shadow-md">
+          <h3 class="text-xl font-bold mb-6 flex items-center">
+            <i class="fa fa-cutlery text-primary mr-2"></i> 主料
+          </h3>
+          <ul class="space-y-3">
+            <li class="flex items-center ingredient-item p-2 rounded-lg">
+              <i class="fa fa-check-circle text-primary mr-3"></i>
+              <span>大明湖蒲菜 500克（取嫩茎部分）</span>
+            </li>
+            <li class="flex items-center ingredient-item p-2 rounded-lg">
+              <i class="fa fa-check-circle text-primary mr-3"></i>
+              <span>鲜牛奶 200毫升</span>
+            </li>
+            <li class="flex items-center ingredient-item p-2 rounded-lg">
+              <i class="fa fa-check-circle text-primary mr-3"></i>
+              <span>鸡蛋清 1个</span>
+            </li>
+            <li class="flex items-center ingredient-item p-2 rounded-lg">
+              <i class="fa fa-check-circle text-primary mr-3"></i>
+              <span>玉米淀粉 20克</span>
+            </li>
+          </ul>
+        </div>
+        
+        <!-- 调料 -->
+        <div class="bg-neutral p-8 rounded-xl shadow-md">
+          <h3 class="text-xl font-bold mb-6 flex items-center">
+            <i class="fa fa-flask text-primary mr-2"></i> 调料
+          </h3>
+          <ul class="space-y-3">
+            <li class="flex items-center ingredient-item p-2 rounded-lg">
+              <i class="fa fa-check-circle text-primary mr-3"></i>
+              <span>黄油 10克（或花生油 20毫升）</span>
+            </li>
+            <li class="flex items-center ingredient-item p-2 rounded-lg">
+              <i class="fa fa-check-circle text-primary mr-3"></i>
+              <span>盐 3克</span>
+            </li>
+            <li class="flex items-center ingredient-item p-2 rounded-lg">
+              <i class="fa fa-check-circle text-primary mr-3"></i>
+              <span>白胡椒粉 1克</span>
+            </li>
+            <li class="flex items-center ingredient-item p-2 rounded-lg">
+              <i class="fa fa-check-circle text-primary mr-3"></i>
+              <span>料酒 10毫升</span>
+            </li>
+            <li class="flex items-center ingredient-item p-2 rounded-lg">
+              <i class="fa fa-check-circle text-primary mr-3"></i>
+              <span>香油 5毫升</span>
+            </li>
+            <li class="flex items-center ingredient-item p-2 rounded-lg">
+              <i class="fa fa-check-circle text-primary mr-3"></i>
+              <span>清水 50毫升</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 制作工艺 -->
+  <section id="process" class="py-16 bg-neutral">
+    <div class="container mx-auto px-4">
+      <h2 class="text-[clamp(1.5rem,3vw,2rem)] font-serif font-bold text-dark mb-10 text-center">
+        制作工艺
+      </h2>
+      
+      <div class="max-w-4xl mx-auto bg-white p-8 md:p-12 rounded-xl shadow-md">
+        <div class="pl-10 space-y-12">
+          <!-- 步骤1 -->
+          <div class="process-step">
+            <h3 class="text-xl font-bold mb-3 flex items-center">
+              <span class="bg-primary text-white w-8 h-8 rounded-full flex items-center justify-center mr-3">1</span>
+              处理蒲菜
+            </h3>
+            <p class="text-gray-600 leading-relaxed">
+              蒲菜洗净后，用刀削去老根和外皮，只保留嫩茎部分，切成5厘米长的段（若蒲菜较粗，可对半剖开）。
+              锅中加入清水烧开，放入1克盐和5毫升料酒，倒入蒲菜焯水30秒，至蒲菜变软、颜色鲜绿时捞出，
+              放入冷水中过凉，沥干水分备用（焯水可去除蒲菜的青涩味，保持脆嫩口感）。
+            </p>
+          </div>
+          
+          <!-- 步骤2 -->
+          <div class="process-step">
+            <h3 class="text-xl font-bold mb-3 flex items-center">
+              <span class="bg-primary text-white w-8 h-8 rounded-full flex items-center justify-center mr-3">2</span>
+              挂糊准备
+            </h3>
+            <p class="text-gray-600 leading-relaxed">
+              蒲菜放入碗中，加入剩余料酒、1克盐、白胡椒粉，轻轻抓匀腌制10分钟入味。
+              打入鸡蛋清，搅拌至蒲菜均匀裹上蛋清，再加入玉米淀粉，边加边搅拌，使每段蒲菜都均匀挂一层薄糊
+              （糊不宜过厚，否则会掩盖蒲菜的清甜和奶香）。
+            </p>
+          </div>
+          
+          <!-- 步骤3 -->
+          <div class="process-step">
+            <h3 class="text-xl font-bold mb-3 flex items-center">
+              <span class="bg-primary text-white w-8 h-8 rounded-full flex items-center justify-center mr-3">3</span>
+              滑油定型
+            </h3>
+            <p class="text-gray-600 leading-relaxed">
+              锅中放入黄油（或花生油），烧至四成热（约120℃），将挂好糊的蒲菜逐段放入油中，用筷子轻轻划散，
+              避免粘连。滑油2分钟，至蒲菜表面微黄、糊层凝固时捞出，沥干油分（滑油火候需温和，防止蒲菜炸老）。
+            </p>
+          </div>
+          
+          <!-- 步骤4 -->
+          <div class="process-step">
+            <h3 class="text-xl font-bold mb-3 flex items-center">
+              <span class="bg-primary text-white w-8 h-8 rounded-full flex items-center justify-center mr-3">4</span>
+              调制奶香汁
+            </h3>
+            <p class="text-gray-600 leading-relaxed">
+              锅中留少许底油，倒入鲜牛奶和清水，加入剩余1克盐，大火烧开后转小火煮2分钟，让牛奶香味充分释放。
+              取5克玉米淀粉加10毫升清水调成水淀粉，分次加入锅中，边加边搅拌，至汤汁浓稠、呈乳白色时关火
+              （水淀粉不宜过多，避免汤汁过稠影响口感）。
+            </p>
+          </div>
+          
+          <!-- 步骤5 -->
+          <div class="process-step">
+            <h3 class="text-xl font-bold mb-3 flex items-center">
+              <span class="bg-primary text-white w-8 h-8 rounded-full flex items-center justify-center mr-3">5</span>
+              熘制入味
+            </h3>
+            <p class="text-gray-600 leading-relaxed">
+              将滑好油的蒲菜放入奶香汁中，开小火加热，轻轻翻动蒲菜，让每段蒲菜都均匀裹上奶香汁。
+              熘制2-3分钟，至蒲菜充分吸收汤汁香味、颜色洁白莹润时，淋入香油，翻炒均匀即可关火
+              （加热时间不宜过长，防止蒲菜变软失去脆嫩口感）。
+            </p>
+          </div>
+          
+          <!-- 步骤6 -->
+          <div class="process-step">
+            <h3 class="text-xl font-bold mb-3 flex items-center">
+              <span class="bg-primary text-white w-8 h-8 rounded-full flex items-center justify-center mr-3">6</span>
+              装盘出锅
+            </h3>
+            <p class="text-gray-600 leading-relaxed">
+              将熘好的奶香蒲菜整齐地摆入盘中，淋上剩余的奶香汁，可撒上少许白胡椒粉或切碎的香菜叶点缀，
+              趁热上桌食用，才能更好地品尝到蒲菜的脆嫩和牛奶的醇厚香味。
+            </p>
+          </div>
+        </div>
+        
+        <!-- 烹饪小贴士 -->
+        <div class="mt-12 bg-primary/5 p-6 rounded-lg border-l-4 border-primary">
+          <h4 class="font-bold text-lg mb-3 flex items-center">
+            <i class="fa fa-lightbulb-o text-primary mr-2"></i> 烹饪小贴士
+          </h4>
+          <ul class="text-gray-600 space-y-2">
+            <li class="flex items-start">
+              <i class="fa fa-angle-right text-primary mt-1 mr-2"></i>
+              <span>蒲菜选择：优先选用大明湖产的蒲菜，嫩茎粗壮、脆嫩无丝；若没有，可用茭白或芦笋替代，但口感略逊；挑选时注意避开老根、发黄的蒲菜。</span>
+            </li>
+            <li class="flex items-start">
+              <i class="fa fa-angle-right text-primary mt-1 mr-2"></i>
+              <span>挂糊技巧：蛋清和淀粉的比例建议为5:1，糊要薄而均匀，既能锁住蒲菜水分，又不会影响清甜口感；挂糊后静置5分钟再滑油，效果更佳。</span>
+            </li>
+            <li class="flex items-start">
+              <i class="fa fa-angle-right text-primary mt-1 mr-2"></i>
+              <span>奶香提升：用黄油替代花生油滑油和炒汁，奶香更浓郁；牛奶建议选用全脂鲜牛奶，口感更醇厚；避免使用奶粉冲兑，香味不足。</span>
+            </li>
+            <li class="flex items-start">
+              <i class="fa fa-angle-right text-primary mt-1 mr-2"></i>
+              <span>火候控制：焯水、滑油、熘制均需用中小火，避免高温导致蒲菜变软、牛奶糊底；水淀粉分次加入，根据汤汁浓稠度调整用量。</span>
+            </li>
+            <li class="flex items-start">
+              <i class="fa fa-angle-right text-primary mt-1 mr-2"></i>
+              <span>营养搭配：可在菜品中加入少量虾仁或鸡胸肉丁，增加蛋白质含量；也可搭配米饭食用，奶香汁拌米饭风味更佳。</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 相关推荐菜品（核心修改部分） -->
+  <section class="py-16 bg-white">
+    <div class="container mx-auto px-4">
+      <h2 class="text-[clamp(1.5rem,3vw,2rem)] font-serif font-bold text-dark mb-10 text-center">
+        相关推荐菜品
+      </h2>
+      
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
+        <!-- 推荐菜品1：保留糟熘鱼片 -->
+        <div class="dish-card bg-neutral rounded-lg overflow-hidden shadow-md">
+          <div class="relative h-48 overflow-hidden">
+            <img src="../wy/images/zaoliupian3.jpg" alt="糟熘鱼片" class="w-full h-full object-cover transition-transform duration-500 hover:scale-110">
+            <div class="absolute top-4 right-4 bg-primary text-white text-xs font-bold px-3 py-1 rounded-full">
+              经典鲁菜
+            </div>
+          </div>
+          <div class="p-6">
+            <h3 class="text-xl font-bold mb-2">糟熘鱼片</h3>
+            <p class="text-gray-600 text-sm mb-4">
+              鲁菜清淡名菜，鱼片鲜嫩滑爽，糟香浓郁醇厚，酸甜适口，清鲜不腻。
+            </p>
+            <a href="#" class="text-primary font-medium hover:text-primary/80 transition-colors flex items-center">
+              查看详情 <i class="fa fa-angle-right ml-1"></i>
+            </a>
+          </div>
+        </div>
+        
+        <!-- 推荐菜品2：清炒虾仁 → 九转大肠 -->
+        <div class="dish-card bg-neutral rounded-lg overflow-hidden shadow-md">
+          <div class="relative h-48 overflow-hidden">
+            <img src="../wy/images/红焖牛肉2.jpg" alt="红焖牛肉" class="w-full h-full object-cover transition-transform duration-500 hover:scale-110">
+            <div class="absolute top-4 right-4 bg-primary text-white text-xs font-bold px-3 py-1 rounded-full">
+              经典鲁菜
+            </div>
+          </div>
+          <div class="p-6">
+            <h3 class="text-xl font-bold mb-2">红焖牛肉</h3>
+            <p class="text-gray-600 text-sm mb-4">
+             鲁菜经典硬菜，选用带筋牛腩，经焯水、煸炒后小火慢焖。肉质酥烂不柴，酱汁浓郁红亮，咸香醇厚，配饭绝佳。
+            </p>
+            <a href="#" class="text-primary font-medium hover:text-primary/80 transition-colors flex items-center">
+              查看详情 <i class="fa fa-angle-right ml-1"></i>
+            </a>
+          </div>
+        </div>
+        
+        <!-- 推荐菜品3：荷塘月色 → 油焖大虾 -->
+        <div class="dish-card bg-neutral rounded-lg overflow-hidden shadow-md">
+          <div class="relative h-48 overflow-hidden">
+            <img src="../wy/images/dx3.jpg" alt="油焖大虾" class="w-full h-full object-cover transition-transform duration-500 hover:scale-110">
+            <div class="absolute top-4 right-4 bg-primary text-white text-xs font-bold px-3 py-1 rounded-full">
+              经典鲁菜
+            </div>
+          </div>
+          <div class="p-6">
+            <h3 class="text-xl font-bold mb-2">油焖大虾</h3>
+            <p class="text-gray-600 text-sm mb-4">
+              鲁菜海鲜代表，虾身红润油亮，肉质鲜嫩紧实，咸鲜香甜，酱汁浓郁入味。
+            </p>
+            <a href="#" class="text-primary font-medium hover:text-primary/80 transition-colors flex items-center">
+              查看详情 <i class="fa fa-angle-right ml-1"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 页脚（保持原网站样式） -->
+  <footer class="bg-dark text-white py-12">
+    <div class="container mx-auto px-4">
+      <div class="grid md:grid-cols-4 gap-8">
+        <div>
+          <div class="flex items-center space-x-2 mb-6">
+            <i class="fa fa-cutlery text-secondary text-2xl"></i>
+            <span class="text-xl font-serif font-bold text-secondary">鲁菜传承</span>
+          </div>
+          <p class="text-gray-400 mb-6">
+            传承鲁菜文化，弘扬中华美食，让更多人了解和喜爱鲁菜。
+          </p>
+          <div class="flex space-x-4">
+            <a href="#" class="text-gray-400 hover:text-secondary transition-colors">
+              <i class="fa fa-weixin text-xl"></i>
+            </a>
+            <a href="#" class="text-gray-400 hover:text-secondary transition-colors">
+              <i class="fa fa-weibo text-xl"></i>
+            </a>
+            <a href="#" class="text-gray-400 hover:text-secondary transition-colors">
+              <i class="fa fa-instagram text-xl"></i>
+            </a>
+          </div>
+        </div>
+        
+        <div>
+          <h4 class="text-lg font-bold mb-6 text-secondary">快速链接</h4>
+          <ul class="space-y-3">
+            <li><a href="index.html#home" class="text-gray-400 hover:text-secondary transition-colors">首页</a></li>
+            <li><a href="index.html#about" class="text-gray-400 hover:text-secondary transition-colors">关于鲁菜</a></li>
+            <li><a href="index.html#dishes" class="text-gray-400 hover:text-secondary transition-colors">菜品展示</a></li>
+            <li><a href="index.html#culture" class="text-gray-400 hover:text-secondary transition-colors">鲁菜文化</a></li>
+          </ul>
+        </div>
+        
+        <div>
+          <h4 class="text-lg font-bold mb-6 text-secondary">经典菜品</h4>
+          <ul class="space-y-3">
+            <li><a href="#" class="text-gray-400 hover:text-secondary transition-colors">红焖牛肉</a></li>
+            <li><a href="#" class="text-gray-400 hover:text-secondary transition-colors">葱烧海参</a></li>
+            <li><a href="#" class="text-gray-400 hover:text-secondary transition-colors">奶香蒲菜</a></li>
+            <li><a href="#" class="text-gray-400 hover:text-secondary transition-colors">油焖大虾</a></li>
+          </ul>
+        </div>
+        
+        <div></div>
+      </div>
+      
+      <div class="border-t border-gray-800 mt-10 pt-6 text-center text-gray-500 text-sm">
+        <p>&copy; 2025 鲁味风华 -AI素材库- 保留所有权利</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- 回到顶部按钮 -->
+  <button id="back-to-top" class="fixed bottom-8 right-8 bg-primary text-white w-12 h-12 rounded-full flex items-center justify-center shadow-lg opacity-0 invisible transition-all duration-300 hover:bg-primary/90">
+    <i class="fa fa-arrow-up"></i>
+  </button>
+
+  <script>
+    // 移动端菜单切换
+    const menuToggle = document.getElementById('menu-toggle');
+    const mobileMenu = document.getElementById('mobile-menu');
+    const navbar = document.getElementById('navbar');
+    const backToTop = document.getElementById('back-to-top');
+
+    menuToggle.addEventListener('click', function() {
+      mobileMenu.classList.toggle('hidden');
+      const icon = this.querySelector('i');
+      if (mobileMenu.classList.contains('hidden')) {
+        icon.classList.remove('fa-times');
+        icon.classList.add('fa-bars');
+      } else {
+        icon.classList.remove('fa-bars');
+        icon.classList.add('fa-times');
+      }
+    });
+
+    // 导航栏滚动效果
+    window.addEventListener('scroll', function() {
+      if (window.scrollY > 100) {
+        navbar.classList.add('py-2', 'shadow');
+        navbar.classList.remove('py-3');
+        
+        // 显示回到顶部按钮
+        backToTop.classList.remove('opacity-0', 'invisible');
+        backToTop.classList.add('opacity-100', 'visible');
+      } else {
+        navbar.classList.add('py-3');
+        navbar.classList.remove('py-2', 'shadow');
+        
+        // 隐藏回到顶部按钮
+        backToTop.classList.add('opacity-0', 'invisible');
+        backToTop.classList.remove('opacity-100', 'visible');
+      }
+    });
+
+    // 回到顶部功能
+    backToTop.addEventListener('click', function() {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    });
+
+    // 图片画廊切换
+    const galleryImages = document.querySelectorAll('.dish-gallery-img');
+    const mainImage = document.querySelector('.bg-neutral img');
+    
+    galleryImages.forEach(img => {
+      img.addEventListener('click', function() {
+        mainImage.src = this.src;
+        mainImage.alt = this.alt;
+      });
+    });
+
+    // 点击移动端菜单链接后关闭菜单
+    const mobileLinks = mobileMenu.querySelectorAll('a');
+    mobileLinks.forEach(link => {
+      link.addEventListener('click', function() {
+        mobileMenu.classList.add('hidden');
+        const icon = menuToggle.querySelector('i');
+        icon.classList.remove('fa-times');
+        icon.classList.add('fa-bars');
+      });
+    });
+  </script>
+</body>
+</html>

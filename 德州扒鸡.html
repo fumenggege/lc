@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>德州扒鸡 - 鲁味风华</title>
+  <!-- 引入外部资源 -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  
+  <!-- Tailwind 配置 -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#A62928',      // 鲁菜主色调：深红色
+            secondary: '#D9B38C',    // 辅助色：暖棕色
+            neutral: '#F5F1E9',      // 中性色：米白色
+            dark: '#3A2E21'          // 深色：深棕色
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            serif: ['"Noto Serif SC"', 'serif']
+          }
+        }
+      }
+    }
+  </script>
+  
+  <!-- 自定义工具类 -->
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .content-auto {
+        content-visibility: auto;
+      }
+      .text-shadow {
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+      }
+      .card-hover {
+        transition: all 0.3s ease;
+      }
+      .card-hover:hover {
+        transform: translateY(-5px);
+      }
+    }
+  </style>
+  
+  <style>
+    /* 全局样式 */
+    html {
+      scroll-behavior: smooth;
+    }
+    
+    /* 菜品详情页样式 */
+    .dish-gallery-img {
+      transition: transform 0.3s ease;
+    }
+    .dish-gallery-img:hover {
+      transform: scale(1.05);
+    }
+    
+    .ingredient-item {
+      transition: all 0.2s ease;
+    }
+    .ingredient-item:hover {
+      background-color: #F5F1E9;
+      transform: translateX(5px);
+    }
+    
+    .process-step {
+      position: relative;
+    }
+    .process-step::before {
+      content: '';
+      position: absolute;
+      left: -30px;
+      top: 8px;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background-color: #A62928;
+    }
+    .process-step::after {
+      content: '';
+      position: absolute;
+      left: -22px;
+      top: 24px;
+      width: 2px;
+      height: calc(100% + 16px);
+      background-color: #D9B38C;
+    }
+    .process-step:last-child::after {
+      display: none;
+    }
+  </style>
+</head>
+
+<body class="bg-neutral text-dark">
+  <!-- 导航栏（保持原网站样式） -->
+  <header id="navbar" class="fixed w-full top-0 z-50 transition-all duration-300 bg-white/90 backdrop-blur-sm shadow-sm">
+    <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+      <a href="index.html" class="flex items-center space-x-2">
+        <i class="fa fa-cutlery text-primary text-2xl"></i>
+        <span class="text-xl font-serif font-bold text-primary">鲁味风华</span>
+      </a>
+      
+      <!-- 桌面导航 -->
+      <nav class="hidden md:flex items-center space-x-8">
+        <a href="主界面.html" class="font-medium hover:text-primary transition-colors">首页</a>
+        <a href="主界面.html" class="font-medium hover:text-primary transition-colors">关于鲁菜</a>
+        菜品展示
+        <a href="index.html#culture" class="font-medium hover:text-primary transition-colors">鲁菜文化</a>
+      </nav>
+      
+      <!-- 移动端菜单按钮 -->
+      <button id="menu-toggle" class="md:hidden text-dark focus:outline-none">
+        <i class="fa fa-bars text-xl"></i>
+      </button>
+    </div>
+    
+    <!-- 移动端导航菜单 -->
+    <div id="mobile-menu" class="hidden md:hidden bg-white shadow-lg absolute w-full">
+      <div class="container mx-auto px-4 py-3 flex flex-col space-y-4">
+        <a href="index.html#home" class="font-medium py-2 hover:text-primary transition-colors">首页</a>
+        <a href="index.html#about" class="font-medium py-2 hover:text-primary transition-colors">关于鲁菜</a>
+        <a href="index.html#dishes" class="font-medium py-2 text-primary transition-colors">菜品展示</a>
+        <a href="index.html#culture" class="font-medium py-2 hover:text-primary transition-colors">鲁菜文化</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- 菜品详情头部 -->
+  <section class="pt-32 pb-16 bg-white">
+    <div class="container mx-auto px-4">
+
+      <div class="flex flex-col md:flex-row gap-8 items-start">
+        <!-- 菜品主图 -->
+        <div class="w-full md:w-1/2">
+          <div class="bg-neutral rounded-xl overflow-hidden shadow-lg">
+            <img src="../wy/images/5.jpg" alt="德州扒鸡" class="w-full h-[400px] object-cover">
+          </div>
+          
+          <!-- 菜品图片画廊（德州扒鸡本地图片） -->
+          <div class="grid grid-cols-4 gap-4 mt-4">
+            <div class="rounded-lg overflow-hidden shadow-md cursor-pointer">
+              <img src="../wy/images/5.jpg" alt="德州扒鸡1" class="w-full h-24 object-cover dish-gallery-img">
+            </div>
+            <div class="rounded-lg overflow-hidden shadow-md cursor-pointer">
+              <img src="../wy/images/baji2.jpg" alt="德州扒鸡2" class="w-full h-24 object-cover dish-gallery-img">
+            </div>
+            <div class="rounded-lg overflow-hidden shadow-md cursor-pointer">
+              <img src="../wy/images/baji3.jpg" alt="德州扒鸡3" class="w-full h-24 object-cover dish-gallery-img">
+            </div>
+            <div class="rounded-lg overflow-hidden shadow-md cursor-pointer">
+              <img src="../wy/images/baji4.jpg" alt="德州扒鸡4" class="w-full h-24 object-cover dish-gallery-img">
+            </div>
+          </div>
+        </div>
+        
+        <!-- 菜品信息 -->
+        <div class="w-full md:w-1/2">
+          <div class="flex items-center gap-3 mb-4">
+            <span class="bg-primary/10 text-primary text-xs font-bold px-3 py-1 rounded-full">经典鲁菜</span>
+            <span class="bg-secondary/20 text-dark text-xs font-medium px-3 py-1 rounded-full flex items-center">
+              <i class="fa fa-star text-yellow-500 mr-1"></i> 4.9 好评
+            </span>
+          </div>
+          
+          <h1 class="text-[clamp(1.8rem,4vw,2.5rem)] font-serif font-bold text-dark mb-4">德州扒鸡</h1>
+          
+          <p class="text-gray-600 mb-6 leading-relaxed">
+            德州扒鸡是鲁菜中极具代表性的传统名菜，被誉为"中国四大名鸡"之首，以山东德州产的优质雏鸡为原料，
+            经宰杀、腌制、煮制、油炸、卤制等多道工序制成。菜品色泽金黄油亮，表皮薄而酥脆，肉质鲜嫩多汁，
+            骨酥肉烂却不失形态，香味浓郁持久，咸淡适口，无需刀叉即可用手撕扯食用，是宴席珍品和馈赠佳品。
+          </p>
+          
+          <!-- 菜品基本信息 -->
+          <div class="grid grid-cols-2 gap-6 mb-8">
+            <div class="flex items-center">
+              <i class="fa fa-clock-o text-primary text-xl mr-3"></i>
+              <div>
+                <p class="text-sm text-gray-500">制作时长</p>
+                <p class="font-medium">约90分钟</p>
+              </div>
+            </div>
+            <div class="flex items-center">
+              <i class="fa fa-map-marker text-primary text-xl mr-3"></i>
+              <div>
+                <p class="text-sm text-gray-500">起源地</p>
+                <p class="font-medium">山东德州</p>
+              </div>
+            </div>
+            <div class="flex items-center">
+              <i class="fa fa-fire text-primary text-xl mr-3"></i>
+              <div>
+                <p class="text-sm text-gray-500">热量</p>
+                <p class="font-medium">350 大卡/份</p>
+              </div>
+            </div>
+            <div class="flex items-center">
+              <i class="fa fa-history text-primary text-xl mr-3"></i>
+              <div>
+                <p class="text-sm text-gray-500">历史渊源</p>
+                <p class="font-medium">明代永乐年间</p>
+              </div>
+            </div>
+          </div>
+          
+          <a href="#process" class="inline-block bg-primary hover:bg-primary/90 text-white font-medium py-3 px-8 rounded-md transition-all transform hover:scale-105 mb-4">
+            查看制作工艺 <i class="fa fa-arrow-right ml-2"></i>
+          </a>
+          <a href="主界面.html" class="inline-block bg-white border border-gray-300 hover:border-primary text-dark font-medium py-3 px-8 rounded-md transition-all ml-4">
+            <i class="fa fa-arrow-left ml-1"></i> 返回菜品列表
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 菜品历史渊源 -->
+  <section class="py-16 bg-neutral">
+    <div class="container mx-auto px-4">
+      <div class="max-w-3xl mx-auto">
+        <h2 class="text-[clamp(1.5rem,3vw,2rem)] font-serif font-bold text-dark mb-6 flex items-center">
+          <i class="fa fa-history text-primary mr-3"></i> 历史渊源
+        </h2>
+        <div class="bg-white p-8 rounded-xl shadow-md">
+          <p class="text-gray-600 mb-4 leading-relaxed">
+            德州扒鸡起源于明代永乐年间，距今已有600余年历史。德州作为京杭大运河的重要码头，
+            过往客商云集，餐饮业十分繁荣。最初，当地厨师将鸡用卤汁煮熟后售卖，因味道鲜香受到客商喜爱，
+            逐渐形成了独具特色的"德州扒鸡"。
+          </p>
+          <p class="text-gray-600 mb-4 leading-relaxed">
+            清代乾隆年间，德州扒鸡的制作工艺日趋成熟，厨师在原有基础上增加了油炸工序，
+            使鸡肉口感更酥脆、香味更浓郁。相传，乾隆皇帝下江南途经济州时，品尝了德州扒鸡后赞不绝口，
+            御笔亲题"天下第一鸡"，从此德州扒鸡声名远播，成为宫廷贡品和民间宴席的必备菜品。
+          </p>
+          <p class="text-gray-600 leading-relaxed">
+            20世纪初，德州扒鸡形成了规模化生产，"德顺斋"、"宝兰斋"等老字号相继创立，
+            其制作工艺被代代相传并不断优化。如今，德州扒鸡不仅是鲁菜的标志性菜品，更是中国著名的地方特产，
+            被列入国家级非物质文化遗产名录，远销海内外，成为弘扬中华饮食文化的重要载体。
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 食材准备 -->
+  <section class="py-16 bg-white">
+    <div class="container mx-auto px-4">
+      <h2 class="text-[clamp(1.5rem,3vw,2rem)] font-serif font-bold text-dark mb-10 text-center">
+        食材准备
+      </h2>
+      
+      <div class="grid md:grid-cols-2 gap-10">
+        <!-- 主料 -->
+        <div class="bg-neutral p-8 rounded-xl shadow-md">
+          <h3 class="text-xl font-bold mb-6 flex items-center">
+            <i class="fa fa-cutlery text-primary mr-2"></i> 主料
+          </h3>
+          <ul class="space-y-3">
+            <li class="flex items-center ingredient-item p-2 rounded-lg">
+              <i class="fa fa-check-circle text-primary mr-3"></i>
+              <span>当年雏鸡 1只（约800-1000克）</span>
+            </li>
+            <li class="flex items-center ingredient-item p-2 rounded-lg">
+              <i class="fa fa-check-circle text-primary mr-3"></i>
+              <span>章丘大葱 200克</span>
+            </li>
+            <li class="flex items-center ingredient-item p-2 rounded-lg">
+              <i class="fa fa-check-circle text-primary mr-3"></i>
+              <span>生姜 60克</span>
+            </li>
+            <li class="flex items-center ingredient-item p-2 rounded-lg">
+              <i class="fa fa-check-circle text-primary mr-3"></i>
+              <span>大蒜 40克</span>
+            </li>
+          </ul>
+        </div>
+        
+        <!-- 调料 -->
+        <div class="bg-neutral p-8 rounded-xl shadow-md">
+          <h3 class="text-xl font-bold mb-6 flex items-center">
+            <i class="fa fa-flask text-primary mr-2"></i> 调料
+          </h3>
+          <ul class="space-y-3">
+            <li class="flex items-center ingredient-item p-2 rounded-lg">
+              <i class="fa fa-check-circle text-primary mr-3"></i>
+              <span>八角 2颗</span>
+            </li>
+            <li class="flex items-center ingredient-item p-2 rounded-lg">
+              <i class="fa fa-check-circle text-primary mr-3"></i>
+              <span>桂皮 1小块（约5克）</span>
+            </li>
+            <li class="flex items-center ingredient-item p-2 rounded-lg">
+              <i class="fa fa-check-circle text-primary mr-3"></i>
+              <span>香叶 3片</span>
+            </li>
+            <li class="flex items-center ingredient-item p-2 rounded-lg">
+              <i class="fa fa-check-circle text-primary mr-3"></i>
+              <span>花椒 1小把（约3克）</span>
+            </li>
+            <li class="flex items-center ingredient-item p-2 rounded-lg">
+              <i class="fa fa-check-circle text-primary mr-3"></i>
+              <span>酱油 60毫升</span>
+            </li>
+            <li class="flex items-center ingredient-item p-2 rounded-lg">
+              <i class="fa fa-check-circle text-primary mr-3"></i>
+              <span>冰糖 30克</span>
+            </li>
+            <li class="flex items-center ingredient-item p-2 rounded-lg">
+              <i class="fa fa-check-circle text-primary mr-3"></i>
+              <span>料酒 80毫升</span>
+            </li>
+            <li class="flex items-center ingredient-item p-2 rounded-lg">
+              <i class="fa fa-check-circle text-primary mr-3"></i>
+              <span>花生油 适量（油炸用）</span>
+            </li>
+            <li class="flex items-center ingredient-item p-2 rounded-lg">
+              <i class="fa fa-check-circle text-primary mr-3"></i>
+              <span>盐 5克</span>
+            </li>
+            <li class="flex items-center ingredient-item p-2 rounded-lg">
+              <i class="fa fa-check-circle text-primary mr-3"></i>
+              <span>清水 适量</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 制作工艺 -->
+  <section id="process" class="py-16 bg-neutral">
+    <div class="container mx-auto px-4">
+      <h2 class="text-[clamp(1.5rem,3vw,2rem)] font-serif font-bold text-dark mb-10 text-center">
+        制作工艺
+      </h2>
+      
+      <div class="max-w-4xl mx-auto bg-white p-8 md:p-12 rounded-xl shadow-md">
+        <div class="pl-10 space-y-12">
+          <!-- 步骤1 -->
+          <div class="process-step">
+            <h3 class="text-xl font-bold mb-3 flex items-center">
+              <span class="bg-primary text-white w-8 h-8 rounded-full flex items-center justify-center mr-3">1</span>
+              处理雏鸡
+            </h3>
+            <p class="text-gray-600 leading-relaxed">
+              雏鸡宰杀后，放血、去毛，从鸡颈处开口，取出内脏及鸡嗉子，洗净内腔杂质，用剪刀剪去鸡爪、鸡尖和多余的脂肪。
+              用清水反复冲洗鸡身内外，直到血水洗净，然后用厨房纸吸干表面水分，放入盆中备用。
+            </p>
+          </div>
+          
+          <!-- 步骤2 -->
+          <div class="process-step">
+            <h3 class="text-xl font-bold mb-3 flex items-center">
+              <span class="bg-primary text-white w-8 h-8 rounded-full flex items-center justify-center mr-3">2</span>
+              腌制入味
+            </h3>
+            <p class="text-gray-600 leading-relaxed">
+              用盐均匀涂抹鸡身内外，尤其是鸡腹腔、鸡腿、鸡胸等肉质较厚的部位，按摩5分钟让盐充分渗透。
+              放入葱段、姜片、蒜末和20毫升料酒，腌制30分钟去腥增香。腌制期间每隔10分钟翻动一次，确保鸡肉均匀入味。
+            </p>
+          </div>
+          
+          <!-- 步骤3 -->
+          <div class="process-step">
+            <h3 class="text-xl font-bold mb-3 flex items-center">
+              <span class="bg-primary text-white w-8 h-8 rounded-full flex items-center justify-center mr-3">3</span>
+              煮制定型
+            </h3>
+            <p class="text-gray-600 leading-relaxed">
+              锅中加入足量清水，放入剩余的葱段、姜片、蒜末，加入八角、桂皮、香叶、花椒、剩余料酒、酱油、冰糖，大火烧开后转小火煮10分钟，
+              让香料味道充分释放。将腌制好的鸡放入锅中，确保水完全没过鸡身，大火烧开后转小火煮20分钟，煮至鸡肉七分熟时捞出，沥干水分。
+            </p>
+          </div>
+          
+          <!-- 步骤4 -->
+          <div class="process-step">
+            <h3 class="text-xl font-bold mb-3 flex items-center">
+              <span class="bg-primary text-white w-8 h-8 rounded-full flex items-center justify-center mr-3">4</span>
+              油炸上色
+            </h3>
+            <p class="text-gray-600 leading-relaxed">
+              锅中倒入足量花生油，烧至六成热（约180℃）时，将煮好的鸡放入油锅中，转中火炸至鸡身金黄油亮时捞出，沥干油分。
+              油炸时间约3-4分钟，期间用勺子不断将油浇在鸡身上，确保鸡身均匀上色，表皮酥脆。
+            </p>
+          </div>
+          
+          <!-- 步骤5 -->
+          <div class="process-step">
+            <h3 class="text-xl font-bold mb-3 flex items-center">
+              <span class="bg-primary text-white w-8 h-8 rounded-full flex items-center justify-center mr-3">5</span>
+              卤制入味
+            </h3>
+            <p class="text-gray-600 leading-relaxed">
+              将炸好的鸡放回之前的卤锅中，确保卤汁完全没过鸡身，大火烧开后转小火，保持微沸状态卤制30分钟。
+              卤制期间每隔10分钟将鸡翻动一次，让鸡肉充分吸收卤汁的香味，煮至鸡肉熟透、骨酥肉烂即可。
+            </p>
+          </div>
+          
+          <!-- 步骤6 -->
+          <div class="process-step">
+            <h3 class="text-xl font-bold mb-3 flex items-center">
+              <span class="bg-primary text-white w-8 h-8 rounded-full flex items-center justify-center mr-3">6</span>
+              收汁出锅
+            </h3>
+            <p class="text-gray-600 leading-relaxed">
+              卤制完成后，打开锅盖，转大火收汁，待卤汁浓稠、能均匀挂在鸡身上时，关火。
+              让鸡在卤汁中浸泡15分钟，充分吸收卤汁味道，然后捞出，放在盘中自然冷却至不烫手，即可撕成小块食用或整鸡装盘。
+            </p>
+          </div>
+        </div>
+        
+        <!-- 烹饪小贴士 -->
+        <div class="mt-12 bg-primary/5 p-6 rounded-lg border-l-4 border-primary">
+          <h4 class="font-bold text-lg mb-3 flex items-center">
+            <i class="fa fa-lightbulb-o text-primary mr-2"></i> 烹饪小贴士
+          </h4>
+          <ul class="text-gray-600 space-y-2">
+            <li class="flex items-start">
+              <i class="fa fa-angle-right text-primary mt-1 mr-2"></i>
+              <span>鸡的选择：优选当年生的雏鸡，肉质鲜嫩、脂肪少，煮后不易柴；避免选用老鸡，老鸡肉质较硬，不易煮烂。</span>
+            </li>
+            <li class="flex items-start">
+              <i class="fa fa-angle-right text-primary mt-1 mr-2"></i>
+              <span>卤制火候：卤制时需保持微沸状态，火候过大容易导致鸡肉柴硬，火候过小则入味不充分；卤汁需完全没过鸡身，确保均匀入味。</span>
+            </li>
+            <li class="flex items-start">
+              <i class="fa fa-angle-right text-primary mt-1 mr-2"></i>
+              <span>香料用量：香料不宜过多，否则会掩盖鸡肉的本味；八角、桂皮等香料可用纱布包好放入锅中，方便后续取出。</span>
+            </li>
+            <li class="flex items-start">
+              <i class="fa fa-angle-right text-primary mt-1 mr-2"></i>
+              <span>冷却食用：德州扒鸡冷却后口感更佳，表皮更酥脆，肉质更紧实；食用时无需刀叉，用手撕扯即可，更具风味。</span>
+            </li>
+            <li class="flex items-start">
+              <i class="fa fa-angle-right text-primary mt-1 mr-2"></i>
+              <span>保存方法：卤好的德州扒鸡可连同卤汁一起放入冰箱冷藏，保存3-5天；食用前可加热片刻，味道依然鲜香。</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 相关推荐菜品 -->
+  <section class="py-16 bg-white">
+    <div class="container mx-auto px-4">
+      <h2 class="text-[clamp(1.5rem,3vw,2rem)] font-serif font-bold text-dark mb-10 text-center">
+        相关推荐菜品
+      </h2>
+      
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
+        <!-- 推荐菜品1 -->
+        <div class="dish-card bg-neutral rounded-lg overflow-hidden shadow-md">
+          <div class="relative h-48 overflow-hidden">
+            <img src="../wy/images/红焖牛肉2.jpg" alt="红焖牛肉" class="w-full h-full object-cover transition-transform duration-500 hover:scale-110">
+            <div class="absolute top-4 right-4 bg-primary text-white text-xs font-bold px-3 py-1 rounded-full">
+              经典鲁菜
+            </div>
+          </div>
+          <div class="p-6">
+            <h3 class="text-xl font-bold mb-2">红焖牛肉</h3>
+            <p class="text-gray-600 text-sm mb-4">
+              鲁菜经典硬菜，选用带筋牛腩，经焯水、煸炒后小火慢焖。肉质酥烂不柴，酱汁浓郁红亮，咸香醇厚，配饭绝佳。
+            </p>
+            <a href="#" class="text-primary font-medium hover:text-primary/80 transition-colors flex items-center">
+              查看详情 <i class="fa fa-angle-right ml-1"></i>
+            </a>
+          </div>
+        </div>
+        
+        <!-- 推荐菜品2 -->
+        <div class="dish-card bg-neutral rounded-lg overflow-hidden shadow-md">
+          <div class="relative h-48 overflow-hidden">
+            <img src="../wy/images/hs2.jpg" alt="葱烧海参" class="w-full h-full object-cover transition-transform duration-500 hover:scale-110">
+            <div class="absolute top-4 right-4 bg-primary text-white text-xs font-bold px-3 py-1 rounded-full">
+              经典鲁菜
+            </div>
+          </div>
+          <div class="p-6">
+            <h3 class="text-xl font-bold mb-2">葱烧海参</h3>
+            <p class="text-gray-600 text-sm mb-4">
+              鲁菜"海八珍"代表，海参软糯弹牙，葱段香甜浓郁，汤汁醇厚挂味，咸鲜适口。
+            </p>
+            <a href="#" class="text-primary font-medium hover:text-primary/80 transition-colors flex items-center">
+              查看详情 <i class="fa fa-angle-right ml-1"></i>
+            </a>
+          </div>
+        </div>
+        
+        <!-- 推荐菜品3 -->
+        <div class="dish-card bg-neutral rounded-lg overflow-hidden shadow-md">
+          <div class="relative h-48 overflow-hidden">
+            <img src="../wy/images/liy1.jpg" alt="糖醋鲤鱼" class="w-full h-full object-cover transition-transform duration-500 hover:scale-110">
+            <div class="absolute top-4 right-4 bg-primary text-white text-xs font-bold px-3 py-1 rounded-full">
+              经典鲁菜
+            </div>
+          </div>
+          <div class="p-6">
+            <h3 class="text-xl font-bold mb-2">糖醋鲤鱼</h3>
+            <p class="text-gray-600 text-sm mb-4">
+              鲁菜宴席名菜，造型如"跃龙门"，外焦里嫩，酸甜适口，寓意"年年有余"。
+            </p>
+            <a href="#" class="text-primary font-medium hover:text-primary/80 transition-colors flex items-center">
+              查看详情 <i class="fa fa-angle-right ml-1"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 页脚（保持原网站样式） -->
+  <footer class="bg-dark text-white py-12">
+    <div class="container mx-auto px-4">
+      <div class="grid md:grid-cols-4 gap-8">
+        <div>
+          <div class="flex items-center space-x-2 mb-6">
+            <i class="fa fa-cutlery text-secondary text-2xl"></i>
+            <span class="text-xl font-serif font-bold text-secondary">鲁菜传承</span>
+          </div>
+          <p class="text-gray-400 mb-6">
+            传承鲁菜文化，弘扬中华美食，让更多人了解和喜爱鲁菜。
+          </p>
+          <div class="flex space-x-4">
+            <a href="#" class="text-gray-400 hover:text-secondary transition-colors">
+              <i class="fa fa-weixin text-xl"></i>
+            </a>
+            <a href="#" class="text-gray-400 hover:text-secondary transition-colors">
+              <i class="fa fa-weibo text-xl"></i>
+            </a>
+            <a href="#" class="text-gray-400 hover:text-secondary transition-colors">
+              <i class="fa fa-instagram text-xl"></i>
+            </a>
+          </div>
+        </div>
+        
+        <div>
+          <h4 class="text-lg font-bold mb-6 text-secondary">快速链接</h4>
+          <ul class="space-y-3">
+            <li><a href="index.html#home" class="text-gray-400 hover:text-secondary transition-colors">首页</a></li>
+            <li><a href="index.html#about" class="text-gray-400 hover:text-secondary transition-colors">关于鲁菜</a></li>
+            <li><a href="index.html#dishes" class="text-gray-400 hover:text-secondary transition-colors">菜品展示</a></li>
+            <li><a href="index.html#culture" class="text-gray-400 hover:text-secondary transition-colors">鲁菜文化</a></li>
+          </ul>
+        </div>
+        
+        <div>
+          <h4 class="text-lg font-bold mb-6 text-secondary">经典菜品</h4>
+          <ul class="space-y-3">
+            <li><a href="#" class="text-gray-400 hover:text-secondary transition-colors">红焖牛肉</a></li>
+            <li><a href="#" class="text-gray-400 hover:text-secondary transition-colors">葱烧海参</a></li>
+            <li><a href="#" class="text-gray-400 hover:text-secondary transition-colors">糖醋鲤鱼</a></li>
+            <li><a href="#" class="text-gray-400 hover:text-secondary transition-colors">德州扒鸡</a></li>
+          </ul>
+        </div>
+        
+        <div></div>
+      </div>
+      
+      <div class="border-t border-gray-800 mt-10 pt-6 text-center text-gray-500 text-sm">
+        <p>&copy; 2025 鲁味风华 -AI素材库- 保留所有权利</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- 回到顶部按钮 -->
+  <button id="back-to-top" class="fixed bottom-8 right-8 bg-primary text-white w-12 h-12 rounded-full flex items-center justify-center shadow-lg opacity-0 invisible transition-all duration-300 hover:bg-primary/90">
+    <i class="fa fa-arrow-up"></i>
+  </button>
+
+  <script>
+    // 移动端菜单切换
+    const menuToggle = document.getElementById('menu-toggle');
+    const mobileMenu = document.getElementById('mobile-menu');
+    const navbar = document.getElementById('navbar');
+    const backToTop = document.getElementById('back-to-top');
+
+
+    menuToggle.addEventListener('click', function() {
+      mobileMenu.classList.toggle('hidden');
+      const icon = this.querySelector('i');
+      if (mobileMenu.classList.contains('hidden')) {
+        icon.classList.remove('fa-times');
+        icon.classList.add('fa-bars');
+      } else {
+        icon.classList.remove('fa-bars');
+        icon.classList.add('fa-times');
+      }
+    });
+
+    // 导航栏滚动效果
+    window.addEventListener('scroll', function() {
+      if (window.scrollY > 100) {
+        navbar.classList.add('py-2', 'shadow');
+        navbar.classList.remove('py-3');
+        
+        // 显示回到顶部按钮
+        backToTop.classList.remove('opacity-0', 'invisible');
+        backToTop.classList.add('opacity-100', 'visible');
+      } else {
+        navbar.classList.add('py-3');
+        navbar.classList.remove('py-2', 'shadow');
+        
+        // 隐藏回到顶部按钮
+        backToTop.classList.add('opacity-0', 'invisible');
+        backToTop.classList.remove('opacity-100', 'visible');
+      }
+    });
+
+    // 回到顶部功能
+    backToTop.addEventListener('click', function() {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    });
+
+    // 图片画廊切换
+    const galleryImages = document.querySelectorAll('.dish-gallery-img');
+    const mainImage = document.querySelector('.bg-neutral img');
+    
+    galleryImages.forEach(img => {
+      img.addEventListener('click', function() {
+        mainImage.src = this.src;
+        mainImage.alt = this.alt;
+      });
+    });
+
+    // 点击移动端菜单链接后关闭菜单
+    const mobileLinks = mobileMenu.querySelectorAll('a');
+    mobileLinks.forEach(link => {
+      link.addEventListener('click', function() {
+        mobileMenu.classList.add('hidden');
+        const icon = menuToggle.querySelector('i');
+        icon.classList.remove('fa-times');
+        icon.classList.add('fa-bars');
+      });
+    });
+  </script>
+</body>
+</html>

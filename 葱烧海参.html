@@ -1,0 +1,1150 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>葱烧海参 - 鲁味风华</title>
+  <!-- 引入外部资源 -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  
+  <!-- Tailwind 配置 -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#A62928',      // 鲁菜主色调：深红色
+            secondary: '#D9B38C',    // 辅助色：暖棕色
+            neutral: '#F5F1E9',      // 中性色：米白色
+            dark: '#3A2E21'          // 深色：深棕色
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            serif: ['"Noto Serif SC"', 'serif']
+          }
+        }
+      }
+    }
+  </script>
+  
+  <!-- 自定义工具类 -->
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .content-auto {
+        content-visibility: auto;
+      }
+      .text-shadow {
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+      }
+      .card-hover {
+        transition: all 0.3s ease;
+      }
+      .card-hover:hover {
+        transform: translateY(-5px);
+      }
+    }
+  </style>
+  
+  <style>
+    /* 全局样式 */
+    html {
+      scroll-behavior: smooth;
+    }
+    
+    /* 菜品详情页样式 */
+    .dish-gallery-img {
+      transition: transform 0.3s ease;
+      cursor: pointer; /* 增加鼠标指针，提示可点击 */
+    }
+    .dish-gallery-img:hover {
+      transform: scale(1.05);
+    }
+    
+    .ingredient-item {
+      transition: all 0.2s ease;
+    }
+    .ingredient-item:hover {
+      background-color: #F5F1E9;
+      transform: translateX(5px);
+    }
+    
+    .process-step {
+      position: relative;
+    }
+    .process-step::before {
+      content: '';
+      position: absolute;
+      left: -30px;
+      top: 8px;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background-color: #A62928;
+    }
+    .process-step::after {
+      content: '';
+      position: absolute;
+      left: -22px;
+      top: 24px;
+      width: 2px;
+      height: calc(100% + 16px);
+      background-color: #D9B38C;
+    }
+    .process-step:last-child::after {
+      display: none;
+    }
+
+    /* 翻译按钮与下拉菜单样式 */
+    .translate-btn {
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .translate-btn:hover {
+      transform: scale(1.05);
+    }
+    .translate-btn.loading {
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
+    .translate-btn.loading::after {
+      content: "";
+      width: 16px;
+      height: 16px;
+      border: 2px solid #ffffff;
+      border-top: 2px solid transparent;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    /* 语言下拉菜单 */
+    .lang-dropdown {
+      position: absolute;
+      top: 100%;
+      right: 0;
+      margin-top: 4px;
+      width: 180px;
+      background: white;
+      border-radius: 4px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      z-index: 100;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.2s ease;
+    }
+    .lang-dropdown.show {
+      opacity: 1;
+      visibility: visible;
+    }
+    .lang-option {
+      padding: 12px 16px;
+      cursor: pointer;
+      transition: background 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .lang-option:hover {
+      background: #f5f5f5;
+    }
+    .lang-option.active {
+      color: #A62928;
+      font-weight: 600;
+      background: #f0f8fb;
+    }
+    .lang-flag {
+      width: 24px;
+      height: 24px;
+      border-radius: 4px;
+      object-fit: cover;
+    }
+
+    /*
+    ** 新增：食材缩略图样式
+    */
+    .ingredient-thumbnail {
+      width: 40px;
+      height: 40px;
+      margin-right: 10px;
+      border-radius: 4px;
+      object-fit: cover; /* 保持图片原始比例，裁剪多余部分 */
+      border: 1px solid #ddd;
+      cursor: pointer;
+      transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    }
+    .ingredient-thumbnail:hover {
+      transform: scale(1.05);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+  </style>
+</head>
+
+<body class="bg-neutral text-dark lang-zh">
+  <!-- 导航栏（核心修复：所有主页面链接改回「主界面.html」） -->
+  <header id="navbar" class="fixed w-full top-0 z-50 transition-all duration-300 bg-white/90 backdrop-blur-sm shadow-sm">
+    <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+      <a href="主界面.html#home" class="flex items-center space-x-2">
+        <i class="fa fa-cutlery text-primary text-2xl"></i>
+        <span class="text-xl font-serif font-bold text-primary translate-target" data-translate="brand">鲁味风华</span>
+      </a>
+      
+      <!-- 桌面导航（修复为主界面.html+锚点） -->
+      <nav class="hidden md:flex items-center space-x-8">
+        <a href="主界面.html#home" class="font-medium hover:text-primary transition-colors translate-target" data-translate="nav-home">首页</a>
+        <a href="主界面.html#about" class="font-medium hover:text-primary transition-colors translate-target" data-translate="nav-about">关于鲁菜</a>
+        <a href="主界面.html#dishes" class="font-medium text-primary transition-colors translate-target" data-translate="nav-dishes">菜品展示</a>
+        <a href="主界面.html#culture" class="font-medium hover:text-primary transition-colors translate-target" data-translate="nav-culture">鲁菜文化</a>
+        <!-- 语言切换下拉菜单 - 国旗使用CDN链接 -->
+        <div class="relative">
+          <button id="lang-btn" class="translate-btn bg-secondary hover:bg-secondary/90 text-white font-medium py-2 px-4 rounded-md">
+            <i class="fa fa-language"></i>
+            <span id="current-lang-text">中文</span>
+            <i class="fa fa-angle-down text-xs"></i>
+          </button>
+          <div id="lang-dropdown" class="lang-dropdown">
+            <div class="lang-option active" data-lang="zh" data-lang-name="中文">
+              <img src="https://flagcdn.com/w40/cn.png" alt="中文" class="lang-flag">
+              <span>中文</span>
+            </div>
+            <div class="lang-option" data-lang="en" data-lang-name="English">
+              <img src="https://flagcdn.com/w40/gb.png" alt="English" class="lang-flag">
+              <span>English</span>
+            </div>
+            <div class="lang-option" data-lang="jp" data-lang-name="日本語">
+              <img src="https://flagcdn.com/w40/jp.png" alt="日本語" class="lang-flag">
+              <span>日本語</span>
+            </div>
+            <div class="lang-option" data-lang="kor" data-lang-name="한국어">
+              <img src="https://flagcdn.com/w40/kr.png" alt="한국어" class="lang-flag">
+              <span>한국어</span>
+            </div>
+            <div class="lang-option" data-lang="fra" data-lang-name="Français">
+              <img src="https://flagcdn.com/w40/fr.png" alt="Français" class="lang-flag">
+              <span>Français</span>
+            </div>
+            <div class="lang-option" data-lang="de" data-lang-name="Deutsch">
+              <img src="https://flagcdn.com/w40/de.png" alt="Deutsch" class="lang-flag">
+              <span>Deutsch</span>
+            </div>
+            <div class="lang-option" data-lang="spa" data-lang-name="Español">
+              <img src="https://flagcdn.com/w40/es.png" alt="Español" class="lang-flag">
+              <span>Español</span>
+            </div>
+            <div class="lang-option" data-lang="ru" data-lang-name="Русский">
+              <img src="https://flagcdn.com/w40/ru.png" alt="Русский" class="lang-flag">
+              <span>Русский</span>
+            </div>
+            <div class="lang-option" data-lang="ara" data-lang-name="العربية">
+              <img src="https://flagcdn.com/w40/sa.png" alt="العربية" class="lang-flag">
+              <span>العربية</span>
+            </div>
+            <div class="lang-option" data-lang="vie" data-lang-name="越南语">
+              <img src="https://flagcdn.com/w40/vn.png" alt="越南语" class="lang-flag">
+              <span>越南语</span>
+            </div>
+            <div class="lang-option" data-lang="pl" data-lang-name="polan">
+              <img src="https://flagcdn.com/w40/pl.jpg" alt="polan" class="lang-flag">
+              <span>polan</span>
+            </div>
+          </div>
+        </div>
+      </nav>
+      
+      <!-- 移动端菜单按钮 -->
+      <button id="menu-toggle" class="md:hidden text-dark focus:outline-none">
+        <i class="fa fa-bars text-xl"></i>
+      </button>
+    </div>
+    
+    <!-- 移动端导航菜单（修复为主界面.html+锚点） -->
+    <div id="mobile-menu" class="hidden md:hidden bg-white shadow-lg absolute w-full">
+      <div class="container mx-auto px-4 py-3 flex flex-col space-y-4">
+        <a href="主界面.html#home" class="font-medium py-2 hover:text-primary transition-colors translate-target" data-translate="nav-home">首页</a>
+        <a href="主界面.html#about" class="font-medium py-2 hover:text-primary transition-colors translate-target" data-translate="nav-about">关于鲁菜</a>
+        <a href="主界面.html#dishes" class="font-medium py-2 text-primary transition-colors translate-target" data-translate="nav-dishes">菜品展示</a>
+        <a href="主界面.html#culture" class="font-medium py-2 hover:text-primary transition-colors translate-target" data-translate="nav-culture">鲁菜文化</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- 菜品详情头部（添加翻译标记） -->
+  <section class="pt-32 pb-16 bg-white">
+    <div class="container mx-auto px-4">
+      <div class="flex flex-col md:flex-row gap-8 items-start">
+        <!-- 菜品主图 -->
+        <div class="w-full md:w-1/2">
+          <div class="bg-neutral rounded-xl overflow-hidden shadow-lg">
+            <!-- 主图：添加id方便精准选择，修复alt初始值 -->
+            <img id="main-dish-img" src="./images/dishes/congshaohaishen.jpg" alt="葱烧海参" class="w-full h-[400px] object-cover translate-target" data-translate="dish-name">
+          </div>
+          
+          <!-- 菜品图片画廊（修复图片路径为统一的./images/，确保和主图路径一致） -->
+          <div class="grid grid-cols-4 gap-4 mt-4">
+            <div class="rounded-lg overflow-hidden shadow-md">
+              <img src="./images/dishes/congshaohaishen.jpg" alt="葱烧海参1" class="w-full h-24 object-cover dish-gallery-img translate-target" data-translate="dish-img1">
+            </div>
+            <div class="rounded-lg overflow-hidden shadow-md">
+              <img src="./images/hs2.jpg" alt="葱烧海参2" class="w-full h-24 object-cover dish-gallery-img translate-target" data-translate="dish-img2">
+            </div>
+            <div class="rounded-lg overflow-hidden shadow-md">
+              <img src="./images/hs3.jpg" alt="葱烧海参3" class="w-full h-24 object-cover dish-gallery-img translate-target" data-translate="dish-img3">
+            </div>
+            <div class="rounded-lg overflow-hidden shadow-md">
+              <img src="./images/hs4.jpg" alt="葱烧海参4" class="w-full h-24 object-cover dish-gallery-img translate-target" data-translate="dish-img4">
+            </div>
+          </div>
+        </div>
+        
+        <!-- 菜品信息（添加翻译标记） -->
+        <div class="w-full md:w-1/2">
+          <div class="flex items-center gap-3 mb-4">
+            <span class="bg-primary/10 text-primary text-xs font-bold px-3 py-1 rounded-full translate-target" data-translate="category-classic">经典鲁菜</span>
+            <span class="bg-secondary/20 text-dark text-xs font-medium px-3 py-1 rounded-full flex items-center">
+              <i class="fa fa-star text-yellow-500 mr-1"></i> <span class="translate-target" data-translate="rating">4.8 好评</span>
+            </span>
+          </div>
+          
+          <h1 class="text-[clamp(1.8rem,4vw,2.5rem)] font-serif font-bold text-dark mb-4 translate-target" data-translate="dish-name">葱烧海参</h1>
+          
+          <p class="text-gray-600 mb-6 leading-relaxed translate-target" data-translate="dish-desc">
+            葱烧海参是鲁菜“海八珍”中的经典代表，以优质海参和章丘大葱为核心食材，经煎、炒、焖、炖等多道工序烹制而成。
+            菜品色泽红亮油润，海参软糯弹牙，葱段香甜浓郁，汤汁醇厚挂味，咸鲜中带着自然葱香，
+            既凸显了海参的本味，又融入了大葱的独特香气，是鲁菜“清鲜淡雅、醇厚香浓”风格的极致体现。
+          </p>
+          
+          <!-- 菜品基本信息（添加翻译标记） -->
+          <div class="grid grid-cols-2 gap-6 mb-8">
+            <div class="flex items-center">
+              <i class="fa fa-clock-o text-primary text-xl mr-3"></i>
+              <div>
+                <p class="text-sm text-gray-500 translate-target" data-translate="cooking-time">制作时长</p>
+                <p class="font-medium translate-target" data-translate="cooking-time-value">约60分钟</p>
+              </div>
+            </div>
+            <div class="flex items-center">
+              <i class="fa fa-map-marker text-primary text-xl mr-3"></i>
+              <div>
+                <p class="text-sm text-gray-500 translate-target" data-translate="origin">起源地</p>
+                <p class="font-medium translate-target" data-translate="origin-value">山东烟台</p>
+              </div>
+            </div>
+            <div class="flex items-center">
+              <i class="fa fa-fire text-primary text-xl mr-3"></i>
+              <div>
+                <p class="text-sm text-gray-500 translate-target" data-translate="calories">热量</p>
+                <p class="font-medium translate-target" data-translate="calories-value">280 大卡/份</p>
+              </div>
+            </div>
+            <div class="flex items-center">
+              <i class="fa fa-history text-primary text-xl mr-3"></i>
+              <div>
+                <p class="text-sm text-gray-500 translate-target" data-translate="history-origin">历史渊源</p>
+                <p class="font-medium translate-target" data-translate="history-origin-value">清代道光年间</p>
+              </div>
+            </div>
+          </div>
+          
+          <a href="#process" class="inline-block bg-primary hover:bg-primary/90 text-white font-medium py-3 px-8 rounded-md transition-all transform hover:scale-105 mb-4 translate-target" data-translate="view-process">
+            查看制作工艺 <i class="fa fa-arrow-right ml-2"></i>
+          </a>
+          <!-- 修复返回菜品列表：指向主界面.html的菜品展示模块 -->
+          <a href="主界面.html#dishes" class="inline-block bg-white border border-gray-300 hover:border-primary text-dark font-medium py-3 px-8 rounded-md transition-all ml-4 translate-target" data-translate="back-to-list">
+            <i class="fa fa-arrow-left ml-1"></i> 返回菜品列表
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 菜品历史渊源（添加翻译标记） -->
+  <section class="py-16 bg-neutral">
+    <div class="container mx-auto px-4">
+      <div class="max-w-3xl mx-auto">
+        <h2 class="text-[clamp(1.5rem,3vw,2rem)] font-serif font-bold text-dark mb-6 flex items-center translate-target" data-translate="history-title">
+          <i class="fa fa-history text-primary mr-3"></i> 历史渊源
+        </h2>
+        <div class="bg-white p-8 rounded-xl shadow-md">
+          <p class="text-gray-600 mb-4 leading-relaxed translate-target" data-translate="history-paragraph1">
+            葱烧海参起源于清代道光年间的山东烟台，由当地名厨首创。烟台作为北方重要的港口城市，盛产优质海参，而章丘大葱则以粗壮、香甜、多汁闻名，
+            厨师们巧妙地将这两种食材结合，创造出了这道经典名菜。最初，葱烧海参是富贵人家的宴席佳肴，后来随着鲁菜的传播，逐渐成为全国知名的代表菜品。
+          </p>
+          <p class="text-gray-600 mb-4 leading-relaxed translate-target" data-translate="history-paragraph2">
+            相传，清末民初时，北京丰泽园饭庄的厨师对葱烧海参进行了改良，优化了酱汁配比和烹饪火候，使菜品口感更趋完美，
+            成为当时达官贵人宴请宾客的必备菜。新中国成立后，葱烧海参多次作为国宴菜品招待外国贵宾，进一步奠定了其“鲁菜第一海参”的地位。
+          </p>
+          <p class="text-gray-600 leading-relaxed translate-target" data-translate="history-paragraph3">
+            如今，葱烧海参不仅是鲁菜的标志性菜品，更是中国烹饪文化的重要代表之一。其制作工艺被列入非物质文化遗产保护项目，
+            成为传承鲁菜技艺、弘扬中华美食文化的重要载体。
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 食材准备（添加翻译标记） -->
+  <section class="py-16 bg-white">
+    <div class="container mx-auto px-4">
+      <h2 class="text-[clamp(1.5rem,3vw,2rem)] font-serif font-bold text-dark mb-10 text-center translate-target" data-translate="ingredients-title">
+        食材准备
+      </h2>
+      
+      <div class="grid md:grid-cols-2 gap-10">
+        <!-- 主料 -->
+        <div class="bg-neutral p-8 rounded-xl shadow-md">
+          <h3 class="text-xl font-bold mb-6 flex items-center translate-target" data-translate="main-ingredients">
+            <i class="fa fa-cutlery text-primary mr-2"></i> 主料
+          </h3>
+          <ul class="space-y-3">
+            <li class="flex items-center ingredient-item p-2 rounded-lg translate-target" data-translate="ingredient-main1">
+              <i class="fa fa-check-circle text-primary mr-3"></i>
+              <!-- 新增：干海参缩略图 -->
+               <span>干海参 200克（泡发后约800克）</span>
+              <img src="./images/sucai/海参.png" alt="干海参" class="ingredient-thumbnail enlargeable-img" data-translate="ingredient-main1-img">
+              
+            </li>
+            <li class="flex items-center ingredient-item p-2 rounded-lg translate-target" data-translate="ingredient-main2">
+              <i class="fa fa-check-circle text-primary mr-3"></i>
+              <span>章丘大葱 300克</span>
+              <img src="./images/sucai/葱.jpg" alt="葱" class="ingredient-thumbnail enlargeable-img" data-translate="ingredient-main1-img">
+            </li>
+            <li class="flex items-center ingredient-item p-2 rounded-lg translate-target" data-translate="ingredient-main3">
+              <i class="fa fa-check-circle text-primary mr-3"></i>
+              <span>生姜 30克</span>
+              <img src="./images/sucai/生姜.jpg" alt="生姜" class="ingredient-thumbnail enlargeable-img" data-translate="ingredient-main1-img">
+            </li>
+            <li class="flex items-center ingredient-item p-2 rounded-lg translate-target" data-translate="ingredient-main4">
+              <i class="fa fa-check-circle text-primary mr-3"></i>
+              <span>大蒜 20克</span>
+              <img src="./images/sucai/大蒜.jpg" alt="蒜" class="ingredient-thumbnail enlargeable-img" data-translate="ingredient-main1-img">
+            </li>
+            <li class="flex items-center ingredient-item p-2 rounded-lg translate-target" data-translate="ingredient-main5">
+              <i class="fa fa-check-circle text-primary mr-3"></i>
+              <span>五花肉 50克（可选，增香）</span>
+              <img src="./images/sucai/五花肉.jpg" alt="五花肉" class="ingredient-thumbnail enlargeable-img" data-translate="ingredient-main1-img">
+            </li>
+          </ul>
+        </div>
+        
+        <!-- 调料 -->
+        <div class="bg-neutral p-8 rounded-xl shadow-md">
+          <h3 class="text-xl font-bold mb-6 flex items-center translate-target" data-translate="seasonings">
+            <i class="fa fa-flask text-primary mr-2"></i> 调料
+          </h3>
+          <ul class="space-y-3">
+            <li class="flex items-center ingredient-item p-2 rounded-lg translate-target" data-translate="ingredient-seasoning1">
+              <i class="fa fa-check-circle text-primary mr-3"></i>
+              <span>生抽 30毫升</span>
+              <img src="./images/sucai/生抽.jpg" alt="生抽" class="ingredient-thumbnail enlargeable-img" data-translate="ingredient-seasoning2-img">
+            </li>
+            <li class="flex items-center ingredient-item p-2 rounded-lg translate-target" data-translate="ingredient-seasoning2">
+              <i class="fa fa-check-circle text-primary mr-3"></i>
+              <!-- 新增：老抽缩略图 -->
+               <span>老抽 10毫升（调色）</span>
+              <img src="./images/sucai/laochou.jpg" alt="老抽" class="ingredient-thumbnail enlargeable-img" data-translate="ingredient-seasoning2-img">
+              
+            </li>
+            <li class="flex items-center ingredient-item p-2 rounded-lg translate-target" data-translate="ingredient-seasoning3">
+              <i class="fa fa-check-circle text-primary mr-3"></i>
+              <span>蚝油 20毫升</span>
+              <img src="./images/sucai/耗油.jpg" alt="耗油" class="ingredient-thumbnail enlargeable-img" data-translate="ingredient-seasoning2-img">
+            </li>
+            <li class="flex items-center ingredient-item p-2 rounded-lg translate-target" data-translate="ingredient-seasoning4">
+              <i class="fa fa-check-circle text-primary mr-3"></i>
+              <span>糖 15克</span>
+              <img src="./images/sucai/糖.png" alt="糖" class="ingredient-thumbnail enlargeable-img" data-translate="ingredient-seasoning2-img">
+            </li>
+            <li class="flex items-center ingredient-item p-2 rounded-lg translate-target" data-translate="ingredient-seasoning5">
+              <i class="fa fa-check-circle text-primary mr-3"></i>
+              <span>料酒 50毫升</span>
+              <img src="./images/sucai/料酒.jpg" alt="料酒" class="ingredient-thumbnail enlargeable-img" data-translate="ingredient-seasoning2-img">
+            </li>
+            <li class="flex items-center ingredient-item p-2 rounded-lg translate-target" data-translate="ingredient-seasoning6">
+              <i class="fa fa-check-circle text-primary mr-3"></i>
+              <span>水淀粉 适量（勾芡用）</span>
+              <img src="./images/sucai/水.jpg" alt="水" class="ingredient-thumbnail enlargeable-img" data-translate="ingredient-seasoning2-img">
+            </li>
+            <li class="flex items-center ingredient-item p-2 rounded-lg translate-target" data-translate="ingredient-seasoning7">
+              <i class="fa fa-check-circle text-primary mr-3"></i>
+              <span>花生油 50毫升</span>
+              <img src="./images/sucai/油.jpg" alt="油" class="ingredient-thumbnail enlargeable-img" data-translate="ingredient-seasoning2-img">
+            </li>
+            <li class="flex items-center ingredient-item p-2 rounded-lg translate-target" data-translate="ingredient-seasoning8">
+              <i class="fa fa-check-circle text-primary mr-3"></i>
+              <span>清水或高汤 200毫升</span>
+              <img src="./images/sucai/水.jpg" alt="水" class="ingredient-thumbnail enlargeable-img" data-translate="ingredient-seasoning2-img">
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 制作工艺（添加翻译标记） -->
+  <section id="process" class="py-16 bg-neutral">
+    <div class="container mx-auto px-4">
+      <h2 class="text-[clamp(1.5rem,3vw,2rem)] font-serif font-bold text-dark mb-10 text-center translate-target" data-translate="cooking-process">
+        制作工艺
+      </h2>
+      
+      <div class="max-w-4xl mx-auto bg-white p-8 md:p-12 rounded-xl shadow-md">
+        <div class="pl-10 space-y-12">
+          <!-- 步骤1 -->
+          <div class="process-step">
+            <h3 class="text-xl font-bold mb-3 flex items-center translate-target" data-translate="process-step1-title">
+              <span class="bg-primary text-white w-8 h-8 rounded-full flex items-center justify-center mr-3">1</span>
+              海参泡发处理
+            </h3>
+            <p class="text-gray-600 leading-relaxed translate-target" data-translate="process-step1-desc">
+              干海参用清水冲洗干净，放入无油容器中，加入足量纯净水（没过海参3-5厘米），浸泡24-48小时（期间更换2-3次水），至海参变软有弹性。
+              剪去海参腹部的沙嘴和内脏，洗净内腔杂质，放入沸水锅中，加入姜片和10毫升料酒，小火煮30分钟，关火后焖至水温自然冷却。
+              取出海参，再次用清水冲洗，根据大小切成长条或滚刀块备用。
+            </p>
+          </div>
+          
+          <!-- 步骤2 -->
+          <div class="process-step">
+            <h3 class="text-xl font-bold mb-3 flex items-center translate-target" data-translate="process-step2-title">
+              <span class="bg-primary text-white w-8 h-8 rounded-full flex items-center justify-center mr-3">2</span>
+              处理辅料
+            </h3>
+            <p class="text-gray-600 leading-relaxed translate-target" data-translate="process-step2-desc">
+              章丘大葱洗净，切去根部和绿叶部分，取葱白段，切成5厘米长的段；生姜切片，大蒜切末；
+              五花肉切成薄片（无五花肉可省略）。将切好的葱段放入碗中，加入少量清水浸泡10分钟，捞出沥干水分（防止煸炒时溅油）。
+            </p>
+          </div>
+          
+          <!-- 步骤3 -->
+          <div class="process-step">
+            <h3 class="text-xl font-bold mb-3 flex items-center translate-target" data-translate="process-step3-title">
+              <span class="bg-primary text-white w-8 h-8 rounded-full flex items-center justify-center mr-3">3</span>
+              煸炒葱段
+            </h3>
+            <p class="text-gray-600 leading-relaxed translate-target" data-translate="process-step3-desc">
+              锅中倒入30毫升花生油，烧至五成热（约150℃），放入葱白段，转小火慢慢煸炒，并不停翻动，
+              至葱段表面金黄、散发浓郁葱香（约8-10分钟），捞出葱段备用，锅中留葱油。
+            </p>
+          </div>
+          
+          <!-- 步骤4 -->
+          <div class="process-step">
+            <h3 class="text-xl font-bold mb-3 flex items-center translate-target" data-translate="process-step4-title">
+              <span class="bg-primary text-white w-8 h-8 rounded-full flex items-center justify-center mr-3">4</span>
+              炒制底料
+            </h3>
+            <p class="text-gray-600 leading-relaxed translate-target" data-translate="process-step4-desc">
+              锅中葱油保持小火，放入姜片、蒜末和五花肉片（如有），煸炒至肉片出油、香味释放，
+              加入剩余料酒、生抽、老抽、蚝油和冰糖，翻炒均匀，倒入清水或高汤，大火烧开后转小火煮5分钟，让调料充分融合。
+            </p>
+          </div>
+          
+          <!-- 步骤5 -->
+          <div class="process-step">
+            <h3 class="text-xl font-bold mb-3 flex items-center translate-target" data-translate="process-step5-title">
+              <span class="bg-primary text-white w-8 h-8 rounded-full flex items-center justify-center mr-3">5</span>
+              焖烧海参
+            </h3>
+            <p class="text-gray-600 leading-relaxed translate-target" data-translate="process-step5-desc">
+              将切好的海参放入锅中，轻轻翻动均匀，让海参充分吸收汤汁，盖上锅盖，小火焖烧15-20分钟，
+              期间每隔5分钟轻轻翻动一次，防止粘连。至海参软糯入味、汤汁浓稠时，加入煸炒好的葱段，翻炒均匀。
+            </p>
+          </div>
+          
+          <!-- 步骤6 -->
+          <div class="process-step">
+            <h3 class="text-xl font-bold mb-3 flex items-center translate-target" data-translate="process-step6-title">
+              <span class="bg-primary text-white w-8 h-8 rounded-full flex items-center justify-center mr-3">6</span>
+              勾芡收汁
+            </h3>
+            <p class="text-gray-600 leading-relaxed translate-target" data-translate="process-step6-desc">
+              打开锅盖，转大火，将水淀粉分次加入锅中，边加边搅拌，至汤汁浓稠、能均匀挂在海参和葱段上，
+              淋入剩余花生油，翻炒提亮，即可关火装盘。装盘时可将葱段铺在盘底，海参放在上面，淋上剩余汤汁。
+            </p>
+          </div>
+        </div>
+        
+        <!-- 烹饪小贴士（添加翻译标记） -->
+        <div class="mt-12 bg-primary/5 p-6 rounded-lg border-l-4 border-primary">
+          <h4 class="font-bold text-lg mb-3 flex items-center translate-target" data-translate="cooking-tips">
+            <i class="fa fa-lightbulb-o text-primary mr-2"></i> 烹饪小贴士
+          </h4>
+          <ul class="text-gray-600 space-y-2">
+            <li class="flex items-start translate-target" data-translate="tip1">
+              <i class="fa fa-angle-right text-primary mt-1 mr-2"></i>
+              <span>海参泡发是关键：全程需用无油容器和纯净水，避免油脂导致海参腐烂；泡发时间根据海参大小调整，确保泡发至软硬适中。</span>
+            </li>
+            <li class="flex items-start translate-target" data-translate="tip2">
+              <i class="fa fa-angle-right text-primary mt-1 mr-2"></i>
+              <span>葱段煸炒要小火慢炒，避免炒焦发苦，炒至金黄即可，保留香甜口感；葱油是菜品香味的核心，不可省略。</span>
+            </li>
+            <li class="flex items-start translate-target" data-translate="tip3">
+              <i class="fa fa-angle-right text-primary mt-1 mr-2"></i>
+              <span>焖烧海参时火候不宜过大，否则海参容易收缩变硬；翻动时动作要轻，防止海参破碎。</span>
+            </li>
+            <li class="flex items-start translate-target" data-translate="tip4">
+              <i class="fa fa-angle-right text-primary mt-1 mr-2"></i>
+              <span>勾芡时水淀粉要分次加入，控制汤汁浓稠度，以“挂而不糊”为宜；最后淋入花生油可提升菜品光泽和香味。</span>
+            </li>
+            <li class="flex items-start translate-target" data-translate="tip5">
+              <i class="fa fa-angle-right text-primary mt-1 mr-2"></i>
+              <span>可根据个人口味调整冰糖用量，喜欢偏甜口感可适当增加；加入五花肉能增加菜品脂香，素食者可省略。</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 相关推荐菜品（添加翻译标记） -->
+  <section class="py-16 bg-white">
+    <div class="container mx-auto px-4">
+      <h2 class="text-[clamp(1.5rem,3vw,2rem)] font-serif font-bold text-dark mb-10 text-center translate-target" data-translate="related-dishes">
+        相关推荐菜品
+      </h2>
+      
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
+        <!-- 推荐菜品1 -->
+        <div class="dish-card bg-neutral rounded-lg overflow-hidden shadow-md">
+          <div class="relative h-48 overflow-hidden">
+            <img src="./images/3.jpg" alt="糖醋鲤鱼" class="w-full h-full object-cover transition-transform duration-500 hover:scale-110 translate-target" data-translate="related-dish1-name">
+            <div class="absolute top-4 right-4 bg-primary text-white text-xs font-bold px-3 py-1 rounded-full translate-target" data-translate="category-classic">
+              经典鲁菜
+            </div>
+          </div>
+          <div class="p-6">
+            <h3 class="text-xl font-bold mb-2 translate-target" data-translate="related-dish1-name">糖醋鲤鱼</h3>
+            <p class="text-gray-600 text-sm mb-4 translate-target" data-translate="related-dish1-desc">
+              选用黄河鲤鱼，造型美观，外焦里嫩，酸甜可口，寓意"年年有余"。
+            </p>
+            <a href="糖醋鲤鱼.html" class="text-primary font-medium hover:text-primary/80 transition-colors flex items-center translate-target" data-translate="view-details">
+              查看详情 <i class="fa fa-angle-right ml-1"></i>
+            </a>
+          </div>
+        </div>
+        
+        <!-- 推荐菜品2 -->
+        <div class="dish-card bg-neutral rounded-lg overflow-hidden shadow-md">
+          <div class="relative h-48 overflow-hidden">
+            <img src="./images/5.jpg" alt="德州扒鸡" class="w-full h-full object-cover transition-transform duration-500 hover:scale-110 translate-target" data-translate="related-dish2-name">
+            <div class="absolute top-4 right-4 bg-primary text-white text-xs font-bold px-3 py-1 rounded-full translate-target" data-translate="category-classic">
+              经典鲁菜
+            </div>
+          </div>
+          <div class="p-6">
+            <h3 class="text-xl font-bold mb-2 translate-target" data-translate="related-dish2-name">德州扒鸡</h3>
+            <p class="text-gray-600 text-sm mb-4 translate-target" data-translate="related-dish2-desc">
+              山东德州传统名菜，皮黄肉嫩，肥而不腻，香气扑鼻，是中国著名地方特产。
+            </p>
+            <a href="德州扒鸡.html" class="text-primary font-medium hover:text-primary/80 transition-colors flex items-center translate-target" data-translate="view-details">
+              查看详情 <i class="fa fa-angle-right ml-1"></i>
+            </a>
+          </div>
+        </div>
+        
+        <!-- 推荐菜品3 -->
+        <div class="dish-card bg-neutral rounded-lg overflow-hidden shadow-md">
+          <div class="relative h-48 overflow-hidden">
+            <img src="./images/12.jpg" alt="四喜丸子" class="w-full h-full object-cover transition-transform duration-500 hover:scale-110 translate-target" data-translate="related-dish3-name">
+            <div class="absolute top-4 right-4 bg-primary text-white text-xs font-bold px-3 py-1 rounded-full translate-target" data-translate="category-classic">
+              经典鲁菜
+            </div>
+          </div>
+          <div class="p-6">
+            <h3 class="text-xl font-bold mb-2 translate-target" data-translate="related-dish3-name">四喜丸子</h3>
+            <p class="text-gray-600 text-sm mb-4 translate-target" data-translate="related-dish3-desc">
+              鲁菜经典名菜，四个大肉丸组成，寓意喜庆吉祥，肉质鲜嫩，味道醇厚。
+            </p>
+            <a href="四喜丸子.html" class="text-primary font-medium hover:text-primary/80 transition-colors flex items-center translate-target" data-translate="view-details">
+              查看详情 <i class="fa fa-angle-right ml-1"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 页脚（修复为主界面.html+锚点） -->
+  <footer class="bg-dark text-white py-12">
+    <div class="container mx-auto px-4">
+      <div class="grid md:grid-cols-4 gap-8">
+        <div>
+          <div class="flex items-center space-x-2 mb-6">
+            <i class="fa fa-cutlery text-secondary text-2xl"></i>
+            <span class="text-xl font-serif font-bold text-secondary translate-target" data-translate="footer-brand">鲁菜传承</span>
+          </div>
+          <p class="text-gray-400 mb-6 translate-target" data-translate="footer-desc">
+            传承鲁菜文化，弘扬中华美食，让更多人了解和喜爱鲁菜。
+          </p>
+          <div class="flex space-x-4">
+            <a href="#" class="text-gray-400 hover:text-secondary transition-colors" aria-label="微信">
+              <i class="fa fa-weixin text-xl"></i>
+            </a>
+            <a href="#" class="text-gray-400 hover:text-secondary transition-colors" aria-label="微博">
+              <i class="fa fa-weibo text-xl"></i>
+            </a>
+            <a href="#" class="text-gray-400 hover:text-secondary transition-colors" aria-label="Instagram">
+              <i class="fa fa-instagram text-xl"></i>
+            </a>
+          </div>
+        </div>
+        
+        <div>
+          <h4 class="text-lg font-bold mb-6 text-secondary translate-target" data-translate="quick-links">快速链接</h4>
+          <ul class="space-y-3">
+            <li><a href="主界面.html#home" class="text-gray-400 hover:text-secondary transition-colors translate-target" data-translate="nav-home">首页</a></li>
+            <li><a href="主界面.html#about" class="text-gray-400 hover:text-secondary transition-colors translate-target" data-translate="nav-about">关于鲁菜</a></li>
+            <li><a href="主界面.html#dishes" class="text-gray-400 hover:text-secondary transition-colors translate-target" data-translate="nav-dishes">菜品展示</a></li>
+            <li><a href="主界面.html#culture" class="text-gray-400 hover:text-secondary transition-colors translate-target" data-translate="nav-culture">鲁菜文化</a></li>
+          </ul>
+        </div>
+        
+        <div>
+          <h4 class="text-lg font-bold mb-6 text-secondary translate-target" data-translate="classic-dishes">经典菜品</h4>
+          <ul class="space-y-3">
+            <li><a href="葱烧海参.html" class="text-gray-400 hover:text-secondary transition-colors translate-target" data-translate="dish-name">葱烧海参</a></li>
+            <li><a href="糖醋鲤鱼.html" class="text-gray-400 hover:text-secondary transition-colors translate-target" data-translate="related-dish1-name">糖醋鲤鱼</a></li>
+            <li><a href="德州扒鸡.html" class="text-gray-400 hover:text-secondary transition-colors translate-target" data-translate="related-dish2-name">德州扒鸡</a></li>
+            <li><a href="四喜丸子.html" class="text-gray-400 hover:text-secondary transition-colors translate-target" data-translate="related-dish3-name">四喜丸子</a></li>
+          </ul>
+        </div>
+        
+        <div></div>
+      </div>
+      
+      <div class="border-t border-gray-800 mt-10 pt-6 text-center text-gray-500 text-sm translate-target" data-translate="copyright">
+        <p>&copy; 2025 鲁味风华 - AI素材库 - 保留所有权利</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- 回到顶部按钮 -->
+  <button id="back-to-top" class="fixed bottom-8 right-8 bg-primary text-white w-12 h-12 rounded-full flex items-center justify-center shadow-lg opacity-0 invisible transition-all duration-300 hover:bg-primary/90">
+    <i class="fa fa-arrow-up"></i>
+  </button>
+
+  <!-- 图片预览模态框 -->
+  <div id="image-modal" class="fixed inset-0 bg-black/90 z-50 flex items-center justify-center hidden">
+    <span id="close-modal" class="absolute top-5 right-5 text-white text-4xl cursor-pointer hover:text-gray-300 transition-colors">
+      &times;
+    </span>
+    <img id="modal-image" src="" alt="放大的图片" class="max-w-[90%] max-h-[90vh] object-contain">
+  </div>
+
+  <script>
+    // ========================== 翻译核心配置 ==========================
+    // 页面标题多语言映射
+    const PAGE_TITLES = {
+      zh: "葱烧海参 - 鲁味风华",
+      en: "Scallion Braised Sea Cucumber - Shandong Cuisine Elegance",
+      jp: "ネギ炒めナマコ - 魯菜風華",
+      kor: "파볶음 해삼 - 루채 풍화",
+      fra: "Holothurie Braisée aux Ciboules - Élégance de la Cuisine Lu",
+      de: "Lauch gebratene Seeigel - Eleganz der Lu-Küche",
+      spa: "Holoturia Estofada con Cebolletas - Elegancia de la Cocina Lu",
+      ru: "Морской ковшок тушеный с луком - Элегантность кухни Лу",
+      ara: "حلزون البحر مقلي بالفصول - أناقة مطبخ لو",
+      vie: "حلزون البحر مقلي بالفصول - أن",
+      pl: "polan"
+
+    };
+    
+    // 百度翻译语言代码映射
+    const LANG_CODE_MAP = {
+      zh: "zh",    // 中文
+      en: "en",    // 英语
+      jp: "jp",    // 日语
+      kor: "kor",  // 韩语
+      fra: "fra",  // 法语
+      de: "de",    // 德语
+      spa: "spa",  // 西班牙语
+      ru: "ru",    // 俄语
+      ara: "ara" ,
+      vie: "vie",
+      pl: "pl",
+      
+    };
+    
+    // 语言显示名称映射
+    const LANG_NAME_MAP = {
+      zh: "中文",
+      en: "English",
+      jp: "日本語",
+      kor: "한국어",
+      fra: "Français",
+      de: "Deutsch",
+      spa: "Español",
+      ru: "Русский",
+      ara: "العربية",
+      vie: "越南语",
+      pl: "polan"
+    };
+    
+    // 翻译状态管理
+    let translateState = {
+      currentLang: "zh",  // 当前语言
+      originalTexts: {},  // 存储原始中文文本
+      translatedTexts: {},// 存储已翻译文本（缓存）
+      isTranslating: false
+    };
+
+    // ========================== 原有功能保持不变 ==========================
+    // 移动端菜单切换
+    const menuToggle = document.getElementById('menu-toggle');
+    const mobileMenu = document.getElementById('mobile-menu');
+    const navbar = document.getElementById('navbar');
+    const backToTop = document.getElementById('back-to-top');
+    const langBtn = document.getElementById('lang-btn');
+    const langDropdown = document.getElementById('lang-dropdown');
+    const currentLangText = document.getElementById('current-lang-text');
+    const translateTargets = document.querySelectorAll('[data-translate]');
+    const langOptions = document.querySelectorAll('.lang-option');
+
+    menuToggle.addEventListener('click', function() {
+      mobileMenu.classList.toggle('hidden');
+      const icon = this.querySelector('i');
+      if (mobileMenu.classList.contains('hidden')) {
+        icon.classList.remove('fa-times');
+        icon.classList.add('fa-bars');
+      } else {
+        icon.classList.remove('fa-bars');
+        icon.classList.add('fa-times');
+      }
+    });
+
+    // 导航栏滚动效果
+    window.addEventListener('scroll', function() {
+      if (window.scrollY > 100) {
+        navbar.classList.add('py-2', 'shadow');
+        navbar.classList.remove('py-3');
+        
+        // 显示回到顶部按钮
+        backToTop.classList.remove('opacity-0', 'invisible');
+        backToTop.classList.add('opacity-100', 'visible');
+      } else {
+        navbar.classList.add('py-3');
+        navbar.classList.remove('py-2', 'shadow');
+        
+        // 隐藏回到顶部按钮
+        backToTop.classList.add('opacity-0', 'invisible');
+        backToTop.classList.remove('opacity-100', 'visible');
+      }
+    });
+
+    // 回到顶部功能
+    backToTop.addEventListener('click', function() {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    });
+
+    // ========================== 图片放大预览功能 ==========================
+    const modal = document.getElementById('image-modal');
+    const modalImg = document.getElementById('modal-image');
+    const closeBtn = document.getElementById('close-modal');
+    const enlargeableImages = document.querySelectorAll('.enlargeable-img'); // 选择所有可放大的图片
+
+    // 为所有可放大的图片添加点击事件
+    enlargeableImages.forEach(img => {
+      img.addEventListener('click', function() {
+        modal.style.display = 'flex';
+        modalImg.src = this.src;       // 将点击图片的src赋值给模态框图片
+        modalImg.alt = this.alt;       // 将点击图片的alt赋值给模态框图片
+        document.body.style.overflow = 'hidden'; // 防止背景滚动
+      });
+    });
+
+    // 关闭按钮点击事件
+    closeBtn.addEventListener('click', closeModal);
+
+    // 点击模态框背景也关闭
+    modal.addEventListener('click', function(e) {
+      if (e.target === modal) {
+        closeModal();
+      }
+    });
+
+    // 按ESC键关闭
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && modal.style.display === 'flex') {
+        closeModal();
+      }
+    });
+
+    // 关闭模态框的函数
+    function closeModal() {
+      modal.style.display = 'none';
+      document.body.style.overflow = 'auto'; // 恢复背景滚动
+    }
+
+    // ========================== 图片预览功能修复（核心修改） ==========================
+    // 主图：用id精准选择，避免选择到其他bg-neutral下的图片
+    const mainImage = document.getElementById('main-dish-img');
+    // 图片画廊：选择所有小图
+    const galleryImages = document.querySelectorAll('.dish-gallery-img');
+    
+    // 为每个小图绑定点击事件
+    galleryImages.forEach(img => {
+      img.addEventListener('click', function() {
+        // 1. 切换主图src（直接使用小图的src，确保路径一致）
+        mainImage.src = this.src;
+        
+        // 2. 同步更新主图alt属性（支持多语言翻译）
+        const imgTranslateKey = this.getAttribute('data-translate');
+        if (imgTranslateKey && translateState.originalTexts[imgTranslateKey]) {
+          const originalAlt = translateState.originalTexts[imgTranslateKey];
+          const targetLangCode = LANG_CODE_MAP[translateState.currentLang];
+          const cacheKey = `${originalAlt}-zh-${targetLangCode}`;
+          
+          // 中文直接用原始文本，其他语言用缓存的翻译结果
+          mainImage.alt = translateState.currentLang === 'zh' 
+            ? originalAlt 
+            : translateState.translatedTexts[cacheKey] || originalAlt;
+        }
+        
+        // 3. 可选：添加主图切换动画（增强视觉体验）
+        mainImage.style.opacity = '0.5';
+        setTimeout(() => {
+          mainImage.style.opacity = '1';
+        }, 150);
+      });
+    });
+
+    // 点击移动端菜单链接后关闭菜单
+    const mobileLinks = mobileMenu.querySelectorAll('a');
+    mobileLinks.forEach(link => {
+      link.addEventListener('click', function() {
+        mobileMenu.classList.add('hidden');
+        const icon = menuToggle.querySelector('i');
+        icon.classList.remove('fa-times');
+        icon.classList.add('fa-bars');
+      });
+    });
+
+    // ========================== 翻译功能实现（与统一模块对齐） ==========================
+    /**
+     * 调用本地Node.js翻译服务（统一接口交互逻辑）
+     * @param {string} text - 待翻译文本
+     * @param {string} to - 目标语言代码（源语言固定为zh）
+     * @returns {string} 翻译结果
+     */
+    async function translateText(text, to = "en") {
+      // 空文本直接返回
+      if (!text.trim()) return text;
+      
+      // 缓存key：统一格式为「文本-源语言-目标语言」（源语言固定为zh）
+      const cacheKey = `${text}-zh-${to}`;
+      
+      // 优先读取缓存
+      if (translateState.translatedTexts[cacheKey]) {
+        return translateState.translatedTexts[cacheKey];
+      }
+
+      try {
+        // 调用本地翻译服务（POST请求，参数与服务端统一）
+        const response = await fetch('http://localhost:3000/translate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            text: text, 
+            from: 'zh',  // 源语言固定为中文（页面原始文本）
+            to: to 
+          }),
+          timeout: 10000
+        });
+
+        // 检查响应状态
+        if (!response.ok) {
+          throw new Error(`服务请求失败：${response.status} ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        
+        // 处理服务端返回的错误（与Node.js服务错误码统一）
+        if (data.error_code) {
+          console.error(`翻译服务错误: ${data.error_code} - ${data.error_msg}`);
+          
+          // 统一错误提示文案
+          let errorMsg = "翻译失败，请稍后重试";
+          switch(data.error_code) {
+            case "400": errorMsg = "无效请求：" + data.error_msg; break;
+            case "500": errorMsg = "服务器错误：" + data.error_msg; break;
+            case "52001": errorMsg = "翻译超时，请重试"; break;
+            case "52003": errorMsg = "APPID或密钥错误（请检查服务端配置）"; break;
+            case "54001": errorMsg = "签名错误（请检查服务端配置）"; break;
+          }
+          
+          alert(errorMsg);
+          return text;
+        }
+
+        // 提取翻译结果（与服务端返回字段统一：data.translated）
+        if (data.success && data.translated) {
+          const translatedText = data.translated;
+          translateState.translatedTexts[cacheKey] = translatedText; // 缓存结果
+          return translatedText;
+        } else {
+          console.warn("未获取到翻译结果", data);
+          return text;
+        }
+      } catch (error) {
+        console.error("翻译接口异常:", error);
+        
+        // 网络错误分类提示
+        if (error.message.includes('Failed to fetch') || error.message.includes('超时')) {
+          alert("翻译失败：请确保本地翻译服务已启动（http://localhost:3000）");
+        } else {
+          alert(`翻译失败：${error.message}`);
+        }
+        return text;
+      }
+    }
+
+    /**
+     * 页面加载时存储原始中文文本（统一缓存逻辑）
+     */
+    window.addEventListener('DOMContentLoaded', function() {
+      // 存储所有原始中文文本（包括图片alt属性）
+      translateTargets.forEach(el => {
+        const key = el.getAttribute('data-translate');
+        translateState.originalTexts[key] = el.textContent.trim();
+        if (el.tagName === 'IMG') {
+          translateState.originalTexts[`${key}_alt`] = el.alt.trim();
+        }
+      });
+      
+      // 检查URL中的语言参数，自动切换
+      const urlParams = new URLSearchParams(window.location.search);
+      const langParam = urlParams.get('lang');
+      if (langParam && LANG_CODE_MAP[langParam]) {
+        setTimeout(() => {
+          translateToLang(langParam);
+        }, 500);
+      }
+    });
+
+    /**
+     * 切换语言（统一流程）
+     */
+    async function translateToLang(targetLang) {
+      // 防止重复操作或相同语言切换
+      if (translateState.isTranslating || translateState.currentLang === targetLang) {
+        langDropdown.classList.remove('show');
+        return;
+      }
+
+      // 更新加载状态
+      translateState.isTranslating = true;
+      langBtn.classList.add('loading');
+      langBtn.innerHTML = '<i class="fa fa-language"></i> 翻译中... <i class="fa fa-angle-down text-xs"></i>';
+
+      try {
+        // 切换中文：直接恢复原始文本（无需调用翻译）
+        if (targetLang === "zh") {
+          document.title = PAGE_TITLES.zh;
+          
+          // 恢复所有翻译元素的原始中文
+          translateTargets.forEach(el => {
+            const key = el.getAttribute('data-translate');
+            const originalText = translateState.originalTexts[key];
+            if (originalText) {
+              el.textContent = originalText;
+              if (el.tagName === 'IMG') {
+                el.alt = translateState.originalTexts[`${key}_alt`] || originalText;
+              }
+            }
+          });
+          
+          // 清除非中文缓存，优化性能
+          Object.keys(translateState.translatedTexts).forEach(key => {
+            if (!key.endsWith('-zh')) {
+              delete translateState.translatedTexts[key];
+            }
+          });
+        } 
+        // 切换其他语言：串行翻译（避免频率限制）
+        else {
+          const targetLangCode = LANG_CODE_MAP[targetLang] || "en";
+          document.title = PAGE_TITLES[targetLang] || PAGE_TITLES.en;
+          
+          // 串行翻译所有带翻译标记的元素
+          for (const el of translateTargets) {
+            const key = el.getAttribute('data-translate');
+            const originalText = translateState.originalTexts[key];
+            if (originalText) {
+              const translated = await translateText(originalText, targetLangCode);
+              el.textContent = translated;
+              if (el.tagName === 'IMG') {
+                el.alt = translated;
+              }
+            }
+          }
+        }
+
+        // 更新全局状态和UI
+        translateState.currentLang = targetLang;
+        document.body.className = `bg-neutral text-dark lang-${targetLang}`;
+        
+        // 更新语言选项激活状态
+        langOptions.forEach(option => {
+          option.classList.toggle('active', option.dataset.lang === targetLang);
+        });
+        
+        // 恢复语言按钮显示
+        const activeLangName = document.querySelector(`.lang-option[data-lang="${targetLang}"]`).dataset.langName;
+        langBtn.innerHTML = `<i class="fa fa-language"></i> ${activeLangName} <i class="fa fa-angle-down text-xs"></i>`;
+
+        // 更新URL语言参数（保持页面跳转一致性）
+        const url = new URL(window.location);
+        url.searchParams.set('lang', targetLang);
+        window.history.pushState({}, '', url);
+
+      } catch (error) {
+        console.error('语言切换失败:', error);
+        alert('语言切换出错，请检查服务是否正常后重试');
+        
+        // 恢复原始语言状态
+        currentLangText.innerText = LANG_NAME_MAP[translateState.currentLang];
+        langBtn.innerHTML = `<i class="fa fa-language"></i> ${LANG_NAME_MAP[translateState.currentLang]} <i class="fa fa-angle-down text-xs"></i>`;
+      } finally {
+        // 结束加载状态
+        translateState.isTranslating = false;
+        langBtn.classList.remove('loading');
+        langDropdown.classList.remove('show');
+      }
+    }
+
+    // 语言切换事件监听（保持原有交互）
+    langBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      langDropdown.classList.toggle('show');
+    });
+    
+    langOptions.forEach(option => {
+      option.addEventListener('click', function() {
+        const targetLang = this.dataset.lang;
+        translateToLang(targetLang);
+      });
+    });
+    
+    document.addEventListener('click', () => {
+      langDropdown.classList.remove('show');
+    });
+    
+    langDropdown.addEventListener('click', (e) => {
+      e.stopPropagation();
+    });
+
+    // 未处理的Promise错误捕获
+    window.addEventListener('unhandledrejection', (event) => {
+      console.error('未处理的Promise错误:', event.reason);
+      event.preventDefault();
+    });
+  </script>
+</body>
+</html>
